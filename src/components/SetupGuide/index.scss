@@ -1,0 +1,20 @@
+.setup-guide-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+}
+
+.button-container {
+    button {
+        width: 2rem;
+        height: 0.7rem;
+        font-size: large;
+    }
+}
+
+.help-text {
+    margin-top: 0.12rem;
+}
