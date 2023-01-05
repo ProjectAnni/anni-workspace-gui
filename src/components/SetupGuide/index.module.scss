@@ -1,4 +1,4 @@
-.setup-guide-container {
+.setupGuideContainer {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -7,14 +7,13 @@
     height: 100vh;
 }
 
-.button-container {
+.buttonContainer {
     button {
-        width: 2rem;
         height: 0.7rem;
         font-size: large;
     }
 }
 
-.help-text {
+.helpText {
     margin-top: 0.12rem;
 }
