@@ -1,0 +1,3 @@
+[submodule "anni"]
+	path = anni
+	url = https://github.com/ProjectAnni/anni
