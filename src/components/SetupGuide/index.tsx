@@ -1,14 +1,22 @@
 import React, { useState } from "react";
 import { Button, Text } from "@blueprintjs/core";
+import { useAtom } from "jotai";
 import { open } from "@tauri-apps/api/dialog";
 import * as path from "@tauri-apps/api/path";
 import * as fs from "@tauri-apps/api/fs";
 import NonEmptyDirectoryErrorDialog from "./NonEmptyDirectoryErrorDialog";
+import { WorkspaceBasePathAtom } from "../../state/workspace";
+import CreateWorkspaceDialog from "./CreateWorkspaceDialog";
 import styles from "./index.module.scss";
 
 const SetupGuide: React.FC = () => {
     const [isShowNonEmptyErrorDialog, setIsShowNonEmptyErrorDialog] =
         useState(false);
+    const [isShowCreateWorkspaceDialog, setIsShowCreateWorkspaceDialog] =
+        useState(false);
+    const [workspaceBasePath, setWorkspaceBasePath] = useAtom(
+        WorkspaceBasePathAtom
+    );
     const onMainButtonClick = async () => {
         const selected = await open({
             directory: true,
@@ -19,22 +27,22 @@ const SetupGuide: React.FC = () => {
         }
         const anniWorkspaceConfigFilePath = await path.resolve(
             selected as string,
-            "./config.toml"
+            ".anni/config.toml"
         );
         if (await fs.exists(anniWorkspaceConfigFilePath)) {
             // 一个已配置的 Anni Workspace 直接进入下一步
+            setWorkspaceBasePath(selected as string);
         } else {
             // 未找到已存在的 Anni Workspace
             const entries = await fs.readDir(selected as string);
             if (entries.length > 0) {
                 // 非空文件夹 - 异常
                 setIsShowNonEmptyErrorDialog(true);
+                return;
             }
-            // 空文件夹 - 创建 Anni Workspace 配置文件
-
-            // 初始化 Anni Workspace
+            // 空文件夹 - 创建 Anni Workspace
+            setIsShowCreateWorkspaceDialog(true);
         }
-        console.log(anniWorkspaceConfigFilePath);
     };
     return (
         <div className={styles.setupGuideContainer}>
@@ -46,6 +54,12 @@ const SetupGuide: React.FC = () => {
                 isOpen={isShowNonEmptyErrorDialog}
                 onClose={() => {
                     setIsShowNonEmptyErrorDialog(false);
+                }}
+            />
+            <CreateWorkspaceDialog
+                isOpen={isShowCreateWorkspaceDialog}
+                onClose={() => {
+                    setIsShowCreateWorkspaceDialog(false);
                 }}
             />
         </div>

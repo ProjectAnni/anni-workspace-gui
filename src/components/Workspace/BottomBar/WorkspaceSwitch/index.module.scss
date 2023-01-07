@@ -1,0 +1,17 @@
+.workspaceSwitch {
+    height: 100%;
+    padding: 0 0.08rem;
+    max-width: 2.8rem;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    cursor: pointer;
+    span {
+        justify-content: flex-start;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    &:hover {
+        background-color: rgb(30, 135, 206);
+    }
+}

@@ -11,7 +11,10 @@
     },
     "tauri": {
         "allowlist": {
-            "all": true
+            "all": true,
+            "fs": {
+                "scope": ["**"]
+            }
         },
         "bundle": {
             "active": true,
@@ -55,10 +58,10 @@
         "windows": [
             {
                 "fullscreen": false,
-                "height": 600,
                 "resizable": true,
                 "title": "anni-workspace-gui",
-                "width": 800
+                "width": 1600,
+                "height": 900
             }
         ]
     }
