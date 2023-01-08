@@ -1,0 +1,9 @@
+.fileList {
+    font-size: 0.14rem;
+}
+
+:global {
+    .bp4-tree-node-caret-none {
+        min-width: 0 !important;
+    }
+}

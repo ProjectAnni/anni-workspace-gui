@@ -6,6 +6,7 @@
     align-items: center;
     white-space: nowrap;
     cursor: pointer;
+    user-select: none;
     span {
         justify-content: flex-start;
         overflow: hidden;

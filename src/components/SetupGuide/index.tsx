@@ -4,8 +4,8 @@ import { useAtom } from "jotai";
 import { open } from "@tauri-apps/api/dialog";
 import * as path from "@tauri-apps/api/path";
 import * as fs from "@tauri-apps/api/fs";
+import { WorkspaceBasePathAtom } from "@/components/Workspace/state";
 import NonEmptyDirectoryErrorDialog from "./NonEmptyDirectoryErrorDialog";
-import { WorkspaceBasePathAtom } from "../../state/workspace";
 import CreateWorkspaceDialog from "./CreateWorkspaceDialog";
 import styles from "./index.module.scss";
 
@@ -42,6 +42,7 @@ const SetupGuide: React.FC = () => {
             }
             // 空文件夹 - 创建 Anni Workspace
             setIsShowCreateWorkspaceDialog(true);
+            // TODO: 等待 Anni 接口
         }
     };
     return (

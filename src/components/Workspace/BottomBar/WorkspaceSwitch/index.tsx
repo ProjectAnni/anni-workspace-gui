@@ -1,21 +1,24 @@
 import React, { useState } from "react";
 import { useAtom } from "jotai";
-import { WorkspaceBasePathAtom } from "@/state/workspace";
+import { WorkspaceBasePathAtom } from "@/components/Workspace/state";
 import styles from "./index.module.scss";
 import { Alert, Intent } from "@blueprintjs/core";
+import { useRepository } from "../../context";
 
 const WorkspaceSwitch: React.FC = () => {
     const [workspaceBasePath, setWorkspaceBasePath] = useAtom(
         WorkspaceBasePathAtom
     );
+    const repoConfig = useRepository();
     const [isShowConfirmDialog, setIsShowConfirmDialog] = useState(false);
+    const { name } = repoConfig || {};
     const onClick = () => {
         setIsShowConfirmDialog(true);
     };
     return (
         <>
             <div className={styles.workspaceSwitch} onClick={onClick}>
-                <span>{workspaceBasePath}</span>
+                <span>{name}</span>
             </div>
             <Alert
                 isOpen={isShowConfirmDialog}
