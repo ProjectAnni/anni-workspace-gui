@@ -1,9 +1,51 @@
 .fileList {
-    font-size: 0.14rem;
+    height: 100%;
+    overflow-x: hidden;
 }
 
-:global {
-    .bp4-tree-node-caret-none {
-        min-width: 0 !important;
+.fileList > div {
+    font-size: 0.12rem;
+
+    &::-webkit-scrollbar {
+        width: 0.08rem;
     }
+    &::-webkit-scrollbar-thumb {
+        background-color: #aaa;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(#aaa, 0.8);
+    }
+}
+
+.fileNode {
+    height: 0.32rem;
+    padding: 0 0.04rem;
+    padding-left: 0.08rem;
+    display: flex;
+    align-items: center;
+
+    &:hover {
+        background-color: rgba(#aaa, 0.25);
+    }
+
+    &.level1 {
+        padding-left: 0.24rem;
+    }
+    &.level2 {
+        padding-left: 0.4rem;
+    }
+    &.level3 {
+        padding-left: 0.56rem;
+    }
+
+    &.selected {
+        background-color: rgba(0, 122, 204, 0.9);
+        color: #fff;
+    }
+}
+
+.nodeLabel {
+    margin-left: 0.04rem;
+    user-select: none;
+    font-family: "Consolas", monospace;
 }

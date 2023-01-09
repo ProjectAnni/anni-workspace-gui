@@ -16,7 +16,9 @@
     "classnames": "^2.3.2",
     "jotai": "^1.12.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-vtree": "^3.0.0-beta.3",
+    "react-window": "^1.8.8"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.2.2",

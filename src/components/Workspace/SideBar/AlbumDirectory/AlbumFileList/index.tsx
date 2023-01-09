@@ -5,6 +5,7 @@ import { OpenedDocumentAtom } from "@/components/Workspace/state";
 import { AlbumDirectoriesAtom } from "../state";
 import { convertDirectoriesToTreeNodes } from "../utils";
 import styles from "./index.module.scss";
+import FileTree from "./FileTree";
 
 const AlbumFileList: React.FC = () => {
     const albumDirectories = useAtomValue(AlbumDirectoriesAtom);
@@ -20,20 +21,10 @@ const AlbumFileList: React.FC = () => {
         );
         setTreeContent(content);
     }, [albumDirectories, openedDocument]);
-    const onNodeClick: TreeEventHandler = (node) => {
-        setOpenedDocument({
-            label: node.label as string,
-            path: node.id as string,
-        });
-    };
     if (!treeContent) {
         return null;
     }
-    return (
-        <div className={styles.fileList}>
-            <Tree contents={treeContent} onNodeClick={onNodeClick} />
-        </div>
-    );
+    return <FileTree contents={treeContent} />;
 };
 
 export default AlbumFileList;
