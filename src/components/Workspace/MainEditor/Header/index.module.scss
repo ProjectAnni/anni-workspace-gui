@@ -1,0 +1,13 @@
+.header {
+    height: 0.24rem;
+    background-color: rgba(#aaa, 0.15);
+}
+
+.currentFileInfo {
+    height: 100%;
+    padding: 0 0.08rem;
+    font-size: 0.14rem;
+    display: flex;
+    align-items: center;
+    user-select: none;
+}

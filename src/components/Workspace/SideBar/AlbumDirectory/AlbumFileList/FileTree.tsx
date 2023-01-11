@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Icon, TreeNodeInfo } from "@blueprintjs/core";
 import { VariableSizeTree as Tree } from "react-vtree";
-import styles from "./index.module.scss";
-import classNames from "classnames";
 import { useAtom } from "jotai";
+import classNames from "classnames";
+import { Icon, TreeNodeInfo } from "@blueprintjs/core";
 import { OpenedDocumentAtom } from "@/components/Workspace/state";
+import styles from "./index.module.scss";
 
 interface FileNodeData {
+    defaultHeight: number;
+    isOpenByDefault: boolean;
     isDirectory: boolean;
     label: string;
     nestingLevel: number;
@@ -19,7 +21,7 @@ interface FileNodeProps {
     height: number;
     isOpen: boolean;
     style: React.CSSProperties;
-    setOpen: (openStatus: boolean) => void;
+    setOpen: (openStatus: boolean) => Promise<void>;
 }
 
 const FileNode: React.FC<FileNodeProps> = (props: FileNodeProps) => {
@@ -34,14 +36,9 @@ const FileNode: React.FC<FileNodeProps> = (props: FileNodeProps) => {
                 [styles.selected]: path === openedDocument.path,
             })}
             onClick={() => {
-                setOpenedDocument({ label, path });
+                !isDirectory && setOpenedDocument({ label, path });
             }}
         >
-            {/* {!isLeaf && (
-        <button type="button" onClick={() => setOpen(!isOpen)}>
-            {isOpen ? "-" : "+"}
-        </button>
-    )} */}
             {isDirectory ? (
                 <Icon icon="folder-open" />
             ) : (
@@ -58,7 +55,7 @@ interface Props {
 
 const FileTree: React.FC<Props> = (props: Props) => {
     const { contents: treeNodes } = props;
-    const containerRef = useRef<HTMLDivElement>();
+    const containerRef = useRef<HTMLDivElement>(null);
     const [containerHeight, setContainerHeight] = useState(1000);
     const [openedDocument, setOpenedDocument] = useAtom(OpenedDocumentAtom);
     useEffect(() => {
@@ -72,10 +69,6 @@ const FileTree: React.FC<Props> = (props: Props) => {
         calcHeight();
     }, []);
 
-    const onNodeClick = (node: FileNodeData) => {
-        setOpenedDocument({ label: node.label, path: node.path });
-    };
-
     const getNodeData = (node: TreeNodeInfo, nestingLevel: number) => {
         const nodeData = {
             data: {
@@ -86,7 +79,6 @@ const FileTree: React.FC<Props> = (props: Props) => {
                 nestingLevel,
                 label: node.label as string,
                 path: node.id as string,
-                onNodeClick: () => onNodeClick(nodeData.data),
             },
             nestingLevel,
             node,
@@ -106,13 +98,13 @@ const FileTree: React.FC<Props> = (props: Props) => {
         while (true) {
             // Step [2]: Get the parent component back. It will be the object
             // the `getNodeData` function constructed, so you can read any data from it.
-            const parent = yield;
+            const parent: { node: TreeNodeInfo; nestingLevel: number } = yield;
 
             for (let i = 0; i < (parent.node.childNodes || []).length; i++) {
                 // Step [3]: Yielding all the children of the provided component. Then we
                 // will return for the step [2] with the first children.
                 yield getNodeData(
-                    parent.node.childNodes[i],
+                    parent.node.childNodes![i],
                     parent.nestingLevel + 1
                 );
             }
