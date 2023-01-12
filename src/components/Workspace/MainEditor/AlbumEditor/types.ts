@@ -1,18 +1,12 @@
-import { LocalDate } from "@ltd/j-toml";
-
 export interface AlbumData {
-    album: AlbumMetaInfo;
-    discs: DiscData[];
-}
-
-export interface AlbumMetaInfo {
     album_id: string;
     artist: string;
     catalog: string;
-    date: LocalDate;
+    date: string;
     tags: string[];
     title: string;
     type: string;
+    discs: DiscData[];
 }
 
 export interface DiscData {

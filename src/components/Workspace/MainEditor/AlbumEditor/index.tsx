@@ -2,9 +2,10 @@ import { useAtom, useAtomValue } from "jotai";
 import React, { useEffect, useState } from "react";
 import { OpenedDocumentAtom } from "../../state";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "./state";
-import { readAlbumFile } from "./utils";
+import { readAlbumFile, writeAlbumFile } from "./utils";
 import styles from "./index.module.scss";
 import { Spinner } from "@blueprintjs/core";
+import AlbumMetaInfoEditor from "./AlbumMetaInfoEditor";
 
 const AlbumEditor: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -15,20 +16,33 @@ const AlbumEditor: React.FC = () => {
     useEffect(() => {
         let expired = false;
         (async () => {
-            setIsLoading(true);
-            const albumData = await readAlbumFile(openedDocument.path);
-            if (!expired) {
-                dispatch({
-                    type: AlbumDataActionTypes.RESET,
-                    payload: albumData,
-                });
+            if (openedDocument.path) {
+                setIsLoading(true);
+                const albumData = await readAlbumFile(openedDocument.path);
+                if (!expired) {
+                    dispatch({
+                        type: AlbumDataActionTypes.RESET,
+                        payload: albumData,
+                    });
+                }
+                setIsLoading(false);
             }
-            setIsLoading(false);
         })();
         return () => {
             expired = true;
         };
     }, [openedDocument]);
+
+    useEffect(() => {
+        // 回写Album文件
+        if (openedDocument?.path && albumData) {
+            writeAlbumFile(albumData, openedDocument.path);
+        } 
+    }, [albumData, openedDocument]);
+
+    if (!openedDocument?.path) {
+        return null;
+    }
     if (isLoading) {
         return (
             <div className={styles.loading}>
@@ -36,7 +50,11 @@ const AlbumEditor: React.FC = () => {
             </div>
         );
     }
-    return <div className={styles.albumContainer}>{title}</div>;
+    return (
+        <div className={styles.albumContainer}>
+            <AlbumMetaInfoEditor />
+        </div>
+    );
 };
 
 export default AlbumEditor;

@@ -36,6 +36,9 @@ const FileNode: React.FC<FileNodeProps> = (props: FileNodeProps) => {
                 [styles.selected]: path === openedDocument.path,
             })}
             onClick={() => {
+                if (openedDocument.path == path) {
+                    return;
+                }
                 !isDirectory && setOpenedDocument({ label, path });
             }}
         >
