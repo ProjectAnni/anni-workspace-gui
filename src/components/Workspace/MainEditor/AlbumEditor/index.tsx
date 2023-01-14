@@ -1,11 +1,11 @@
 import { useAtom, useAtomValue } from "jotai";
 import React, { useEffect, useState } from "react";
+import { Spinner } from "@blueprintjs/core";
+import { readAlbumFile, writeAlbumFile } from "@/utils/file";
 import { OpenedDocumentAtom } from "../../state";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "./state";
-import { readAlbumFile, writeAlbumFile } from "../../../../utils/file";
-import styles from "./index.module.scss";
-import { Spinner } from "@blueprintjs/core";
 import AlbumMetaInfoEditor from "./AlbumMetaInfoEditor";
+import styles from "./index.module.scss";
 
 const AlbumEditor: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
