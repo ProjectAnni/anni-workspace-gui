@@ -1,12 +1,12 @@
 import { throttle } from "lodash";
 import { invoke } from "@tauri-apps/api";
-import { AlbumData } from "./types";
+import { AlbumData } from "@/types/album";
 
 export const readAlbumFile = async (path: string) => {
     const content = await invoke("read_album_file", {
         path,
     });
-    return content;
+    return content as AlbumData;
 };
 
 export const writeAlbumFile = throttle(

@@ -2,7 +2,7 @@ import { useAtom, useAtomValue } from "jotai";
 import React, { useEffect, useState } from "react";
 import { OpenedDocumentAtom } from "../../state";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "./state";
-import { readAlbumFile, writeAlbumFile } from "./utils";
+import { readAlbumFile, writeAlbumFile } from "../../../../utils/file";
 import styles from "./index.module.scss";
 import { Spinner } from "@blueprintjs/core";
 import AlbumMetaInfoEditor from "./AlbumMetaInfoEditor";
@@ -11,8 +11,6 @@ const AlbumEditor: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [albumData, dispatch] = useAtom(AlbumDataReducerAtom);
     const openedDocument = useAtomValue(OpenedDocumentAtom);
-    const { album } = albumData || {};
-    const { title } = album || {};
     useEffect(() => {
         let expired = false;
         (async () => {
@@ -37,7 +35,7 @@ const AlbumEditor: React.FC = () => {
         // 回写Album文件
         if (openedDocument?.path && albumData) {
             writeAlbumFile(albumData, openedDocument.path);
-        } 
+        }
     }, [albumData, openedDocument]);
 
     if (!openedDocument?.path) {

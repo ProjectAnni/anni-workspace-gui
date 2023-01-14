@@ -1,8 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { VariableSizeTree as Tree } from "react-vtree";
 import { useAtom } from "jotai";
 import classNames from "classnames";
-import { Icon, TreeNodeInfo } from "@blueprintjs/core";
+import {
+    Icon,
+    InputGroup,
+    NonIdealState,
+    TreeNodeInfo,
+} from "@blueprintjs/core";
 import { OpenedDocumentAtom } from "@/components/Workspace/state";
 import styles from "./index.module.scss";
 
@@ -26,7 +31,7 @@ interface FileNodeProps {
 
 const FileNode: React.FC<FileNodeProps> = (props: FileNodeProps) => {
     const [openedDocument, setOpenedDocument] = useAtom(OpenedDocumentAtom);
-    const { style, data } = props;
+    const { style, data, isOpen, setOpen } = props;
     const { label, nestingLevel, isDirectory, path } = data;
     return (
         <div
@@ -39,7 +44,11 @@ const FileNode: React.FC<FileNodeProps> = (props: FileNodeProps) => {
                 if (openedDocument.path == path) {
                     return;
                 }
-                !isDirectory && setOpenedDocument({ label, path });
+                if (isDirectory) {
+                    setOpen(!isOpen);
+                } else {
+                    setOpenedDocument({ label, path });
+                }
             }}
         >
             {isDirectory ? (
@@ -60,7 +69,8 @@ const FileTree: React.FC<Props> = (props: Props) => {
     const { contents: treeNodes } = props;
     const containerRef = useRef<HTMLDivElement>(null);
     const [containerHeight, setContainerHeight] = useState(1000);
-    const [openedDocument, setOpenedDocument] = useAtom(OpenedDocumentAtom);
+    const [keyword, setKeyword] = useState("");
+    const [filteredTreeNodes, setFilteredTreeNodes] = useState(treeNodes);
     useEffect(() => {
         const calcHeight = () => {
             if (containerRef.current) {
@@ -94,8 +104,8 @@ const FileTree: React.FC<Props> = (props: Props) => {
     function* treeWalker() {
         // Step [1]: Define the root node of our tree. There can be one or
         // multiple nodes.
-        for (let i = 0; i < treeNodes.length; i++) {
-            yield getNodeData(treeNodes[i], 0);
+        for (let i = 0; i < filteredTreeNodes.length; i++) {
+            yield getNodeData(filteredTreeNodes[i], 0);
         }
 
         while (true) {
@@ -114,11 +124,67 @@ const FileTree: React.FC<Props> = (props: Props) => {
         }
     }
 
+    const filterTreeNode = (
+        node: TreeNodeInfo,
+        keyword: string
+    ): TreeNodeInfo | null => {
+        if ((node.label as string).includes(keyword)) {
+            return node;
+        }
+        if (node.childNodes?.length) {
+            const matchedChildNodes = node.childNodes.filter((node) =>
+                filterTreeNode(node, keyword)
+            );
+            if (matchedChildNodes.length > 0) {
+                return {
+                    ...node,
+                    childNodes: matchedChildNodes,
+                };
+            } else {
+                return null;
+            }
+        }
+        return null;
+    };
+
+    const onKeywordChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const newKeyword = e.target.value;
+            if (!newKeyword) {
+                setFilteredTreeNodes(treeNodes);
+            }
+            const result = treeNodes.map((node) =>
+                filterTreeNode(node, newKeyword)
+            );
+            const nonNullNode = (
+                node: TreeNodeInfo | null
+            ): node is TreeNodeInfo => node !== null;
+            setKeyword(newKeyword);
+            setFilteredTreeNodes(result.filter(nonNullNode));
+        },
+        [treeNodes]
+    );
     return (
         <div className={styles.fileList} ref={containerRef}>
-            <Tree treeWalker={treeWalker} height={containerHeight} width={288}>
-                {FileNode}
-            </Tree>
+            <InputGroup leftIcon="filter" small onChange={onKeywordChange} />
+
+            {!!keyword && !filteredTreeNodes?.length ? (
+                <div className={styles.noResult}>
+                    <NonIdealState
+                        title="无匹配内容"
+                        description="目前只支持搜索文件名，试试换个关键词？"
+                        icon="search"
+                    ></NonIdealState>
+                </div>
+            ) : (
+                <Tree
+                    treeWalker={treeWalker}
+                    height={containerHeight - 24}
+                    width={288}
+                >
+                    {FileNode}
+                </Tree>
+            )}
         </div>
     );
 };

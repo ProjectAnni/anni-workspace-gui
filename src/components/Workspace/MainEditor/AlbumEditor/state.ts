@@ -1,5 +1,5 @@
 import { atomWithReducer } from "jotai/utils";
-import { AlbumData } from "./types";
+import { AlbumData } from "@/types/album";
 
 export enum AlbumDataActionTypes {
     /** 重置数据 */

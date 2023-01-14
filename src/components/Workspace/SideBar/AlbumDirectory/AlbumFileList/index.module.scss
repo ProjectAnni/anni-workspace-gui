@@ -1,5 +1,6 @@
 .fileList {
     height: 100%;
+    width: 2.88rem;
     overflow-x: hidden;
 }
 
@@ -48,4 +49,11 @@
     margin-left: 0.04rem;
     user-select: none;
     font-family: "Consolas", monospace;
+}
+
+.noResult {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-top: 0.16rem;
 }

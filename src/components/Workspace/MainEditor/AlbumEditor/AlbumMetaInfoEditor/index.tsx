@@ -1,9 +1,9 @@
 import React from "react";
 import { useAtom } from "jotai";
-import { Button, FormGroup, Icon, InputGroup } from "@blueprintjs/core";
+import { Button, FormGroup, InputGroup } from "@blueprintjs/core";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "../state";
+import ReleaseDateEditor from "./ReleaseDateEditor";
 import styles from "./index.module.scss";
-import EditReleaseDate from "./EditReleaseDate";
 
 interface Props {}
 
@@ -56,7 +56,7 @@ const AlbumMetaInfoEditor: React.FC = () => {
             <FormGroup label="品番" labelInfo="(required)">
                 <InputGroup value={catalog} onChange={onCatalogChange} />
             </FormGroup>
-            <EditReleaseDate onChange={onReleaseDateChange} />
+            <ReleaseDateEditor onChange={onReleaseDateChange} />
         </>
     );
 };
