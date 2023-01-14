@@ -8,6 +8,7 @@ export interface AlbumData {
     tags?: string[];
     title?: string;
     type?: string;
+    edition?: string;
     discs: DiscData[];
 }
 
@@ -33,6 +34,7 @@ export interface ParsedAlbumData {
     tags?: string[];
     title?: string;
     type?: string;
+    edition?: string;
     discs: ParsedDiscData[];
 }
 
@@ -48,4 +50,9 @@ export interface ParsedTrackData {
     title: string;
     artist?: Artist[];
     type?: string;
+}
+
+export interface Artist {
+    name: string;
+    children: Artist[];
 }

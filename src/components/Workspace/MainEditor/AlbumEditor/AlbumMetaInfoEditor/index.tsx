@@ -4,6 +4,7 @@ import { Button, FormGroup, InputGroup } from "@blueprintjs/core";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "../state";
 import ReleaseDateEditor from "./ReleaseDateEditor";
 import styles from "./index.module.scss";
+import ArtistEditor from "./ArtistEditor";
 
 interface Props {}
 
@@ -57,6 +58,7 @@ const AlbumMetaInfoEditor: React.FC = () => {
                 <InputGroup value={catalog} onChange={onCatalogChange} />
             </FormGroup>
             <ReleaseDateEditor onChange={onReleaseDateChange} />
+            <ArtistEditor />
         </>
     );
 };

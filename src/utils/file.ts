@@ -16,7 +16,7 @@ export const readAlbumFile = async (path: string): Promise<ParsedAlbumData> => {
     })) as AlbumData;
     const parsedAlbum: ParsedAlbumData = {
         album_id: content.album_id,
-        ...pick(content, "catalog", "date", "tags", "title", "type"),
+        ...pick(content, "catalog", "date", "tags", "title", "type", "edition"),
         ...(content.artist ? { artist: parseArtists(content.artist) } : {}),
         discs: [],
     };
@@ -46,7 +46,7 @@ export const writeAlbumFile = throttle(
     async (content: ParsedAlbumData, path: string) => {
         const albumData: AlbumData = {
             album_id: content.album_id,
-            ...pick(content, "catalog", "date", "tags", "title", "type"),
+            ...pick(content, "catalog", "date", "tags", "title", "type", "edition"),
             ...(content.artist
                 ? { artist: stringifyArtists(content.artist) }
                 : {}),

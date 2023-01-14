@@ -33,7 +33,12 @@ const AlbumEditor: React.FC = () => {
 
     useEffect(() => {
         // 回写Album文件
-        if (openedDocument?.path && albumData) {
+        if (
+            openedDocument?.path &&
+            albumData &&
+            albumData.catalog &&
+            openedDocument.path.includes(albumData.catalog)
+        ) {
             writeAlbumFile(albumData, openedDocument.path);
         }
     }, [albumData, openedDocument]);

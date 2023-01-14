@@ -1,5 +1,5 @@
 import { atomWithReducer } from "jotai/utils";
-import { AlbumData } from "@/types/album";
+import { Artist, ParsedAlbumData } from "@/types/album";
 
 export enum AlbumDataActionTypes {
     /** 重置数据 */
@@ -12,12 +12,14 @@ export enum AlbumDataActionTypes {
     UPDATE_CATALOG,
     /** 设置发售日期 */
     UPDATE_RELEASE_DATE,
+    /** 设置主艺术家 */
+    UPDATE_ARTIST,
 }
 
 type AlbumDataActionPayload =
     | {
           type: AlbumDataActionTypes.RESET;
-          payload: AlbumData;
+          payload: ParsedAlbumData;
       }
     | {
           type: AlbumDataActionTypes.GENERATE_NEW_ID;
@@ -33,12 +35,16 @@ type AlbumDataActionPayload =
     | {
           type: AlbumDataActionTypes.UPDATE_RELEASE_DATE;
           payload: string;
+      }
+    | {
+          type: AlbumDataActionTypes.UPDATE_ARTIST;
+          payload: Artist[];
       };
 
 const albumDataReducer = (
-    prev: AlbumData | null,
+    prev: ParsedAlbumData | null,
     action: AlbumDataActionPayload
-): AlbumData | null => {
+): ParsedAlbumData | null => {
     if (action.type === AlbumDataActionTypes.RESET) {
         return action.payload;
     }
@@ -64,6 +70,12 @@ const albumDataReducer = (
         return {
             ...prev!,
             date: action.payload,
+        };
+    }
+    if (action.type === AlbumDataActionTypes.UPDATE_ARTIST) {
+        return {
+            ...prev!,
+            artist: action.payload,
         };
     }
     throw new Error("unknown action type");

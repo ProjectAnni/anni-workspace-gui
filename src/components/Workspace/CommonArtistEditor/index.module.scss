@@ -1,0 +1,105 @@
+.artistItem {
+    height: 0.2rem;
+    display: flex;
+    align-items: center;
+    color: #fff;
+    border: 1px solid #fff;
+
+    &.depth0 {
+        background-color: #0a2647;
+    }
+    &.depth1 {
+        background-color: #144272;
+    }
+    &.depth2 {
+        background-color: #205295;
+    }
+    &.depth3 {
+        background-color: #2c74b3;
+    }
+}
+
+.section {
+    position: relative;
+    display: flex;
+    height: 100%;
+    align-items: center;
+    padding: 0 0.08rem;
+    cursor: pointer;
+}
+
+.activeIndicator {
+    position: absolute;
+    top: -0.2rem;
+    left: 0;
+    width: 100%;
+    height: 0.2rem;
+    color: orange;
+    span {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .indicatorLine {
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        width: 200px;
+        height: 2px;
+        left: 50%;
+        background-color: orange;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 2px;
+            height: 0.12rem;
+            background-color: orange;
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            width: 2px;
+            height: 0.12rem;
+            background-color: orange;
+        }
+    }
+}
+
+.divider {
+    display: inline-block;
+    height: 100%;
+    width: 1px;
+    background-color: rgba(#fff, 0.5);
+}
+
+.artistName {
+    font-size: smaller;
+}
+
+.expandIcon {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.addIcon {
+    margin-left: 0.08rem;
+}
+
+.childLength {
+    font-size: smaller;
+}
+
+:global {
+    .bp4-tag {
+        padding: 0 !important;
+
+        .bp4-fill {
+            height: 20px;
+        }
+    }
+}

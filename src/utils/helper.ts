@@ -1,12 +1,10 @@
+import { Artist } from "@/types/album";
+
 interface ArtistParserReader {
     data: string;
     idx: number;
 }
 
-export interface Artist {
-    name: string;
-    children: Artist[];
-}
 
 function readArtist(reader: ArtistParserReader) {
     const res: Artist = {
