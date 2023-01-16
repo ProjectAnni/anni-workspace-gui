@@ -32,7 +32,7 @@ const addLabelToFileEntry = async (
 export interface AlbumDirectory {
     label: string;
     path: string;
-    children: FileEntryWithLabel[];
+    children?: FileEntryWithLabel[];
 }
 
 export const readAlbumDir = async (albumPath: string) => {
@@ -43,7 +43,20 @@ export const readAlbumDir = async (albumPath: string) => {
         children: [],
     };
     for (const entry of entries) {
-        result.children.push(await addLabelToFileEntry(entry));
+        result.children!.push(await addLabelToFileEntry(entry));
+    }
+    return result;
+};
+
+export const getAllAlbumFilePaths = (directory: AlbumDirectory): string[] => {
+    const result: string[] = [];
+    for (const subEntry of directory.children || []) {
+        if (subEntry.children?.length) {
+            //  is directory
+            result.push(...subEntry.children.map(getAllAlbumFilePaths).flat());
+        } else {
+            result.push(subEntry.path);
+        }
     }
     return result;
 };
@@ -55,7 +68,7 @@ export const convertDirectoriesToTreeNodes = (
     return directories.map<TreeNodeInfo>((directory, index) => ({
         label: directory.label,
         id: directory.path,
-        childNodes: directory.children.map((child) =>
+        childNodes: (directory.children || []).map((child) =>
             convertFileEntryToTreeNode(child, openedDocument)
         ),
         isExpanded: index === 0,

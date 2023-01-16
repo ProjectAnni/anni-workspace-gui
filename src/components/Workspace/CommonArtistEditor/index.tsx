@@ -1,9 +1,14 @@
 import React, { useState, useRef, MutableRefObject } from "react";
 import classNames from "classnames";
 import { Artist } from "@/types/album";
-import { Icon, InputGroup, TagInput } from "@blueprintjs/core";
+import { Icon, MenuItem, TagInput } from "@blueprintjs/core";
 import { AppToaster } from "@/utils/toaster";
+import AlbumFileIndexer, { IndexedArtist } from "@/indexer/AlbumFileIndexer";
+import ArtistSuggestInput from "./ArtistSuggestInput";
 import styles from "./index.module.scss";
+import { parseArtists } from "@/utils/helper";
+import { MultiSelect2 } from "@blueprintjs/select";
+import { uniqBy } from "lodash";
 
 const MAX_STACK_LIMIT = 5;
 
@@ -17,8 +22,6 @@ interface ArtistItemProps {
 const ArtistItem: React.FC<ArtistItemProps> = (props: ArtistItemProps) => {
     const { artist: initialArtist, depth, index, onChange } = props;
     const artistNameRef = useRef<HTMLDivElement>(null);
-    const floatInputRef: MutableRefObject<HTMLInputElement | null> =
-        useRef(null);
     const [artist, setArtist] = useState(initialArtist);
     const [isActive, setIsActive] = useState(false);
     const [indicatorLineStartX, setIndicatorLineStartX] = useState(0);
@@ -165,7 +168,10 @@ const ArtistItem: React.FC<ArtistItemProps> = (props: ArtistItemProps) => {
                                 />
                             </>
                         ) : (
-                            <span className={styles.childLength}>
+                            <span
+                                className={styles.childLength}
+                                title="点击展开子艺术家"
+                            >
                                 +{children.length}
                             </span>
                         )}
@@ -196,37 +202,20 @@ const ArtistItem: React.FC<ArtistItemProps> = (props: ArtistItemProps) => {
                 />
             </div>
             {isShowFloatInput && (
-                <InputGroup
+                <ArtistSuggestInput
                     style={{
                         position: "fixed",
                         left: floatingInputLeft,
                         top: floatingInputTop,
-                        width: "200px",
+                        width: "300px",
                     }}
-                    inputRef={(ref) => {
-                        if (ref) {
-                            ref.focus();
-                            floatInputRef.current = ref;
-                        }
-                    }}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                    }}
-                    onFocus={(e) => {
-                        e.stopPropagation();
-                    }}
-                    onBlur={() => {
+                    onClose={() => {
                         setIsShowFloatInput(false);
                     }}
-                    onKeyDown={(e) => {
-                        if (e.code === "Enter" && floatInputRef.current) {
-                            onChildAdded({
-                                name: floatInputRef.current.value,
-                                children: [],
-                            });
-                        }
+                    onItemSelected={(item) => {
+                        onChildAdded(parseArtists(item.serializedFullStr)[0]);
                     }}
-                ></InputGroup>
+                />
             )}
         </div>
     );
@@ -240,6 +229,7 @@ interface Props {
 const CommonArtistEditor: React.FC<Props> = (props: Props) => {
     const { initialArtists, onChange } = props;
     const [artists, setArtists] = useState(initialArtists);
+    const [query, setQuery] = useState("");
     const onArtistChange = (index: number, newArtistData: Artist | null) => {
         if (!newArtistData) {
             setArtists([
@@ -260,18 +250,65 @@ const CommonArtistEditor: React.FC<Props> = (props: Props) => {
             ]);
         }
     };
+    const onArtistAdded = (newArtistData: Artist) => {
+        setQuery("");
+        setArtists([...artists, newArtistData]);
+        onChange([...artists, newArtistData]);
+    };
     return (
-        <TagInput values={[]}>
-            {artists.map((artist, index) => (
-                <ArtistItem
-                    artist={artist}
-                    depth={0}
-                    key={artist.name}
-                    index={index}
-                    onChange={onArtistChange}
+        <MultiSelect2<IndexedArtist>
+            tagRenderer={() => null}
+            items={[]}
+            selectedItems={[]}
+            query={query}
+            onQueryChange={(query) => {
+                setQuery(query);
+            }}
+            itemRenderer={(artist, itemRendererProps) => (
+                <MenuItem
+                    text={artist.serializedFullStr}
+                    key={artist.id}
+                    active={itemRendererProps.modifiers.active}
+                    onClick={() => {
+                        onArtistAdded(
+                            parseArtists(artist.serializedFullStr)[0]
+                        );
+                    }}
                 />
-            ))}
-        </TagInput>
+            )}
+            onItemSelect={(item) => {
+                onArtistAdded(parseArtists(item.serializedFullStr)[0]);
+            }}
+            itemListPredicate={(keyword) => {
+                const searchResults = AlbumFileIndexer.searchArtist(keyword);
+                return uniqBy(searchResults, "serializedFullStr")
+                    .map((result) => ({
+                        id: result.id,
+                        name: result.name,
+                        serializedFullStr: result.serializedFullStr,
+                    }))
+                    .slice(0, 10);
+            }}
+            tagInputProps={{
+                children: (
+                    <>
+                        {artists.map((artist, index) => (
+                            <ArtistItem
+                                artist={artist}
+                                depth={0}
+                                key={artist.name}
+                                index={index}
+                                onChange={onArtistChange}
+                            />
+                        ))}
+                    </>
+                ),
+            }}
+            popoverProps={{
+                matchTargetWidth: true,
+                minimal: true,
+            }}
+        />
     );
 };
 

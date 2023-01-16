@@ -5,6 +5,7 @@ interface ArtistParserReader {
     idx: number;
 }
 
+export class ArtistParseError extends Error {}
 
 function readArtist(reader: ArtistParserReader) {
     const res: Artist = {
@@ -30,7 +31,9 @@ function readArtist(reader: ArtistParserReader) {
         }
         reader.idx += 1;
     }
-    console.assert(res.name !== "", "Artist parse error: empty artist name");
+    if (res.name === "") {
+        throw new ArtistParseError("Artist parse error: empty artist name");
+    }
     // Read children
     if (reader.data[reader.idx] === "（") {
         reader.idx += 1;
@@ -38,10 +41,11 @@ function readArtist(reader: ArtistParserReader) {
             res.children.push(readArtist(reader));
             reader.idx += 1;
         } while (reader.data[reader.idx - 1] === "、");
-        console.assert(
-            reader.data[reader.idx - 1] === "）",
-            `Artist parse error: missing ) at ${reader.idx}`
-        );
+        if (reader.data[reader.idx - 1] !== "）") {
+            throw new ArtistParseError(
+                `Artist parse error: missing ) at ${reader.idx}`
+            );
+        }
     }
     return res;
 }

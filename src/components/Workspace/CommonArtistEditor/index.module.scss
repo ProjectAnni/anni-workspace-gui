@@ -50,7 +50,7 @@
         background-color: orange;
 
         &::before {
-            content: '';
+            content: "";
             position: absolute;
             left: 0;
             width: 2px;
@@ -59,7 +59,7 @@
         }
 
         &::after {
-            content: '';
+            content: "";
             position: absolute;
             right: 0;
             width: 2px;
@@ -92,6 +92,10 @@
 
 .childLength {
     font-size: smaller;
+}
+
+.artistSuggestInputCard.artistSuggestInputCard {
+    padding: 0.08rem;
 }
 
 :global {
