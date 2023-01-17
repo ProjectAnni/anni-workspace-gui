@@ -1,14 +1,15 @@
-import React, { useState, useRef, MutableRefObject } from "react";
+import React, { useState, useRef } from "react";
 import classNames from "classnames";
+import { uniqBy } from "lodash";
 import { Artist } from "@/types/album";
-import { Icon, MenuItem, TagInput } from "@blueprintjs/core";
+import { Icon, MenuItem } from "@blueprintjs/core";
+import { MultiSelect2 } from "@blueprintjs/select";
 import { AppToaster } from "@/utils/toaster";
+import { parseArtists } from "@/utils/helper";
 import AlbumFileIndexer, { IndexedArtist } from "@/indexer/AlbumFileIndexer";
 import ArtistSuggestInput from "./ArtistSuggestInput";
+import ArtistSuggestItem from "./ArtistSuggestItem";
 import styles from "./index.module.scss";
-import { parseArtists } from "@/utils/helper";
-import { MultiSelect2 } from "@blueprintjs/select";
-import { uniqBy } from "lodash";
 
 const MAX_STACK_LIMIT = 5;
 
@@ -251,24 +252,39 @@ const CommonArtistEditor: React.FC<Props> = (props: Props) => {
         }
     };
     const onArtistAdded = (newArtistData: Artist) => {
-        setQuery("");
         setArtists([...artists, newArtistData]);
         onChange([...artists, newArtistData]);
+    };
+    const onCreateNewItemFromQuery = (query: string): IndexedArtist => {
+        if (!query) {
+            // @ts-ignore
+            return;
+        }
+        try {
+            const newArtist = parseArtists(query)[0];
+            return {
+                name: newArtist.name,
+                serializedFullStr: query,
+                id: `new-${crypto.randomUUID()}`,
+                albumTitle: "",
+            };
+        } catch (e) {
+            // @ts-ignore
+            return;
+        }
     };
     return (
         <MultiSelect2<IndexedArtist>
             tagRenderer={() => null}
             items={[]}
             selectedItems={[]}
-            query={query}
-            onQueryChange={(query) => {
-                setQuery(query);
-            }}
+            resetOnSelect
             itemRenderer={(artist, itemRendererProps) => (
-                <MenuItem
-                    text={artist.serializedFullStr}
+                <ArtistSuggestItem
+                    artist={artist}
+                    query={query}
                     key={artist.id}
-                    active={itemRendererProps.modifiers.active}
+                    itemRendererProps={itemRendererProps}
                     onClick={() => {
                         onArtistAdded(
                             parseArtists(artist.serializedFullStr)[0]
@@ -276,6 +292,9 @@ const CommonArtistEditor: React.FC<Props> = (props: Props) => {
                     }}
                 />
             )}
+            onQueryChange={(q) => {
+                setQuery(q);
+            }}
             onItemSelect={(item) => {
                 onArtistAdded(parseArtists(item.serializedFullStr)[0]);
             }}
@@ -286,8 +305,22 @@ const CommonArtistEditor: React.FC<Props> = (props: Props) => {
                         id: result.id,
                         name: result.name,
                         serializedFullStr: result.serializedFullStr,
+                        albumTitle: result.albumTitle,
                     }))
                     .slice(0, 10);
+            }}
+            createNewItemFromQuery={onCreateNewItemFromQuery}
+            createNewItemRenderer={(query, active) => {
+                return (
+                    <MenuItem
+                        text={`创建：${query}`}
+                        active={active}
+                        onClick={(e) => {
+                            onArtistAdded(parseArtists(query)[0]);
+                        }}
+                        style={{ fontSize: "0.12rem" }}
+                    />
+                );
             }}
             tagInputProps={{
                 children: (

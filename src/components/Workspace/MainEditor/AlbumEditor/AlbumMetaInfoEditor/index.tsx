@@ -5,6 +5,7 @@ import { AlbumDataActionTypes, AlbumDataReducerAtom } from "../state";
 import ReleaseDateEditor from "./ReleaseDateEditor";
 import styles from "./index.module.scss";
 import ArtistEditor from "./ArtistEditor";
+import TagEditor from "./TagEditor";
 
 interface Props {}
 
@@ -59,6 +60,7 @@ const AlbumMetaInfoEditor: React.FC = () => {
             </FormGroup>
             <ReleaseDateEditor onChange={onReleaseDateChange} />
             <ArtistEditor />
+            <TagEditor />
         </>
     );
 };

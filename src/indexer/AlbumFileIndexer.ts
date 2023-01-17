@@ -6,6 +6,7 @@ export interface IndexedArtist {
     id: string;
     name: string;
     serializedFullStr: string;
+    albumTitle: string;
 }
 
 class AlbumFileIndexer {
@@ -20,7 +21,7 @@ class AlbumFileIndexer {
     constructor() {
         this.artistIndex = new MiniSearch<IndexedArtist>({
             fields: ["name", "serializedFullStr"],
-            storeFields: ["name", "serializedFullStr"],
+            storeFields: ["name", "serializedFullStr", "albumTitle"],
             searchOptions: {
                 prefix: true,
                 fuzzy: true,
@@ -45,12 +46,13 @@ class AlbumFileIndexer {
             const albumData = await readAlbumFile(filePath);
             const artists = albumData.artist || [];
             artists.forEach((artist, index) => {
-                const { name, children = [] } = artist;
+                const { name } = artist;
                 if (!this.artistIndex.has(`${albumData.album_id}-${index}`)) {
                     this.artistIndex.add({
                         name,
                         serializedFullStr: stringifyArtist(artist),
                         id: `${albumData.album_id}-${index}`,
+                        albumTitle: albumData.title || "",
                     });
                 }
             });

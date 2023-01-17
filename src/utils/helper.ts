@@ -1,3 +1,4 @@
+import React from "react";
 import { Artist } from "@/types/album";
 
 interface ArtistParserReader {
@@ -85,4 +86,43 @@ export function stringifyArtist(artist: Artist): string {
 
 export function stringifyArtists(artists: Artist[]) {
     return artists.map(stringifyArtist).join("、");
+}
+
+function escapeRegExpChars(text: string) {
+    return text.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+
+export function highlightText(text: string, query: string): React.ReactNode[] {
+    let lastIndex = 0;
+    const words = query
+        .split(/\s+/)
+        .filter(function (word) {
+            return word.length > 0;
+        })
+        .map(escapeRegExpChars);
+    if (words.length === 0) {
+        return [text];
+    }
+    const regexp = new RegExp(words.join("|"), "gi");
+    const tokens: React.ReactNode[] = [];
+    while (true) {
+        const match = regexp.exec(text);
+        if (!match) {
+            break;
+        }
+        const length_1 = match[0].length;
+        const before_1 = text.slice(lastIndex, regexp.lastIndex - length_1);
+        if (before_1.length > 0) {
+            tokens.push(before_1);
+        }
+        lastIndex = regexp.lastIndex;
+        tokens.push(
+            React.createElement("strong", { key: lastIndex }, match[0])
+        );
+    }
+    const rest = text.slice(lastIndex);
+    if (rest.length > 0) {
+        tokens.push(rest);
+    }
+    return tokens;
 }

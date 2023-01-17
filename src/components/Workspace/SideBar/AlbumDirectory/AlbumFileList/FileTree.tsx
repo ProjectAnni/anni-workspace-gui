@@ -178,10 +178,12 @@ const FileTree: React.FC<Props> = (props: Props) => {
                 </div>
             ) : (
                 <Tree
+                    // @ts-ignore
                     treeWalker={treeWalker}
                     height={containerHeight - 24}
                     width={288}
                 >
+                    {/** @ts-ignore */}
                     {FileNode}
                 </Tree>
             )}

@@ -98,12 +98,26 @@
     padding: 0.08rem;
 }
 
-:global {
-    .bp4-tag {
-        padding: 0 !important;
+.suggestItem {
+    display: flex;
 
-        .bp4-fill {
-            height: 20px;
-        }
+    .artistName {
+        font-size: 0.12rem;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
     }
+}
+
+.albumTitle {
+    font-size: 0.12rem;
+    color: rgba(#000, 0.6);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.cvTag {
+    padding: 0 0.04rem !important;
+    margin-left: 0.06rem;
 }

@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { uniqBy } from "lodash";
 import { Suggest2 } from "@blueprintjs/select";
 import { Card, MenuItem } from "@blueprintjs/core";
-import AlbumFileIndexer, { IndexedArtist } from "@/indexer/AlbumFileIndexer";
-import styles from "./index.module.scss";
 import { parseArtists } from "@/utils/helper";
+import AlbumFileIndexer, { IndexedArtist } from "@/indexer/AlbumFileIndexer";
+import ArtistSuggestItem from "./ArtistSuggestItem";
+import styles from "./index.module.scss";
 
 interface Props {
     style: React.CSSProperties;
@@ -15,11 +16,13 @@ interface Props {
 
 const ArtistSuggestInput: React.FC<Props> = (props) => {
     const { style, onClose, onItemSelected } = props;
+    const [query, setQuery] = useState("");
     const onCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
     };
     const onCreateNewItemFromQuery = (query: string): IndexedArtist => {
         if (!query) {
+            // @ts-ignore
             return;
         }
         try {
@@ -28,8 +31,10 @@ const ArtistSuggestInput: React.FC<Props> = (props) => {
                 name: newArtist.name,
                 serializedFullStr: query,
                 id: `new-${crypto.randomUUID()}`,
+                albumTitle: "",
             };
         } catch (e) {
+            // @ts-ignore
             return;
         }
     };
@@ -41,16 +46,18 @@ const ArtistSuggestInput: React.FC<Props> = (props) => {
         >
             <Suggest2<IndexedArtist>
                 items={[]}
+                query={query}
                 inputValueRenderer={(artist) => artist.serializedFullStr}
                 itemRenderer={(artist, itemRendererProps) => (
-                    <MenuItem
-                        text={artist.serializedFullStr}
-                        style={{
+                    <ArtistSuggestItem
+                        styles={{
                             maxWidth: "400px",
                         }}
+                        query={query}
+                        artist={artist}
                         key={artist.id}
-                        active={itemRendererProps.modifiers.active}
-                        onClick={(item) => {
+                        itemRendererProps={itemRendererProps}
+                        onClick={() => {
                             onItemSelected(artist);
                         }}
                     />
@@ -63,10 +70,26 @@ const ArtistSuggestInput: React.FC<Props> = (props) => {
                             id: result.id,
                             name: result.name,
                             serializedFullStr: result.serializedFullStr,
+                            albumTitle: result.albumTitle,
                         }))
                         .slice(0, 10);
                 }}
                 createNewItemFromQuery={onCreateNewItemFromQuery}
+                createNewItemRenderer={(query, active) => {
+                    return (
+                        <MenuItem
+                            text={`创建：${query}`}
+                            active={active}
+                            onClick={() => {
+                                onItemSelected(onCreateNewItemFromQuery(query));
+                            }}
+                            style={{ fontSize: "0.12rem" }}
+                        />
+                    );
+                }}
+                onQueryChange={(q) => {
+                    setQuery(q);
+                }}
                 onItemSelect={(item) => {
                     onItemSelected(item);
                 }}

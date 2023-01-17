@@ -1,5 +1,3 @@
-import { Artist } from "@/utils/helper";
-
 export interface AlbumData {
     album_id: string;
     artist?: string;

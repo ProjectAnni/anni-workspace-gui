@@ -66,7 +66,7 @@ const EditReleaseDate: React.FC<Props> = (props: Props) => {
         }
         if (year && month && date) {
             const parsedDate = dayjs(`${year}-${month}-${date}`);
-            if (parsedDate.day() !== 4) {
+            if (parsedDate.day() !== 3) {
                 setIntent("warning");
                 setHelpText("注意：不是周三，建议二次确认");
                 onChange(newDate);
