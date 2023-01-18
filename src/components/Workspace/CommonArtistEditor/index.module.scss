@@ -3,6 +3,7 @@
     display: flex;
     align-items: center;
     color: #fff;
+    border-radius: 0.02rem;
     border: 1px solid #fff;
 
     &.depth0 {
@@ -17,6 +18,10 @@
     &.depth3 {
         background-color: #2c74b3;
     }
+}
+
+.artistItem .artistItem {
+    border-radius: 0;
 }
 
 .section {

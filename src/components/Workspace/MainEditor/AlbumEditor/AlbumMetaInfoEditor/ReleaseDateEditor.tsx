@@ -10,7 +10,7 @@ interface Props {
 
 const EditReleaseDate: React.FC<Props> = (props: Props) => {
     const { onChange } = props;
-    const [albumData, dispatch] = useAtom(AlbumDataReducerAtom);
+    const [albumData] = useAtom(AlbumDataReducerAtom);
     const { date } = albumData || {};
     const [textValue, setTextValue] = useState(date);
     const [helpText, setHelpText] = useState("");

@@ -16,6 +16,8 @@ export enum AlbumDataActionTypes {
     UPDATE_ARTIST,
     /** 设置Tags */
     UPDATE_TAGS,
+    /** 设置Type */
+    UPDATE_TYPE,
 }
 
 type AlbumDataActionPayload =
@@ -45,6 +47,10 @@ type AlbumDataActionPayload =
     | {
           type: AlbumDataActionTypes.UPDATE_TAGS;
           payload: string[];
+      }
+    | {
+          type: AlbumDataActionTypes.UPDATE_TYPE;
+          payload: string;
       };
 
 const albumDataReducer = (
@@ -88,6 +94,12 @@ const albumDataReducer = (
         return {
             ...prev!,
             tags: action.payload,
+        };
+    }
+    if (action.type === AlbumDataActionTypes.UPDATE_TYPE) {
+        return {
+            ...prev!,
+            type: action.payload,
         };
     }
     throw new Error("unknown action type");

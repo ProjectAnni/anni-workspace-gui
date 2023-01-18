@@ -1,6 +1,6 @@
 import React from "react";
 import { useAtom } from "jotai";
-import { FormGroup, TagInput } from "@blueprintjs/core";
+import { FormGroup } from "@blueprintjs/core";
 import CommonArtistEditor from "@/components/Workspace/CommonArtistEditor";
 import { Artist } from "@/types/album";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "../state";

@@ -6,6 +6,7 @@ import { OpenedDocumentAtom } from "../../state";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "./state";
 import AlbumMetaInfoEditor from "./AlbumMetaInfoEditor";
 import styles from "./index.module.scss";
+import DiscsEditor from "./DiscsEditor";
 
 const AlbumEditor: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -56,6 +57,8 @@ const AlbumEditor: React.FC = () => {
     return (
         <div className={styles.albumContainer}>
             <AlbumMetaInfoEditor />
+            <div className={styles.divider} />
+            <DiscsEditor />
         </div>
     );
 };
