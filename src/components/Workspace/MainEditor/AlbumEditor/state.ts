@@ -18,6 +18,12 @@ export enum AlbumDataActionTypes {
     UPDATE_TAGS,
     /** 设置Type */
     UPDATE_TYPE,
+    /** 设置碟片标题 */
+    UPDATE_DISC_TITLE,
+    /** 设置碟片品番 */
+    UPDATE_DISC_CATALOG,
+    /** 删除碟片 */
+    DELETE_DISC,
 }
 
 type AlbumDataActionPayload =
@@ -51,6 +57,26 @@ type AlbumDataActionPayload =
     | {
           type: AlbumDataActionTypes.UPDATE_TYPE;
           payload: string;
+      }
+    | {
+          type: AlbumDataActionTypes.UPDATE_DISC_TITLE;
+          payload: {
+              index: number;
+              title: string;
+          };
+      }
+    | {
+          type: AlbumDataActionTypes.UPDATE_DISC_CATALOG;
+          payload: {
+              index: number;
+              catalog: string;
+          };
+      }
+    | {
+          type: AlbumDataActionTypes.DELETE_DISC;
+          payload: {
+              index: number;
+          };
       };
 
 const albumDataReducer = (
@@ -100,6 +126,41 @@ const albumDataReducer = (
         return {
             ...prev!,
             type: action.payload,
+        };
+    }
+    if (action.type === AlbumDataActionTypes.UPDATE_DISC_TITLE) {
+        return {
+            ...prev!,
+            discs: [
+                ...prev!.discs.slice(0, action.payload.index),
+                {
+                    ...prev!.discs[action.payload.index],
+                    title: action.payload.title,
+                },
+                ...prev!.discs.slice(action.payload.index + 1),
+            ],
+        };
+    }
+    if (action.type === AlbumDataActionTypes.UPDATE_DISC_CATALOG) {
+        return {
+            ...prev!,
+            discs: [
+                ...prev!.discs.slice(0, action.payload.index),
+                {
+                    ...prev!.discs[action.payload.index],
+                    catalog: action.payload.catalog,
+                },
+                ...prev!.discs.slice(action.payload.index + 1),
+            ],
+        };
+    }
+    if (action.type === AlbumDataActionTypes.DELETE_DISC) {
+        return {
+            ...prev!,
+            discs: [
+                ...prev!.discs.slice(0, action.payload.index),
+                ...prev!.discs.slice(action.payload.index + 1),
+            ],
         };
     }
     throw new Error("unknown action type");

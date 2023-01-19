@@ -126,3 +126,31 @@ export function highlightText(text: string, query: string): React.ReactNode[] {
     }
     return tokens;
 }
+
+export function parseCatalog(catalog: string): string[] {
+    const entities: string[] = [];
+
+    // check if catalog has a range indicator
+    if (catalog.indexOf("~") === -1) {
+        entities.push(catalog);
+        return entities;
+    }
+
+    const parts = catalog.split("~");
+    const base = parts[0];
+    const range = parts[1];
+
+    const baseLength = base.length;
+    const rangeLength = range.length;
+    const start = parseInt(base.slice(-rangeLength).padStart(rangeLength, "0"));
+    const end = parseInt(range);
+
+    for (let i = start; i <= end; i++) {
+        const newCatalog =
+            base.slice(0, baseLength - rangeLength) +
+            i.toString().padStart(rangeLength, "0");
+        entities.push(newCatalog);
+    }
+
+    return entities;
+}

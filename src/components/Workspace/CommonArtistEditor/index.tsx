@@ -225,10 +225,11 @@ const ArtistItem: React.FC<ArtistItemProps> = (props: ArtistItemProps) => {
 interface Props {
     initialArtists: Artist[];
     onChange: (newArtists: Artist[]) => void;
+    autoFocus?: boolean;
 }
 
 const CommonArtistEditor: React.FC<Props> = (props: Props) => {
-    const { initialArtists, onChange } = props;
+    const { initialArtists, autoFocus = false, onChange } = props;
     const [artists, setArtists] = useState(initialArtists);
     const [query, setQuery] = useState("");
     const onArtistChange = (index: number, newArtistData: Artist | null) => {
@@ -336,6 +337,9 @@ const CommonArtistEditor: React.FC<Props> = (props: Props) => {
                         ))}
                     </>
                 ),
+                inputProps: {
+                    autoFocus,
+                },
             }}
             popoverProps={{
                 matchTargetWidth: true,

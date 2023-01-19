@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@blueprintjs/core": "^4.14.0",
+    "@blueprintjs/popover2": "^1.11.2",
     "@blueprintjs/select": "^4.8.14",
     "@ltd/j-toml": "^1.37.0",
     "@tauri-apps/api": "^1.2.0",

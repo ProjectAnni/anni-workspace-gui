@@ -48,15 +48,9 @@ export const writeAlbumFile = throttle(
     async (content: ParsedAlbumData, path: string) => {
         const albumData: AlbumData = {
             album_id: content.album_id,
-            ...pick(
-                content,
-                "catalog",
-                "date",
-                "tags",
-                "title",
-                "type",
-                "edition"
-            ),
+            ...pick(content, "catalog", "date", "title", "type"),
+            ...(content.edition ? { edition: content.edition } : {}),
+            ...(content.tags ? { tags: content.tags } : { tags: [] }),
             ...(content.artist
                 ? { artist: stringifyArtists(content.artist) }
                 : { artist: "" }),
@@ -64,7 +58,9 @@ export const writeAlbumFile = throttle(
         };
         for (const disc of content.discs) {
             const discData: DiscData = {
-                ...pick(disc, "title", "catalog", "type"),
+                ...pick(disc, "catalog"),
+                ...(disc.title ? { title: disc.title } : {}),
+                ...(disc.type ? { type: disc.type } : {}),
                 ...(disc.artist
                     ? { artist: stringifyArtists(disc.artist) }
                     : {}),
@@ -72,7 +68,8 @@ export const writeAlbumFile = throttle(
             };
             for (const track of disc.tracks) {
                 const trackData: TrackData = {
-                    ...pick(track, "title", "type"),
+                    ...pick(track, "title"),
+                    ...(track.type ? { type: track.type } : {}),
                     ...(track.artist
                         ? {
                               artist: stringifyArtists(track.artist),

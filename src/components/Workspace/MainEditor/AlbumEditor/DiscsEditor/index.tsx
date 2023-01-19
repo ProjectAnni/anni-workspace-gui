@@ -14,10 +14,9 @@ const DiscsEditor: React.FC = () => {
         <>
             {discs.map((disc, index) => {
                 return (
-                    <>
+                    <React.Fragment key={disc.catalog}>
                         <DiscInfoEditor disc={disc} index={index} />
-                        <div className={styles.discTitleDivider}></div>
-                    </>
+                    </React.Fragment>
                 );
             })}
         </>
