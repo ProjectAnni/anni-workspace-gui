@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { useAtom } from "jotai";
-import { Button, ButtonGroup, Intent } from "@blueprintjs/core";
-import { ParsedDiscData } from "@/types/album";
+import { Button, ButtonGroup, Divider, Icon, Intent } from "@blueprintjs/core";
+import { Artist, ParsedDiscData } from "@/types/album";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "../state";
 import styles from "./index.module.scss";
 import DiscTitleEditor from "./DiscTitleEditor";
 import DiscCatalogEditor from "./DiscCatalogEditor";
+import DiscArtistEditor from "./DiscArtistEditor";
+import DiscTypeEditor from "./DiscTypeEditor";
 
 interface Props {
     disc: ParsedDiscData;
@@ -32,6 +34,16 @@ const DiscInfoEditor: React.FC<Props> = (props) => {
             payload: {
                 index,
                 catalog: newCatalog,
+            },
+        });
+    };
+
+    const onDiscArtistChange = (newArtists: Artist[]) => {
+        dispatch({
+            type: AlbumDataActionTypes.UPDATE_DISC_ARTIST,
+            payload: {
+                index,
+                artists: newArtists,
             },
         });
     };
@@ -68,8 +80,18 @@ const DiscInfoEditor: React.FC<Props> = (props) => {
             </div>
             <div className={styles.discTitleDivider}></div>
             <div className={styles.secondaryActions}>
+                <Icon
+                    icon="chevron-right"
+                    size={12}
+                    className={styles.lefIcon}
+                />
                 <ButtonGroup minimal>
-                    <Button text="设置艺术家" minimal className={styles.secondaryActionButton} />
+                    <DiscArtistEditor
+                        disc={disc}
+                        onChange={onDiscArtistChange}
+                    />
+                    <Divider />
+                    <DiscTypeEditor disc={disc} onChange={() => {}} />
                 </ButtonGroup>
             </div>
         </>

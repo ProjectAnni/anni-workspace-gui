@@ -58,6 +58,7 @@ const ArtistSuggestInput: React.FC<Props> = (props) => {
                         key={artist.id}
                         itemRendererProps={itemRendererProps}
                         onClick={() => {
+                            setQuery("");
                             onItemSelected(artist);
                         }}
                     />

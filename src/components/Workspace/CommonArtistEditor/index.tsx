@@ -274,8 +274,10 @@ const CommonArtistEditor: React.FC<Props> = (props: Props) => {
             return;
         }
     };
+
     return (
         <MultiSelect2<IndexedArtist>
+            query={query}
             tagRenderer={() => null}
             items={[]}
             selectedItems={[]}
@@ -286,7 +288,8 @@ const CommonArtistEditor: React.FC<Props> = (props: Props) => {
                     query={query}
                     key={artist.id}
                     itemRendererProps={itemRendererProps}
-                    onClick={() => {
+                    onClick={(e) => {
+                        setQuery("");
                         onArtistAdded(
                             parseArtists(artist.serializedFullStr)[0]
                         );

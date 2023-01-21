@@ -22,6 +22,8 @@ export enum AlbumDataActionTypes {
     UPDATE_DISC_TITLE,
     /** 设置碟片品番 */
     UPDATE_DISC_CATALOG,
+    /** 设置碟片艺术家 */
+    UPDATE_DISC_ARTIST,
     /** 删除碟片 */
     DELETE_DISC,
 }
@@ -76,6 +78,13 @@ type AlbumDataActionPayload =
           type: AlbumDataActionTypes.DELETE_DISC;
           payload: {
               index: number;
+          };
+      }
+    | {
+          type: AlbumDataActionTypes.UPDATE_DISC_ARTIST;
+          payload: {
+              index: number;
+              artists: Artist[];
           };
       };
 
@@ -149,6 +158,19 @@ const albumDataReducer = (
                 {
                     ...prev!.discs[action.payload.index],
                     catalog: action.payload.catalog,
+                },
+                ...prev!.discs.slice(action.payload.index + 1),
+            ],
+        };
+    }
+    if (action.type === AlbumDataActionTypes.UPDATE_DISC_ARTIST) {
+        return {
+            ...prev!,
+            discs: [
+                ...prev!.discs.slice(0, action.payload.index),
+                {
+                    ...prev!.discs[action.payload.index],
+                    artist: action.payload.artists,
                 },
                 ...prev!.discs.slice(action.payload.index + 1),
             ],

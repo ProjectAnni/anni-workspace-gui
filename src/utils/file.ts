@@ -61,7 +61,7 @@ export const writeAlbumFile = throttle(
                 ...pick(disc, "catalog"),
                 ...(disc.title ? { title: disc.title } : {}),
                 ...(disc.type ? { type: disc.type } : {}),
-                ...(disc.artist
+                ...(disc.artist?.length
                     ? { artist: stringifyArtists(disc.artist) }
                     : {}),
                 tracks: [],
@@ -70,7 +70,7 @@ export const writeAlbumFile = throttle(
                 const trackData: TrackData = {
                     ...pick(track, "title"),
                     ...(track.type ? { type: track.type } : {}),
-                    ...(track.artist
+                    ...(track.artist?.length
                         ? {
                               artist: stringifyArtists(track.artist),
                           }
