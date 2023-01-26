@@ -20,7 +20,7 @@ const OPTIONS = [
     },
     {
         value: "radio",
-        label: "label",
+        label: "radio",
     },
     {
         value: "vocal",

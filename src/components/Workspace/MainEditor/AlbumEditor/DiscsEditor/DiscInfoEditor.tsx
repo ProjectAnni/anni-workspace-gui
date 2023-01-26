@@ -16,6 +16,7 @@ interface Props {
 
 const DiscInfoEditor: React.FC<Props> = (props) => {
     const [albumData, dispatch] = useAtom(AlbumDataReducerAtom);
+    const { type: albumType } = albumData || {};
     const { disc, index } = props;
 
     const onDiscTitleChange = (newTitle: string) => {
@@ -46,6 +47,26 @@ const DiscInfoEditor: React.FC<Props> = (props) => {
                 artists: newArtists,
             },
         });
+    };
+
+    const onDiscTypeChange = (newType: string) => {
+        if (newType === albumType) {
+            dispatch({
+                type: AlbumDataActionTypes.UPDATE_DISC_TYPE,
+                payload: {
+                    index,
+                    type: "",
+                },
+            });
+        } else {
+            dispatch({
+                type: AlbumDataActionTypes.UPDATE_DISC_TYPE,
+                payload: {
+                    index,
+                    type: newType,
+                },
+            });
+        }
     };
 
     const onDiscDelete = () => {
@@ -83,7 +104,7 @@ const DiscInfoEditor: React.FC<Props> = (props) => {
                 <Icon
                     icon="chevron-right"
                     size={12}
-                    className={styles.lefIcon}
+                    className={styles.leftIcon}
                 />
                 <ButtonGroup minimal>
                     <DiscArtistEditor
@@ -91,7 +112,7 @@ const DiscInfoEditor: React.FC<Props> = (props) => {
                         onChange={onDiscArtistChange}
                     />
                     <Divider />
-                    <DiscTypeEditor disc={disc} onChange={() => {}} />
+                    <DiscTypeEditor disc={disc} onChange={onDiscTypeChange} />
                 </ButtonGroup>
             </div>
         </>

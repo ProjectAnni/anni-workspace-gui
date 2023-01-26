@@ -1,11 +1,11 @@
 import React, { useState } from "react";
+import { useAtom } from "jotai";
 import { Button, Card } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
-import { stringifyArtists } from "@/utils/helper";
-import CommonArtistEditor from "@/components/Workspace/CommonArtistEditor";
-import { Artist, ParsedDiscData } from "@/types/album";
-import styles from "./index.module.scss";
+import { ParsedDiscData } from "@/types/album";
 import CommonTypeEditor from "@/components/Workspace/CommonTypeEditor";
+import { AlbumDataReducerAtom } from "../state";
+import styles from "./index.module.scss";
 
 interface Props {
     disc: ParsedDiscData;
@@ -15,7 +15,9 @@ interface Props {
 const DiscTypeEditor: React.FC<Props> = (props) => {
     const { disc, onChange } = props;
     const { type } = disc || {};
-    const [localType, setLocalType] = useState<string>(type || "");
+    const [albumData, dispatch] = useAtom(AlbumDataReducerAtom);
+    const { type: albumType } = albumData || {};
+    const [localType, setLocalType] = useState<string>(type || albumType || "");
     const [isShowInputCard, setIsShowInputCard] = useState(false);
 
     const onTypeChange = (newType: string) => {
@@ -24,42 +26,7 @@ const DiscTypeEditor: React.FC<Props> = (props) => {
     };
     return (
         <>
-            <Popover2
-                isOpen={isShowInputCard}
-                minimal
-                content={
-                    <Card
-                        className={styles.inputCard}
-                        style={{
-                            width: "auto",
-                            // minWidth: "3rem",
-                            // maxWidth: "calc(100vw - 2.88rem)",
-                        }}
-                        // onClick={(e) => {
-                        //     // 阻止点击冒泡（防止点击候选项导致popover关闭)
-                        //     e.stopPropagation();
-                        // }}
-                    >
-                        <CommonTypeEditor
-                            initialValue={localType}
-                            onChange={onTypeChange}
-                        />
-                    </Card>
-                }
-                position="bottom-left"
-                // modifiers={{
-                //     preventOverflow: {
-                //         enabled: false,
-                //     },
-                // }}
-                onInteraction={(nextOpenState, e) => {
-                    setIsShowInputCard(nextOpenState);
-                }}
-                targetTagName="div"
-            >
-                <div className={styles.popoverAnchor}></div>
-            </Popover2>
-            {type? (
+            {type ? (
                 <>
                     <div
                         className={styles.secondaryActionText}
@@ -67,9 +34,7 @@ const DiscTypeEditor: React.FC<Props> = (props) => {
                             setIsShowInputCard(true);
                         }}
                     >
-                        <span title="点击设置类型">
-                            {type}
-                        </span>
+                        <span title="点击设置类型">{type}</span>
                     </div>
                 </>
             ) : (
@@ -82,6 +47,30 @@ const DiscTypeEditor: React.FC<Props> = (props) => {
                     }}
                 />
             )}
+            <Popover2
+                isOpen={isShowInputCard}
+                minimal
+                content={
+                    <Card
+                        className={styles.inputCard}
+                        style={{
+                            width: "auto",
+                        }}
+                    >
+                        <CommonTypeEditor
+                            initialValue={localType}
+                            onChange={onTypeChange}
+                        />
+                    </Card>
+                }
+                position="bottom-left"
+                onInteraction={(nextOpenState, e) => {
+                    setIsShowInputCard(nextOpenState);
+                }}
+                targetTagName="div"
+            >
+                <div className={styles.popoverAnchor}></div>
+            </Popover2>
         </>
     );
 };

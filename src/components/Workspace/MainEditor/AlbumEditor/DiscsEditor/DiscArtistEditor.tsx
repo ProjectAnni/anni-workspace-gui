@@ -23,6 +23,29 @@ const DiscArtistEditor: React.FC<Props> = (props) => {
     };
     return (
         <>
+            {!!artist?.length ? (
+                <>
+                    <div
+                        className={styles.secondaryActionText}
+                        onClick={() => {
+                            setIsShowInputCard(true);
+                        }}
+                    >
+                        <span title="点击设置艺术家">
+                            {stringifyArtists(artist)}
+                        </span>
+                    </div>
+                </>
+            ) : (
+                <Button
+                    text="设置艺术家"
+                    minimal
+                    className={styles.secondaryActionButton}
+                    onClick={() => {
+                        setIsShowInputCard(true);
+                    }}
+                />
+            )}
             <Popover2
                 isOpen={isShowInputCard}
                 minimal
@@ -59,29 +82,6 @@ const DiscArtistEditor: React.FC<Props> = (props) => {
             >
                 <div className={styles.popoverAnchor}></div>
             </Popover2>
-            {!!artist?.length ? (
-                <>
-                    <div
-                        className={styles.secondaryActionText}
-                        onClick={() => {
-                            setIsShowInputCard(true);
-                        }}
-                    >
-                        <span title="点击设置艺术家">
-                            {stringifyArtists(artist)}
-                        </span>
-                    </div>
-                </>
-            ) : (
-                <Button
-                    text="设置艺术家"
-                    minimal
-                    className={styles.secondaryActionButton}
-                    onClick={() => {
-                        setIsShowInputCard(true);
-                    }}
-                />
-            )}
         </>
     );
 };
