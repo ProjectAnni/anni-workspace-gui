@@ -1,3 +1,7 @@
+.discContainer {
+    margin-bottom: 0.16rem;
+}
+
 .discTitleContainer {
     display: flex;
     align-items: baseline;
@@ -41,6 +45,10 @@
     align-items: center;
 }
 
+.secondaryActionButtonGroup {
+    max-width: 100%;
+}
+
 .secondaryActionButton.secondaryActionButton {
     min-height: 0.18rem;
     flex-shrink: 0;
@@ -57,12 +65,21 @@
     padding: 0 0.04rem;
     font-size: 0.12rem;
     color: rgba(#000, 0.5);
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
     cursor: pointer;
 
-    &:first-child {
+    span {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+}
+
+.discArtist {
+    max-width: 50%;
+}
+
+.secondaryActionButtonGroup {
+    & > div:first-child + .secondaryActionText {
         margin-left: 0.06rem;
     }
 }

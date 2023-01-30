@@ -106,7 +106,7 @@ const DiscInfoEditor: React.FC<Props> = (props) => {
                     size={12}
                     className={styles.leftIcon}
                 />
-                <ButtonGroup minimal>
+                <ButtonGroup minimal className={styles.secondaryActionButtonGroup}>
                     <DiscArtistEditor
                         disc={disc}
                         onChange={onDiscArtistChange}

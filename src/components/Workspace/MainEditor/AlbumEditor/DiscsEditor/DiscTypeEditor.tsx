@@ -26,27 +26,6 @@ const DiscTypeEditor: React.FC<Props> = (props) => {
     };
     return (
         <>
-            {type ? (
-                <>
-                    <div
-                        className={styles.secondaryActionText}
-                        onClick={() => {
-                            setIsShowInputCard(true);
-                        }}
-                    >
-                        <span title="点击设置类型">{type}</span>
-                    </div>
-                </>
-            ) : (
-                <Button
-                    text="设置类型"
-                    minimal
-                    className={styles.secondaryActionButton}
-                    onClick={() => {
-                        setIsShowInputCard(true);
-                    }}
-                />
-            )}
             <Popover2
                 isOpen={isShowInputCard}
                 minimal
@@ -71,6 +50,27 @@ const DiscTypeEditor: React.FC<Props> = (props) => {
             >
                 <div className={styles.popoverAnchor}></div>
             </Popover2>
+            {type ? (
+                <>
+                    <div
+                        className={styles.secondaryActionText}
+                        onClick={() => {
+                            setIsShowInputCard(true);
+                        }}
+                    >
+                        <span title="点击设置类型">{type}</span>
+                    </div>
+                </>
+            ) : (
+                <Button
+                    text="设置类型"
+                    minimal
+                    className={styles.secondaryActionButton}
+                    onClick={() => {
+                        setIsShowInputCard(true);
+                    }}
+                />
+            )}
         </>
     );
 };

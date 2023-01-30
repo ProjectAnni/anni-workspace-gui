@@ -3,6 +3,7 @@ import { useAtom } from "jotai";
 import { AlbumDataReducerAtom } from "../state";
 import DiscInfoEditor from "./DiscInfoEditor";
 import styles from "./index.module.scss";
+import TrackEditor from "./TrackEditor";
 
 const DiscsEditor: React.FC = () => {
     const [albumData, dispatch] = useAtom(AlbumDataReducerAtom);
@@ -12,11 +13,23 @@ const DiscsEditor: React.FC = () => {
     }
     return (
         <>
-            {discs.map((disc, index) => {
+            {discs.map((disc, discIndex) => {
+                const { tracks } = disc;
                 return (
-                    <React.Fragment key={disc.catalog}>
-                        <DiscInfoEditor disc={disc} index={index} />
-                    </React.Fragment>
+                    <div key={disc.catalog} className={styles.discContainer}>
+                        <DiscInfoEditor disc={disc} index={discIndex} />
+                        {tracks.map((track, trackIndex) => {
+                            return (
+                                <TrackEditor
+                                    key={trackIndex}
+                                    track={track}
+                                    trackIndex={trackIndex}
+                                    disc={disc}
+                                    discIndex={discIndex}
+                                />
+                            );
+                        })}
+                    </div>
                 );
             })}
         </>

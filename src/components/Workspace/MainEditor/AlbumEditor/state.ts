@@ -1,5 +1,5 @@
 import { atomWithReducer } from "jotai/utils";
-import { Artist, ParsedAlbumData } from "@/types/album";
+import { Artist, ParsedAlbumData, ParsedTrackData } from "@/types/album";
 
 export enum AlbumDataActionTypes {
     /** 重置数据 */
@@ -28,6 +28,8 @@ export enum AlbumDataActionTypes {
     UPDATE_DISC_TYPE,
     /** 删除碟片 */
     DELETE_DISC,
+    /** 更新音轨 */
+    UPDATE_TRACK,
 }
 
 type AlbumDataActionPayload =
@@ -94,6 +96,14 @@ type AlbumDataActionPayload =
           type: AlbumDataActionTypes.DELETE_DISC;
           payload: {
               index: number;
+          };
+      }
+    | {
+          type: AlbumDataActionTypes.UPDATE_TRACK;
+          payload: {
+              discIndex: number;
+              trackIndex: number;
+              track: ParsedTrackData;
           };
       };
 
@@ -204,6 +214,28 @@ const albumDataReducer = (
             discs: [
                 ...prev!.discs.slice(0, action.payload.index),
                 ...prev!.discs.slice(action.payload.index + 1),
+            ],
+        };
+    }
+    if (action.type === AlbumDataActionTypes.UPDATE_TRACK) {
+        return {
+            ...prev!,
+            discs: [
+                ...prev!.discs.slice(0, action.payload.discIndex),
+                {
+                    ...prev!.discs[action.payload.discIndex],
+                    tracks: [
+                        ...prev!.discs[action.payload.discIndex].tracks.slice(
+                            0,
+                            action.payload.trackIndex
+                        ),
+                        action.payload.track,
+                        ...prev!.discs[action.payload.discIndex].tracks.slice(
+                            action.payload.trackIndex + 1
+                        ),
+                    ],
+                },
+                ...prev!.discs.slice(action.payload.discIndex + 1),
             ],
         };
     }
