@@ -51,6 +51,7 @@
     font-size: 0.12rem;
     line-height: 0.22rem;
     color: rgba(#000, 0.5);
+    cursor: pointer;
 
     &:first-child {
         margin-left: 0.08rem;
@@ -59,4 +60,8 @@
     .prefix {
         user-select: none;
     }
+}
+
+.popoverAnchor {
+    height: 0.16rem;
 }

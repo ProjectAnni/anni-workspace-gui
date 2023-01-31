@@ -50,23 +50,13 @@ const DiscInfoEditor: React.FC<Props> = (props) => {
     };
 
     const onDiscTypeChange = (newType: string) => {
-        if (newType === albumType) {
-            dispatch({
-                type: AlbumDataActionTypes.UPDATE_DISC_TYPE,
-                payload: {
-                    index,
-                    type: "",
-                },
-            });
-        } else {
-            dispatch({
-                type: AlbumDataActionTypes.UPDATE_DISC_TYPE,
-                payload: {
-                    index,
-                    type: newType,
-                },
-            });
-        }
+        dispatch({
+            type: AlbumDataActionTypes.UPDATE_DISC_TYPE,
+            payload: {
+                index,
+                type: newType === albumType ? "" : newType,
+            },
+        });
     };
 
     const onDiscDelete = () => {
@@ -106,7 +96,10 @@ const DiscInfoEditor: React.FC<Props> = (props) => {
                     size={12}
                     className={styles.leftIcon}
                 />
-                <ButtonGroup minimal className={styles.secondaryActionButtonGroup}>
+                <ButtonGroup
+                    minimal
+                    className={styles.secondaryActionButtonGroup}
+                >
                     <DiscArtistEditor
                         disc={disc}
                         onChange={onDiscArtistChange}

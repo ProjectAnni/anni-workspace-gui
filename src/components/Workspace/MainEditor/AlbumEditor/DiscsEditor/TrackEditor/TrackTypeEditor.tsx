@@ -1,23 +1,27 @@
 import React, { useState } from "react";
 import { useAtom } from "jotai";
-import { Button, Card } from "@blueprintjs/core";
+import { Card, Button } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
-import { ParsedDiscData } from "@/types/album";
 import CommonTypeEditor from "@/components/Workspace/CommonTypeEditor";
-import { AlbumDataReducerAtom } from "../state";
+import { ParsedTrackData, ParsedDiscData } from "@/types/album";
+import { AlbumDataReducerAtom } from "../../state";
 import styles from "./index.module.scss";
 
 interface Props {
+    trackIndex: number;
+    track: ParsedTrackData;
+    discIndex: number;
     disc: ParsedDiscData;
     onChange: (newType: string) => void;
 }
 
-const DiscTypeEditor: React.FC<Props> = (props) => {
-    const { disc, onChange } = props;
-    const { type } = disc || {};
+const TrackTypeEditor: React.FC<Props> = (props) => {
+    const { track, disc, onChange } = props;
     const [albumData, dispatch] = useAtom(AlbumDataReducerAtom);
     const { type: albumType } = albumData || {};
-    const [localType, setLocalType] = useState<string>(type || "");
+    const { type: discType } = disc;
+    const { type: trackType } = track;
+    const [localType, setLocalType] = useState<string>(trackType || "");
     const [isShowInputCard, setIsShowInputCard] = useState(false);
 
     const onTypeChange = (newType: string) => {
@@ -37,7 +41,9 @@ const DiscTypeEditor: React.FC<Props> = (props) => {
                         }}
                     >
                         <CommonTypeEditor
-                            initialValue={localType || albumType || ''}
+                            initialValue={
+                                localType || discType || albumType || ""
+                            }
                             onChange={onTypeChange}
                         />
                     </Card>
@@ -50,7 +56,7 @@ const DiscTypeEditor: React.FC<Props> = (props) => {
             >
                 <div className={styles.popoverAnchor}></div>
             </Popover2>
-            {type ? (
+            {trackType ? (
                 <>
                     <div
                         className={styles.secondaryActionText}
@@ -58,7 +64,7 @@ const DiscTypeEditor: React.FC<Props> = (props) => {
                             setIsShowInputCard(true);
                         }}
                     >
-                        <span title="点击设置类型">{type}</span>
+                        <span title="点击设置类型">{trackType}</span>
                     </div>
                 </>
             ) : (
@@ -75,4 +81,4 @@ const DiscTypeEditor: React.FC<Props> = (props) => {
     );
 };
 
-export default DiscTypeEditor;
+export default TrackTypeEditor;
