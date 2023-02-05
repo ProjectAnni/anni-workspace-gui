@@ -1,89 +1,29 @@
-import { pick, throttle } from "lodash";
-import { invoke } from "@tauri-apps/api";
-import {
-    AlbumData,
-    DiscData,
-    ParsedAlbumData,
-    ParsedDiscData,
-    ParsedTrackData,
-    TrackData,
-} from "@/types/album";
-import { parseArtists, stringifyArtists } from "./helper";
+import { fs, path } from "@tauri-apps/api";
 
-export const readAlbumFile = async (path: string): Promise<ParsedAlbumData> => {
-    const content = (await invoke("read_album_file", {
-        path,
-    })) as AlbumData;
-    const parsedAlbum: ParsedAlbumData = {
-        album_id: content.album_id,
-        ...pick(content, "catalog", "date", "tags", "title", "type", "edition"),
-        ...(content.artist
-            ? { artist: parseArtists(content.artist) }
-            : { artist: [] }),
-        discs: [],
-    };
-    for (const disc of content.discs) {
-        const parsedDisc: ParsedDiscData = {
-            ...pick(disc, "title", "catalog", "type"),
-            ...(disc.artist ? { artist: parseArtists(disc.artist) } : {}),
-            tracks: [],
-        };
-        for (const track of disc.tracks) {
-            const parsedTrack: ParsedTrackData = {
-                ...pick(track, "title", "type"),
-                ...(track.artist
-                    ? {
-                          artist: parseArtists(track.artist),
-                      }
-                    : {}),
-            };
-            parsedDisc.tracks.push(parsedTrack);
-        }
-        parsedAlbum.discs.push(parsedDisc);
+class DestinationAlreadyExistsError extends Error {}
+class UnsupportedFileType extends Error {}
+
+export const copyDirectory = async (origin: string, destination: string) => {
+    console.log(`Copy from ${origin} to ${destination}`);
+    if (await fs.exists(destination)) {
+        throw new DestinationAlreadyExistsError("目标文件夹已存在");
     }
-    return parsedAlbum;
-};
-
-export const writeAlbumFile = throttle(
-    async (content: ParsedAlbumData, path: string) => {
-        const albumData: AlbumData = {
-            album_id: content.album_id,
-            ...pick(content, "catalog", "date", "title", "type"),
-            ...(content.edition ? { edition: content.edition } : {}),
-            ...(content.tags ? { tags: content.tags } : { tags: [] }),
-            ...(content.artist
-                ? { artist: stringifyArtists(content.artist) }
-                : { artist: "" }),
-            discs: [],
-        };
-        for (const disc of content.discs) {
-            const discData: DiscData = {
-                ...pick(disc, "catalog"),
-                ...(disc.title ? { title: disc.title } : {}),
-                ...(disc.type ? { type: disc.type } : {}),
-                ...(disc.artist?.length
-                    ? { artist: stringifyArtists(disc.artist) }
-                    : {}),
-                tracks: [],
-            };
-            for (const track of disc.tracks) {
-                const trackData: TrackData = {
-                    ...pick(track, "title"),
-                    ...(track.type ? { type: track.type } : {}),
-                    ...(track.artist?.length
-                        ? {
-                              artist: stringifyArtists(track.artist),
-                          }
-                        : {}),
-                };
-                discData.tracks.push(trackData);
-            }
-            albumData.discs.push(discData);
+    const dir = await fs.readDir(origin);
+    await fs.createDir(destination);
+    for (const entry of dir) {
+        if (!entry.name) {
+            throw new UnsupportedFileType("文件类型不受支持");
         }
-        await invoke("write_album_file", {
-            path,
-            albumJsonStr: JSON.stringify(albumData),
-        });
-    },
-    2000
-);
+        if (entry.children) {
+            await copyDirectory(
+                entry.path,
+                await path.resolve(destination, entry.name)
+            );
+        } else {
+            await fs.copyFile(
+                entry.path,
+                await path.resolve(destination, entry.name)
+            );
+        }
+    }
+};

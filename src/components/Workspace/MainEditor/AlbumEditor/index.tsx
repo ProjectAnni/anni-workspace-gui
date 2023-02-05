@@ -1,7 +1,7 @@
 import { useAtom, useAtomValue } from "jotai";
 import React, { useEffect, useState } from "react";
 import { Spinner } from "@blueprintjs/core";
-import { readAlbumFile, writeAlbumFile } from "@/utils/file";
+import { readAlbumFile, writeAlbumFile } from "@/utils/album";
 import { OpenedDocumentAtom } from "../../state";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "./state";
 import AlbumMetaInfoEditor from "./AlbumMetaInfoEditor";

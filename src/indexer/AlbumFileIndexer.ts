@@ -1,5 +1,5 @@
 import MiniSearch from "minisearch";
-import { readAlbumFile } from "@/utils/file";
+import { readAlbumFile } from "@/utils/album";
 import { stringifyArtist } from "@/utils/helper";
 
 export interface IndexedArtist {

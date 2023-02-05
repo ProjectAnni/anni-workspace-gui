@@ -3,6 +3,7 @@ import { useAtom } from "jotai";
 import SetupGuide from "./components/SetupGuide";
 import { WorkspaceBasePathAtom } from "./components/Workspace/state";
 import Workspace from "./components/Workspace";
+import DiscImportGuide from "./components/DiscImportGuide";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "./App.css";
 
@@ -13,6 +14,7 @@ function App() {
             {workspaceBasePath ? (
                 <Suspense>
                     <Workspace />
+                    <DiscImportGuide />
                 </Suspense>
             ) : (
                 <SetupGuide />
