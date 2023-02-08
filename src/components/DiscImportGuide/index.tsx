@@ -7,12 +7,18 @@ import { AppToaster } from "@/utils/toaster";
 import { WorkspaceBasePathAtom } from "../Workspace/state";
 import { copyDirectory } from "@/utils/file";
 import BasicInfoEditDialog from "./BasicInfoEditDialog";
+import CoverConfirmDialog from "./CoverConfirmDialog";
 
 const DiscImportGuide: React.FC = () => {
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
+    const [releaseDate, setReleaseDate] = useState("");
+    const [catalog, setCatalog] = useState("");
+    const [albumName, setAlbumName] = useState("");
+    const [edition, setEdition] = useState("");
     const [workingDirectoryName, setWorkingDirectoryName] = useState("");
     const [workingDirectoryPath, setWorkingDirectoryPath] = useState("");
     const [isShowBasicInfoEditDialog, setIsShowBasicInfoEditDialog] = useState(false);
+    const [isShowCoverConfirmDialog, setIsShowCoverConfirmDialog] = useState(false);
     const processLock = useRef(false);
     const onFileDrop = useCallback(
         async (filePath: string) => {
@@ -41,7 +47,7 @@ const DiscImportGuide: React.FC = () => {
                 //     return;
                 // }
                 AppToaster.show({ message: "复制文件.." });
-                await copyDirectory(filePath, await path.resolve(workspaceBasePath, dirname));
+                //await copyDirectory(filePath, await path.resolve(workspaceBasePath, dirname));
                 AppToaster.show({
                     message: "已导入工作空间",
                     intent: Intent.SUCCESS,
@@ -50,7 +56,6 @@ const DiscImportGuide: React.FC = () => {
                 setWorkingDirectoryPath(filePath);
                 setIsShowBasicInfoEditDialog(true);
             } catch (e) {
-                console.log(e);
                 if (e instanceof Error) {
                     AppToaster.show({
                         message: `导入失败: ${e.message}`,
@@ -59,18 +64,49 @@ const DiscImportGuide: React.FC = () => {
                     return;
                 }
                 AppToaster.show({ message: "导入失败", intent: Intent.DANGER });
-            } finally {
                 processLock.current = false;
             }
         },
         [workspaceBasePath]
     );
 
+    const onBasicInfoConfirm = useCallback(
+        async (releaseDate: string, catalog: string, albumName: string, edition: string) => {
+            // TODO: 多Disc情况下允许用户选择哪个是Disc 1哪个是Disc2
+            // TODO: 允许用户为不同Disc选择不同封面
+            // 先简单做，只能同一个封面 放在album/cover.jpg
+            setReleaseDate(releaseDate);
+            setCatalog(catalog);
+            setAlbumName(albumName);
+            if (edition) {
+                setEdition(edition);
+            }
+            setIsShowBasicInfoEditDialog(false);
+            setIsShowCoverConfirmDialog(true);
+        },
+        []
+    );
+
     useFileDrop({ onDrop: onFileDrop });
 
     return (
         <>
-            <BasicInfoEditDialog isOpen={isShowBasicInfoEditDialog} workingDirectoryName={workingDirectoryName} />
+            <BasicInfoEditDialog
+                isOpen={isShowBasicInfoEditDialog}
+                workingDirectoryName={workingDirectoryName}
+                onClose={() => {
+                    setIsShowBasicInfoEditDialog(false);
+                }}
+                onConfirm={onBasicInfoConfirm}
+            />
+            <CoverConfirmDialog
+                isOpen={isShowCoverConfirmDialog}
+                workingDirectoryPath={workingDirectoryPath}
+                albumName={albumName}
+                onClose={() => {
+                    setIsShowCoverConfirmDialog(false);
+                }}
+            />
         </>
     );
 };

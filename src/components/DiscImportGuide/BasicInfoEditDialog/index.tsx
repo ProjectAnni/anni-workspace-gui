@@ -1,41 +1,88 @@
-import React, { useEffect, useState } from "react";
-import { Dialog, DialogBody, FormGroup, InputGroup } from "@blueprintjs/core";
+import React, { useLayoutEffect, useState } from "react";
+import { Button, Dialog, DialogBody, DialogFooter, FormGroup, InputGroup, Intent } from "@blueprintjs/core";
+import CommonDateEditor from "@/components/Workspace/CommonDateEditor";
 
 interface Props {
     isOpen: boolean;
     workingDirectoryName: string;
+    onClose: () => void;
+    onConfirm: (releaseDate: string, catalog: string, albumName: string, edition: string) => void;
 }
 
 const ALBUM_INFO_REGEX =
     /^\[(?<Year>\d{4}|\d{2})-?(?<Month>\d{2})-?(?<Date>\d{2})]\[(?<Catalog>[^\]]+)] (?<Name>.+?)(?:【(?<Edition>[^】]+)】)?(?: \[(?<DiscCount>\d+) Discs])?$/i;
 
 const BasicInfoEditDialog: React.FC<Props> = (props) => {
-    const { isOpen, workingDirectoryName } = props;
+    const { isOpen, workingDirectoryName, onClose, onConfirm } = props;
     const [releaseDate, setReleaseDate] = useState("");
     const [catalog, setCatalog] = useState("");
     const [albumName, setAlbumName] = useState("");
-    useEffect(() => {
+    const [edition, setEdition] = useState("");
+    useLayoutEffect(() => {
         const parsedDirectoryName = workingDirectoryName.match(ALBUM_INFO_REGEX);
         if (parsedDirectoryName?.groups) {
             const { Year, Month, Date, Catalog, Name, Edition, DiscCount } = parsedDirectoryName.groups;
             setReleaseDate(Year.length === 4 ? `${Year}-${Month}-${Date}` : `20${Year}-${Month}-${Year}`);
             setCatalog(Catalog);
             setAlbumName(Name);
+            if (Edition) {
+                setEdition(Edition);
+            }
         }
     }, [workingDirectoryName]);
+    const onButtonClick = () => {
+        onConfirm(releaseDate, catalog, albumName, edition);
+    };
     return (
-        <Dialog isOpen={isOpen} title="基本信息">
+        <Dialog
+            isOpen={isOpen}
+            title="请填写碟片基本信息"
+            onClose={onClose}
+            canEscapeKeyClose={false}
+            canOutsideClickClose={false}
+        >
             <DialogBody>
-                <FormGroup label="发售日期">
-                    <InputGroup value={releaseDate} />
+                <CommonDateEditor
+                    initialValue={releaseDate}
+                    onChange={(newDate) => {
+                        setReleaseDate(newDate);
+                    }}
+                />
+                <FormGroup label="品番" labelInfo="(required)">
+                    <InputGroup
+                        value={catalog}
+                        onChange={(e) => {
+                            setCatalog(e.target.value);
+                        }}
+                    />
                 </FormGroup>
-                <FormGroup label="品番">
-                    <InputGroup value={catalog} />
+                <FormGroup label="碟片名" labelInfo="(required)">
+                    <InputGroup
+                        value={albumName}
+                        onChange={(e) => {
+                            setAlbumName(e.target.value);
+                        }}
+                    />
                 </FormGroup>
-                <FormGroup label="碟片名">
-                    <InputGroup value={albumName} />
+                <FormGroup label="版本">
+                    <InputGroup
+                        value={edition}
+                        placeholder="没有就留空吧"
+                        onChange={(e) => {
+                            setEdition(e.target.value);
+                        }}
+                    />
                 </FormGroup>
             </DialogBody>
+            <DialogFooter
+                actions={
+                    <>
+                        <Button intent={Intent.PRIMARY} onClick={onButtonClick}>
+                            确认导入
+                        </Button>
+                    </>
+                }
+            ></DialogFooter>
         </Dialog>
     );
 };

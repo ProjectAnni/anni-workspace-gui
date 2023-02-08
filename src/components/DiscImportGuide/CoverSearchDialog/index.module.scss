@@ -1,0 +1,66 @@
+.divider {
+    margin: 0.08rem 0;
+    background-color: rgba(#000, 0.3);
+}
+
+.resultContainer {
+    min-height: 2rem;
+}
+
+.noResult,
+.loading {
+    width: 100%;
+    height: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.coverItemList {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.coverItem {
+    position: relative;
+    width: 20%;
+    padding-top: 20%;
+    margin-left: 6.665%;
+    margin-top: 0.12rem;
+    cursor: pointer;
+    img {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &.first {
+        margin-left: 0;
+    }
+
+    &:hover {
+        .coverItemActions {
+            opacity: 1;
+        }
+    }
+}
+
+.coverItemActions {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(#000, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    user-select: none;
+}
