@@ -26,3 +26,11 @@ export const searchCoverFromITunes = async (keyword: string) => {
     }
     return covers;
 };
+
+export const downloadCover = async (url: string) => {
+    const response = await fetch<number[]>(url, {
+        method: "GET",
+        responseType: ResponseType.Binary,
+    });
+    return new Uint8Array(response.data);
+};

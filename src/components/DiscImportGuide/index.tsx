@@ -8,6 +8,7 @@ import { WorkspaceBasePathAtom } from "../Workspace/state";
 import { copyDirectory } from "@/utils/file";
 import BasicInfoEditDialog from "./BasicInfoEditDialog";
 import CoverConfirmDialog from "./CoverConfirmDialog";
+import { downloadCover } from "./services";
 
 const DiscImportGuide: React.FC = () => {
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
@@ -15,6 +16,8 @@ const DiscImportGuide: React.FC = () => {
     const [catalog, setCatalog] = useState("");
     const [albumName, setAlbumName] = useState("");
     const [edition, setEdition] = useState("");
+    const [originDirectoryName, setOriginDirectoryName] = useState("");
+    const [originDirectoryPath, setOriginDirectoryPath] = useState("");
     const [workingDirectoryName, setWorkingDirectoryName] = useState("");
     const [workingDirectoryPath, setWorkingDirectoryPath] = useState("");
     const [isShowBasicInfoEditDialog, setIsShowBasicInfoEditDialog] = useState(false);
@@ -47,13 +50,16 @@ const DiscImportGuide: React.FC = () => {
                 //     return;
                 // }
                 AppToaster.show({ message: "复制文件.." });
-                //await copyDirectory(filePath, await path.resolve(workspaceBasePath, dirname));
+                const destination = await path.resolve(workspaceBasePath, dirname);
+                await copyDirectory(filePath, destination);
                 AppToaster.show({
                     message: "已导入工作空间",
                     intent: Intent.SUCCESS,
                 });
+                setOriginDirectoryName(dirname);
                 setWorkingDirectoryName(dirname);
-                setWorkingDirectoryPath(filePath);
+                setOriginDirectoryPath(filePath);
+                setWorkingDirectoryPath(destination);
                 setIsShowBasicInfoEditDialog(true);
             } catch (e) {
                 if (e instanceof Error) {

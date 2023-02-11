@@ -92,3 +92,16 @@ export const readAlbumCover = async (baseDirectory: string) => {
     }
     return null;
 };
+
+export const writeAlbumCover = async (baseDirectory: string, coverData: Uint8Array) => {
+    const dir = await fs.readDir(baseDirectory);
+    const hasMultiDiscs = dir.some((entry) => !!entry.children);
+    if (!hasMultiDiscs) {
+        await fs.writeBinaryFile(await path.resolve(baseDirectory, "cover.jpg"), coverData);
+    } else {
+        const discEntries = dir.filter((entry) => !!entry.children);
+        for (const discEntry of discEntries) {
+            await fs.writeBinaryFile(await path.resolve(discEntry.path, "cover.jpg"), coverData);
+        }
+    }
+};

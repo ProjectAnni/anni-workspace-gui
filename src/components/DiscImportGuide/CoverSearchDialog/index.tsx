@@ -1,19 +1,30 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Dialog, DialogBody, FormGroup, InputGroup, Menu, MenuItem, Spinner } from "@blueprintjs/core";
+import classNames from "classnames";
+import {
+    Button,
+    Dialog,
+    DialogBody,
+    DialogFooter,
+    FormGroup,
+    InputGroup,
+    Menu,
+    MenuItem,
+    Spinner,
+} from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
+import { AppToaster } from "@/utils/toaster";
 import { CoverItem, searchCoverFromITunes } from "../services";
 import styles from "./index.module.scss";
-import { AppToaster } from "@/utils/toaster";
-import classNames from "classnames";
 
 interface Props {
     keyword: string;
     isOpen: boolean;
+    onCoverSelected: (url: string) => void | Promise<void>;
     onClose: () => void;
 }
 
 const CoverSearchDialog: React.FC<Props> = (props) => {
-    const { keyword, isOpen, onClose } = props;
+    const { keyword, isOpen, onClose, onCoverSelected } = props;
     const [localKeyword, setLocalKeyword] = useState(keyword || "");
     const [isLoading, setIsLoading] = useState(false);
     const [searchResults, setSearchResults] = useState<CoverItem[]>([]);
@@ -38,6 +49,9 @@ const CoverSearchDialog: React.FC<Props> = (props) => {
             requestLock.current = false;
         }
     };
+    useEffect(() => {
+        onSearch();
+    }, []);
     return (
         <Dialog title="搜索封面" isOpen={isOpen} onClose={onClose}>
             <DialogBody>
@@ -86,6 +100,9 @@ const CoverSearchDialog: React.FC<Props> = (props) => {
                                                     [styles.first]: index % 4 === 0,
                                                 })}
                                                 key={id}
+                                                onClick={() => {
+                                                    onCoverSelected(originUrl);
+                                                }}
                                             >
                                                 <img src={thumbnailUrl}></img>
                                                 <div className={styles.coverItemActions}>选择</div>

@@ -41,9 +41,8 @@ const TrackTypeEditor: React.FC<Props> = (props) => {
                         }}
                     >
                         <CommonTypeEditor
-                            initialValue={
-                                localType || discType || albumType || ""
-                            }
+                            key={localType || discType || albumType || ""}
+                            initialValue={localType || discType || albumType || ""}
                             onChange={onTypeChange}
                         />
                     </Card>

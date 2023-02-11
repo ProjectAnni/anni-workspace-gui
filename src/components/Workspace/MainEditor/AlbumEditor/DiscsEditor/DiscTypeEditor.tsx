@@ -24,6 +24,7 @@ const DiscTypeEditor: React.FC<Props> = (props) => {
         setLocalType(newType);
         onChange(newType);
     };
+
     return (
         <>
             <Popover2
@@ -37,7 +38,8 @@ const DiscTypeEditor: React.FC<Props> = (props) => {
                         }}
                     >
                         <CommonTypeEditor
-                            initialValue={localType || albumType || ''}
+                            key={localType || albumType || ""}
+                            initialValue={localType || albumType || ""}
                             onChange={onTypeChange}
                         />
                     </Card>
