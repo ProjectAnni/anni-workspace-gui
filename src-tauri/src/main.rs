@@ -4,7 +4,11 @@
 )]
 
 use anni_repo::prelude::{Album, JsonAlbum};
-use std::{fs, str::FromStr};
+use std::{
+    fs::{self, File, OpenOptions},
+    io::Write,
+    str::FromStr,
+};
 
 #[tauri::command]
 fn read_album_file(path: &str) -> JsonAlbum {
@@ -15,16 +19,33 @@ fn read_album_file(path: &str) -> JsonAlbum {
 }
 
 #[tauri::command]
-fn write_album_file(path: &str, album_json_str: &str) {
+fn write_album_file(path: &str, album_json_str: &str) -> Result<(), String> {
     let album_json = JsonAlbum::from_str(album_json_str).unwrap();
     let album = Album::try_from(album_json).unwrap();
     let album_serialized_text = toml_edit::easy::to_string_pretty(&album).unwrap();
-    fs::write(path, album_serialized_text).expect("failed to write album file");
+    fs::write(path, album_serialized_text).map_err(|err| err.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+fn write_text_file_append(path: &str, content: &str) -> Result<(), String> {
+    let mut file = File::options()
+        .create(true)
+        .append(true)
+        .open(path)
+        .unwrap();
+    file.write_all(content.as_bytes())
+        .map_err(|err| err.to_string())?;
+    Ok(())
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![read_album_file, write_album_file])
+        .invoke_handler(tauri::generate_handler![
+            read_album_file,
+            write_album_file,
+            write_text_file_append
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
