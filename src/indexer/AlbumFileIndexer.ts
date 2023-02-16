@@ -1,6 +1,7 @@
 import MiniSearch from "minisearch";
 import { readAlbumFile } from "@/utils/album";
 import { stringifyArtist } from "@/utils/helper";
+import Logger from "@/utils/log";
 
 export interface IndexedArtist {
     id: string;
@@ -38,6 +39,7 @@ class AlbumFileIndexer {
         if (!this.needIndexFilePaths.length) {
             return;
         }
+        Logger.debug("Artist indexing start.");
         while (true) {
             const filePath = this.needIndexFilePaths.shift();
             if (!filePath) {
@@ -59,6 +61,7 @@ class AlbumFileIndexer {
             this.finishedCount += 1;
             this.indexedFilePaths.push(filePath);
         }
+        Logger.debug(`Artist indexing end. finishedCount: ${this.finishedCount}`);
     }
 
     searchArtist(keyword: string) {

@@ -1,7 +1,8 @@
 import { pick, throttle } from "lodash";
 import { invoke, fs, path } from "@tauri-apps/api";
 import { AlbumData, DiscData, ParsedAlbumData, ParsedDiscData, ParsedTrackData, TrackData } from "@/types/album";
-import { parseArtists, stringifyArtists } from "./helper";
+import { parseArtists, parseCatalog, stringifyArtists } from "./helper";
+import Logger from "./log";
 
 export const readAlbumFile = async (path: string): Promise<ParsedAlbumData> => {
     const content = (await invoke("read_album_file", {
@@ -104,4 +105,52 @@ export const writeAlbumCover = async (baseDirectory: string, coverData: Uint8Arr
             await fs.writeBinaryFile(await path.resolve(discEntry.path, "cover.jpg"), coverData);
         }
     }
+};
+
+interface AlbumBasicInfo {
+    catalog: string;
+    /** YYMMDD */
+    date: string;
+    title: string;
+    edition?: string;
+}
+
+export const standardizeAlbumDirectoryName = async (originPath: string, albumInfo: AlbumBasicInfo) => {
+    Logger.info("Standardize album directory name");
+    const { date, title, catalog, edition } = albumInfo;
+    const dir = await fs.readDir(originPath);
+    const discNum = dir.filter((entry) => !!entry.children).length;
+
+    if (discNum === 1) {
+        throw new Error("多Disc，但好像又没多");
+    }
+
+    const finalName = `[${date}][${catalog}] ${title}${edition ? `【${edition}】` : ""}${
+        discNum > 1 ? ` [${discNum} Discs]` : ""
+    }`;
+
+    const newAlbumDirectoryPath = await path.resolve(originPath, `../${finalName}`);
+    Logger.debug(`Rename ${originPath} -> ${newAlbumDirectoryPath}`);
+    // rename album directory
+    await fs.renameFile(originPath, newAlbumDirectoryPath);
+
+    if (discNum > 1) {
+        // rename disc folders
+        const catalogs = parseCatalog(catalog);
+        if (catalogs.length !== discNum) {
+            throw new Error("碟片数量与品番不匹配");
+        }
+        const newDir = await fs.readDir(newAlbumDirectoryPath);
+        const discEntries = newDir.filter((entry) => !!entry.children).sort(); // 字典序排序
+        let counter = 1;
+        for (const discEntry of discEntries) {
+            const originDiscDirectoryPath = discEntry.path;
+            const newDiscDirectoryName = `[${catalogs[counter - 1]}] ${title} [Disc ${counter}]`;
+            const newDiscDirectoryPath = await path.resolve(originDiscDirectoryPath, `../${newDiscDirectoryName}`);
+            Logger.debug(`Rename ${originDiscDirectoryPath} -> ${newDiscDirectoryPath}`);
+            await fs.renameFile(originDiscDirectoryPath, newDiscDirectoryPath);
+        }
+    }
+
+    return newAlbumDirectoryPath;
 };

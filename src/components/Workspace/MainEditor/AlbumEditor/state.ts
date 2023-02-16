@@ -1,5 +1,6 @@
 import { atomWithReducer } from "jotai/utils";
 import { Artist, ParsedAlbumData, ParsedTrackData } from "@/types/album";
+import Logger from "@/utils/log";
 
 export enum AlbumDataActionTypes {
     /** 重置数据 */
@@ -107,10 +108,12 @@ type AlbumDataActionPayload =
           };
       };
 
-const albumDataReducer = (
-    prev: ParsedAlbumData | null,
-    action: AlbumDataActionPayload
-): ParsedAlbumData | null => {
+const albumDataReducer = (prev: ParsedAlbumData | null, action: AlbumDataActionPayload): ParsedAlbumData | null => {
+    Logger.debug(
+        `Album state change. actionType: ${action.type}${
+            "payload" in action ? `, payload: ${JSON.stringify(action.payload)}` : ""
+        }`
+    );
     if (action.type === AlbumDataActionTypes.RESET) {
         return action.payload;
     }
@@ -211,10 +214,7 @@ const albumDataReducer = (
     if (action.type === AlbumDataActionTypes.DELETE_DISC) {
         return {
             ...prev!,
-            discs: [
-                ...prev!.discs.slice(0, action.payload.index),
-                ...prev!.discs.slice(action.payload.index + 1),
-            ],
+            discs: [...prev!.discs.slice(0, action.payload.index), ...prev!.discs.slice(action.payload.index + 1)],
         };
     }
     if (action.type === AlbumDataActionTypes.UPDATE_TRACK) {
@@ -225,14 +225,9 @@ const albumDataReducer = (
                 {
                     ...prev!.discs[action.payload.discIndex],
                     tracks: [
-                        ...prev!.discs[action.payload.discIndex].tracks.slice(
-                            0,
-                            action.payload.trackIndex
-                        ),
+                        ...prev!.discs[action.payload.discIndex].tracks.slice(0, action.payload.trackIndex),
                         action.payload.track,
-                        ...prev!.discs[action.payload.discIndex].tracks.slice(
-                            action.payload.trackIndex + 1
-                        ),
+                        ...prev!.discs[action.payload.discIndex].tracks.slice(action.payload.trackIndex + 1),
                     ],
                 },
                 ...prev!.discs.slice(action.payload.discIndex + 1),

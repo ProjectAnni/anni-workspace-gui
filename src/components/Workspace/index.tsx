@@ -23,6 +23,7 @@ const Workspace: React.FC = () => {
                 AlbumFileIndexer.addPaths(albumFilePaths);
                 AlbumFileIndexer.start();
             }
+            Logger.debug("Read album directories done.");
         });
     }, []);
     return (

@@ -4,11 +4,15 @@
 )]
 
 use anni_repo::prelude::{Album, JsonAlbum};
+use anni_workspace::AnniWorkspace;
 use std::{
-    fs::{self, File, OpenOptions},
+    fs::{self, File},
     io::Write,
+    num::NonZeroU8,
+    path::Path,
     str::FromStr,
 };
+use uuid::Uuid;
 
 #[tauri::command]
 fn read_album_file(path: &str) -> JsonAlbum {
@@ -39,12 +43,26 @@ fn write_text_file_append(path: &str, content: &str) -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+fn create_album(workspace: &str, path: &str, disc_num: Option<NonZeroU8>) -> Result<(), String> {
+    let album_id = Uuid::new_v4();
+    let workspace_path = Path::new(workspace);
+    let album_path = Path::new(path);
+    let album_disc_num = disc_num.unwrap_or(NonZeroU8::new(1).unwrap());
+    let workspace = AnniWorkspace::find(workspace_path).map_err(|err| err.to_string())?;
+    workspace
+        .create_album(&album_id, &album_path, album_disc_num)
+        .map_err(|err| err.to_string())?;
+    Ok(())
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             read_album_file,
             write_album_file,
-            write_text_file_append
+            write_text_file_append,
+            create_album,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

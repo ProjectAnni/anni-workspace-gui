@@ -24,10 +24,12 @@ class Logger {
     }
 
     log(level: string, message: string) {
+        const time = dayjs().format();
+        console.log(`[${time}][${level}] ${message}`);
         this.buffer.push({
             level,
             message,
-            time: dayjs().format(),
+            time,
         });
         this.flush();
     }

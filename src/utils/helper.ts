@@ -22,10 +22,7 @@ function readArtist(reader: ArtistParserReader) {
             } else {
                 break;
             }
-        } else if (
-            reader.data[reader.idx] === "（" ||
-            reader.data[reader.idx] === "）"
-        ) {
+        } else if (reader.data[reader.idx] === "（" || reader.data[reader.idx] === "）") {
             break;
         } else {
             res.name = res.name + reader.data[reader.idx];
@@ -43,9 +40,7 @@ function readArtist(reader: ArtistParserReader) {
             reader.idx += 1;
         } while (reader.data[reader.idx - 1] === "、");
         if (reader.data[reader.idx - 1] !== "）") {
-            throw new ArtistParseError(
-                `Artist parse error: missing ) at ${reader.idx}`
-            );
+            throw new ArtistParseError(`Artist parse error: missing ) at ${reader.idx}`);
         }
     }
     return res;
@@ -70,18 +65,14 @@ export function parseArtists(artistStr: string) {
 
 function escapeArtistName(artistName: string) {
     // regex by ChatGPT
-    return artistName
-        .replace(/([（）]|^、)/g, "\\$1")
-        .replace(/(?<!\\)、/g, "、、");
+    return artistName.replace(/([（）]|^、)/g, "\\$1").replace(/(?<!\\)、/g, "、、");
 }
 
 export function stringifyArtist(artist: Artist): string {
     if (!artist.children?.length) {
         return escapeArtistName(artist.name);
     }
-    return `${escapeArtistName(artist.name)}（${artist.children
-        .map(stringifyArtist)
-        .join("、")}）`;
+    return `${escapeArtistName(artist.name)}（${artist.children.map(stringifyArtist).join("、")}）`;
 }
 
 export function stringifyArtists(artists: Artist[]) {
@@ -116,9 +107,7 @@ export function highlightText(text: string, query: string): React.ReactNode[] {
             tokens.push(before_1);
         }
         lastIndex = regexp.lastIndex;
-        tokens.push(
-            React.createElement("strong", { key: lastIndex }, match[0])
-        );
+        tokens.push(React.createElement("strong", { key: lastIndex }, match[0]));
     }
     const rest = text.slice(lastIndex);
     if (rest.length > 0) {
@@ -146,11 +135,31 @@ export function parseCatalog(catalog: string): string[] {
     const end = parseInt(range);
 
     for (let i = start; i <= end; i++) {
-        const newCatalog =
-            base.slice(0, baseLength - rangeLength) +
-            i.toString().padStart(rangeLength, "0");
+        const newCatalog = base.slice(0, baseLength - rangeLength) + i.toString().padStart(rangeLength, "0");
         entities.push(newCatalog);
     }
 
     return entities;
+}
+
+const DATE_REGEX = /(?<Year>\d{4})(?:-(?<Month>\d{2})(?:-(?<Date>\d{2}))?)?/;
+
+export interface AnniReleaseDate {
+    year: string;
+    month?: string;
+    date?: string;
+}
+
+export function parseReleaseDate(releaseDate: string): AnniReleaseDate {
+    const matchResult = releaseDate.match(DATE_REGEX);
+    if (!matchResult) {
+        throw new Error("不是合法的发售日期");
+    }
+    const { Year: year, Month: month, Date: date } = matchResult?.groups || {};
+    return { year, month, date };
+}
+
+export function stringifyReleaseDate(releaseDate: AnniReleaseDate): string {
+    const { year, month, date } = releaseDate;
+    return `${year}${month ? `-${month}` : ""}${month && date ? `-${date}` : ""}`;
 }

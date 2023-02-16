@@ -2,11 +2,12 @@ import { useAtom, useAtomValue } from "jotai";
 import React, { useEffect, useState } from "react";
 import { Spinner } from "@blueprintjs/core";
 import { readAlbumFile, writeAlbumFile } from "@/utils/album";
+import Logger from "@/utils/log";
 import { OpenedDocumentAtom } from "../../state";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "./state";
 import AlbumMetaInfoEditor from "./AlbumMetaInfoEditor";
-import styles from "./index.module.scss";
 import DiscsEditor from "./DiscsEditor";
+import styles from "./index.module.scss";
 
 const AlbumEditor: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -17,6 +18,7 @@ const AlbumEditor: React.FC = () => {
         (async () => {
             if (openedDocument.path) {
                 setIsLoading(true);
+                Logger.debug(`Load album toml start. label: ${openedDocument.label}, path: ${openedDocument.path}`);
                 const albumData = await readAlbumFile(openedDocument.path);
                 if (!expired) {
                     dispatch({
@@ -24,6 +26,7 @@ const AlbumEditor: React.FC = () => {
                         payload: albumData,
                     });
                 }
+                Logger.debug("Load album toml done.");
                 setIsLoading(false);
             }
         })();
@@ -34,12 +37,8 @@ const AlbumEditor: React.FC = () => {
 
     useEffect(() => {
         // 回写Album文件
-        if (
-            openedDocument?.path &&
-            albumData &&
-            albumData.catalog &&
-            openedDocument.path.includes(albumData.catalog)
-        ) {
+        if (openedDocument?.path && albumData && albumData.catalog && openedDocument.path.includes(albumData.catalog)) {
+            Logger.debug(`Write album toml. label: ${openedDocument.label}, path: ${openedDocument.path}`);
             writeAlbumFile(albumData, openedDocument.path);
         }
     }, [albumData, openedDocument]);

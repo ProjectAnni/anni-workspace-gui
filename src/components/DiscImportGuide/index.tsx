@@ -9,6 +9,7 @@ import { copyDirectory } from "@/utils/file";
 import BasicInfoEditDialog from "./BasicInfoEditDialog";
 import CoverConfirmDialog from "./CoverConfirmDialog";
 import { downloadCover } from "./services";
+import { standardizeAlbumDirectoryName } from "@/utils/album";
 
 const DiscImportGuide: React.FC = () => {
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
@@ -77,20 +78,33 @@ const DiscImportGuide: React.FC = () => {
     );
 
     const onBasicInfoConfirm = useCallback(
-        async (releaseDate: string, catalog: string, albumName: string, edition: string) => {
+        async (newReleaseDate: string, newCatalog: string, newAlbumName: string, newEdition?: string) => {
             // TODO: 多Disc情况下允许用户选择哪个是Disc 1哪个是Disc2
             // TODO: 允许用户为不同Disc选择不同封面
             // 先简单做，只能同一个封面 放在album/cover.jpg
-            setReleaseDate(releaseDate);
-            setCatalog(catalog);
-            setAlbumName(albumName);
-            if (edition) {
-                setEdition(edition);
+            setReleaseDate(newReleaseDate);
+            setCatalog(newCatalog);
+            setAlbumName(newAlbumName);
+            if (newEdition) {
+                setEdition(newEdition);
+            }
+            try {
+                await standardizeAlbumDirectoryName(workingDirectoryPath, {
+                    date: newReleaseDate,
+                    title: newAlbumName,
+                    catalog: newCatalog,
+                    edition: newEdition,
+                });
+            } catch (e) {
+                if (e instanceof Error) {
+                    AppToaster.show({ message: e.message, intent: Intent.DANGER });
+                }
+                return;
             }
             setIsShowBasicInfoEditDialog(false);
             setIsShowCoverConfirmDialog(true);
         },
-        []
+        [workingDirectoryPath]
     );
 
     useFileDrop({ onDrop: onFileDrop });
