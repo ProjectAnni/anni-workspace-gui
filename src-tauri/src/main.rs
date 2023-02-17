@@ -4,7 +4,7 @@
 )]
 
 use anni_repo::prelude::{Album, JsonAlbum};
-use anni_workspace::AnniWorkspace;
+use anni_workspace::{AnniWorkspace, WorkspaceAlbum, WorkspaceError};
 use std::{
     fs::{self, File},
     io::Write,
@@ -12,7 +12,32 @@ use std::{
     path::Path,
     str::FromStr,
 };
+use thiserror;
 use uuid::Uuid;
+
+// create the error type that represents all errors possible in our program
+#[derive(Debug, thiserror::Error)]
+enum Error {
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
+    #[error(transparent)]
+    Workspace(#[from] WorkspaceError),
+}
+
+// we must manually implement serde::Serialize
+impl serde::Serialize for Error {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::ser::Serializer,
+    {
+        serializer.serialize_str(self.to_string().as_ref())
+    }
+}
+
+#[derive(Clone, serde::Serialize)]
+struct Payload {
+    message_type: String,
+}
 
 #[tauri::command]
 fn read_album_file(path: &str) -> JsonAlbum {
@@ -44,15 +69,33 @@ fn write_text_file_append(path: &str, content: &str) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn create_album(workspace: &str, path: &str, disc_num: Option<NonZeroU8>) -> Result<(), String> {
+fn get_workspace_albums(workspace_path: &str) -> Result<Vec<WorkspaceAlbum>, Error> {
+    let workspace = AnniWorkspace::find(Path::new(workspace_path))?;
+    let albums = workspace.scan()?;
+    return Ok(albums);
+}
+
+#[tauri::command]
+fn create_album(
+    window: tauri::Window,
+    workspace: &str,
+    path: &str,
+    disc_num: u8,
+) -> Result<(), Error> {
     let album_id = Uuid::new_v4();
     let workspace_path = Path::new(workspace);
     let album_path = Path::new(path);
-    let album_disc_num = disc_num.unwrap_or(NonZeroU8::new(1).unwrap());
-    let workspace = AnniWorkspace::find(workspace_path).map_err(|err| err.to_string())?;
-    workspace
-        .create_album(&album_id, &album_path, album_disc_num)
-        .map_err(|err| err.to_string())?;
+    let album_disc_num = NonZeroU8::new(disc_num).unwrap_or(NonZeroU8::new(1).unwrap());
+    let workspace = AnniWorkspace::find(workspace_path)?;
+    workspace.create_album(&album_id, &album_path, album_disc_num)?;
+    window
+        .emit(
+            "event-name",
+            Payload {
+                message_type: "workspace_status_change".into(),
+            },
+        )
+        .unwrap();
     Ok(())
 }
 
@@ -62,6 +105,7 @@ fn main() {
             read_album_file,
             write_album_file,
             write_text_file_append,
+            get_workspace_albums,
             create_album,
         ])
         .run(tauri::generate_context!())

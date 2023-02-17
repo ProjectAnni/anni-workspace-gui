@@ -3,11 +3,17 @@ import { invoke, fs, path } from "@tauri-apps/api";
 import { AlbumData, DiscData, ParsedAlbumData, ParsedDiscData, ParsedTrackData, TrackData } from "@/types/album";
 import { parseArtists, parseCatalog, stringifyArtists } from "./helper";
 import Logger from "./log";
+import { processTauriError } from "./error";
 
 export const readAlbumFile = async (path: string): Promise<ParsedAlbumData> => {
-    const content = (await invoke("read_album_file", {
-        path,
-    })) as AlbumData;
+    let content: AlbumData;
+    try {
+        content = (await invoke("read_album_file", {
+            path,
+        })) as AlbumData;
+    } catch (e) {
+        throw processTauriError(e);
+    }
     const parsedAlbum: ParsedAlbumData = {
         album_id: content.album_id,
         ...pick(content, "catalog", "date", "tags", "title", "type", "edition"),
@@ -67,10 +73,14 @@ export const writeAlbumFile = throttle(async (content: ParsedAlbumData, path: st
         }
         albumData.discs.push(discData);
     }
-    await invoke("write_album_file", {
-        path,
-        albumJsonStr: JSON.stringify(albumData),
-    });
+    try {
+        await invoke("write_album_file", {
+            path,
+            albumJsonStr: JSON.stringify(albumData),
+        });
+    } catch (e) {
+        throw processTauriError(e);
+    }
 }, 2000);
 
 export const readAlbumCover = async (baseDirectory: string) => {
@@ -88,6 +98,7 @@ export const readAlbumCover = async (baseDirectory: string) => {
     for (const filename of alternativeCoverFilenames) {
         const coverPath = await path.resolve(baseDirectory, filename);
         if (await fs.exists(coverPath)) {
+            Logger.debug(`Found cover: ${coverPath}`);
             return [await fs.readBinaryFile(coverPath), coverPath] as const;
         }
     }
@@ -95,13 +106,16 @@ export const readAlbumCover = async (baseDirectory: string) => {
 };
 
 export const writeAlbumCover = async (baseDirectory: string, coverData: Uint8Array) => {
+    Logger.debug(`Write cover: ${baseDirectory}`);
     const dir = await fs.readDir(baseDirectory);
     const hasMultiDiscs = dir.some((entry) => !!entry.children);
     if (!hasMultiDiscs) {
+        Logger.debug(`Write cover data: [binary] -> ${await path.resolve(baseDirectory, "cover.jpg")}`);
         await fs.writeBinaryFile(await path.resolve(baseDirectory, "cover.jpg"), coverData);
     } else {
         const discEntries = dir.filter((entry) => !!entry.children);
         for (const discEntry of discEntries) {
+            Logger.debug(`Write cover data: [binary] -> ${await path.resolve(discEntry.path, "cover.jpg")}`);
             await fs.writeBinaryFile(await path.resolve(discEntry.path, "cover.jpg"), coverData);
         }
     }
@@ -153,4 +167,19 @@ export const standardizeAlbumDirectoryName = async (originPath: string, albumInf
     }
 
     return newAlbumDirectoryPath;
+};
+
+export const createWorkspaceAlbum = async (workspacePath: string, albumDirectoryPath: string) => {
+    const dir = await fs.readDir(albumDirectoryPath);
+    const discNum = dir.filter((entry) => !!entry.children).length;
+    Logger.debug(`Create workspace album, workspace: ${workspacePath}, album: ${albumDirectoryPath}`);
+    try {
+        await invoke("create_album", {
+            workspace: workspacePath,
+            path: albumDirectoryPath,
+            discNum,
+        });
+    } catch (e) {
+        throw processTauriError(e);
+    }
 };

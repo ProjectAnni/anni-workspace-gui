@@ -7,12 +7,14 @@ import {
     DialogFooter,
     FormGroup,
     InputGroup,
+    Intent,
     Menu,
     MenuItem,
     Spinner,
 } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
 import { AppToaster } from "@/utils/toaster";
+import Logger from "@/utils/log";
 import { CoverItem, searchCoverFromITunes } from "../services";
 import styles from "./index.module.scss";
 
@@ -33,17 +35,21 @@ const CoverSearchDialog: React.FC<Props> = (props) => {
         setLocalKeyword(e.target.value);
     };
     const onSearch = async () => {
-        if (requestLock.current) {
+        if (requestLock.current || !localKeyword) {
             return;
         }
         requestLock.current = true;
         setIsLoading(true);
         try {
+            Logger.debug("Search cover from internet");
             const results = await searchCoverFromITunes(localKeyword);
+            Logger.debug(`Got ${results.length} covers from internet`);
             setSearchResults(results.slice(0, 12));
         } catch (e) {
-            console.log(e);
-            AppToaster.show({ message: "发生了一些错误" });
+            if (e instanceof Error) {
+                Logger.error(`搜索封面失败: ${e.message}, channel: iTunes`);
+                AppToaster.show({ message: `搜索封面失败: ${e.message}`, intent: Intent.DANGER });
+            }
         } finally {
             setIsLoading(false);
             requestLock.current = false;

@@ -1,30 +1,39 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Button, ButtonGroup, Dialog, DialogBody, DialogFooter, FormGroup, Intent, Spinner } from "@blueprintjs/core";
 import { readAlbumCover, writeAlbumCover } from "@/utils/album";
 import { fs, path } from "@tauri-apps/api";
 import { open } from "@tauri-apps/api/dialog";
+import { AppToaster } from "@/utils/toaster";
+import Logger from "@/utils/log";
 import CoverSearchDialog from "../CoverSearchDialog";
 import { downloadCover } from "../services";
 import styles from "./index.module.scss";
-import { AppToaster } from "@/utils/toaster";
 
 interface Props {
     isOpen: boolean;
     workingDirectoryPath: string;
     albumName: string;
     onClose: () => void;
+    onConfirm: () => void;
 }
 
 const CoverConfirmDialog: React.FC<Props> = (props) => {
-    const { isOpen, workingDirectoryPath, albumName, onClose } = props;
+    const { isOpen, workingDirectoryPath, albumName, onClose, onConfirm } = props;
     const [coverUrl, setCoverUrl] = useState("");
     const [currentCoverFilePath, setCurrentCoverFilePath] = useState("");
     const [currentCoverFilename, setCurrentCoverFilename] = useState("");
+    const [coverNaturalWidth, setCoverNaturalWidth] = useState(0);
+    const [coverNaturalHeight, setCoverNaturalHeight] = useState(0);
     const [isCoverLoading, setIsCoverLoading] = useState(false);
     const [isShowCoverSearchDialog, setIsShowCoverSearchDialog] = useState(false);
+    const coverRef = useRef<HTMLImageElement>(null);
 
     const readAlbumCoverFromDirectory = useCallback(async () => {
+        if (!workingDirectoryPath) {
+            return;
+        }
         try {
+            Logger.debug(`Read cover from: ${workingDirectoryPath}`);
             const result = await readAlbumCover(workingDirectoryPath);
             if (result) {
                 const [coverData, coverPath] = result;
@@ -52,6 +61,7 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
             setIsShowCoverSearchDialog(false);
             setIsCoverLoading(true);
             try {
+                Logger.debug(`Download cover from: ${url}`);
                 const coverData = await downloadCover(url);
                 if (coverData) {
                     await writeAlbumCover(workingDirectoryPath, coverData);
@@ -95,6 +105,14 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
         setIsCoverLoading(false);
     };
 
+    const onImageLoaded = () => {
+        if (!coverRef.current) {
+            return;
+        }
+        setCoverNaturalWidth(coverRef.current.naturalWidth);
+        setCoverNaturalHeight(coverRef.current.naturalHeight);
+    };
+
     return (
         <>
             <Dialog
@@ -105,9 +123,15 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
                 canOutsideClickClose={false}
             >
                 <DialogBody>
-                    <FormGroup label={`当前封面${currentCoverFilename ? ` - ${currentCoverFilename}` : ""}`}>
+                    <FormGroup
+                        label={`当前封面${currentCoverFilename ? ` - ${currentCoverFilename}` : ""}${
+                            !!coverNaturalHeight && !!coverNaturalWidth
+                                ? ` - ${coverNaturalWidth}x${coverNaturalHeight}`
+                                : ""
+                        }`}
+                    >
                         <div className={styles.currentCover}>
-                            {!!coverUrl && <img src={coverUrl}></img>}
+                            {!!coverUrl && <img src={coverUrl} ref={coverRef} onLoad={onImageLoaded}></img>}
                             {isCoverLoading && (
                                 <div className={styles.coverLoading}>
                                     <Spinner size={24} />
@@ -133,7 +157,7 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
                 </DialogBody>
                 <DialogFooter
                     actions={
-                        <Button intent={Intent.PRIMARY} disabled={!coverUrl}>
+                        <Button intent={Intent.PRIMARY} disabled={!coverUrl} onClick={onConfirm}>
                             确认封面
                         </Button>
                     }

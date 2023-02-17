@@ -1,15 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAtom } from "jotai";
-import { fs, path } from "@tauri-apps/api";
+import { fs, path, invoke } from "@tauri-apps/api";
 import { Intent } from "@blueprintjs/core";
 import { useFileDrop } from "@/hooks/useFileDrop";
 import { AppToaster } from "@/utils/toaster";
 import { WorkspaceBasePathAtom } from "../Workspace/state";
 import { copyDirectory } from "@/utils/file";
+import Logger from "@/utils/log";
 import BasicInfoEditDialog from "./BasicInfoEditDialog";
 import CoverConfirmDialog from "./CoverConfirmDialog";
 import { downloadCover } from "./services";
-import { standardizeAlbumDirectoryName } from "@/utils/album";
+import { createWorkspaceAlbum, standardizeAlbumDirectoryName } from "@/utils/album";
+import GlobalLoading from "../Common/GlobalLoading";
 
 const DiscImportGuide: React.FC = () => {
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
@@ -23,6 +25,7 @@ const DiscImportGuide: React.FC = () => {
     const [workingDirectoryPath, setWorkingDirectoryPath] = useState("");
     const [isShowBasicInfoEditDialog, setIsShowBasicInfoEditDialog] = useState(false);
     const [isShowCoverConfirmDialog, setIsShowCoverConfirmDialog] = useState(false);
+    const [isShowGlobalLoading, setIsShowGlobalLoading] = useState(false);
     const processLock = useRef(false);
     const onFileDrop = useCallback(
         async (filePath: string) => {
@@ -68,10 +71,9 @@ const DiscImportGuide: React.FC = () => {
                         message: `导入失败: ${e.message}`,
                         intent: Intent.DANGER,
                     });
-                    return;
                 }
-                AppToaster.show({ message: "导入失败", intent: Intent.DANGER });
                 processLock.current = false;
+                return;
             }
         },
         [workspaceBasePath]
@@ -89,16 +91,21 @@ const DiscImportGuide: React.FC = () => {
                 setEdition(newEdition);
             }
             try {
-                await standardizeAlbumDirectoryName(workingDirectoryPath, {
+                const result = await standardizeAlbumDirectoryName(workingDirectoryPath, {
                     date: newReleaseDate,
                     title: newAlbumName,
                     catalog: newCatalog,
                     edition: newEdition,
                 });
+                Logger.debug(`Album directory renamed to: ${result}`);
+                const newDirectoryName = await path.basename(result);
+                setWorkingDirectoryName(newDirectoryName);
+                setWorkingDirectoryPath(result);
             } catch (e) {
                 if (e instanceof Error) {
                     AppToaster.show({ message: e.message, intent: Intent.DANGER });
                 }
+                processLock.current = false;
                 return;
             }
             setIsShowBasicInfoEditDialog(false);
@@ -106,6 +113,19 @@ const DiscImportGuide: React.FC = () => {
         },
         [workingDirectoryPath]
     );
+
+    const onCoverConfirm = useCallback(async () => {
+        setIsShowGlobalLoading(true);
+        try {
+            await createWorkspaceAlbum(workspaceBasePath, workingDirectoryPath);
+        } catch (e) {
+            if (e instanceof Error) {
+                AppToaster.show({ message: e.message, intent: Intent.DANGER });
+            }
+        } finally {
+            processLock.current = false;
+        }
+    }, [workspaceBasePath, workingDirectoryPath]);
 
     useFileDrop({ onDrop: onFileDrop });
 
@@ -126,7 +146,9 @@ const DiscImportGuide: React.FC = () => {
                 onClose={() => {
                     setIsShowCoverConfirmDialog(false);
                 }}
+                onConfirm={onCoverConfirm}
             />
+            <GlobalLoading isOpen={isShowGlobalLoading} text="处理中..." />
         </>
     );
 };

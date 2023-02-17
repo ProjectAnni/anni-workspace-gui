@@ -137,6 +137,7 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-build",
+ "thiserror",
  "toml_edit 0.14.4",
  "uuid 1.2.2",
 ]
