@@ -36,7 +36,7 @@ impl serde::Serialize for Error {
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
-    message_type: String,
+    body: String,
 }
 
 #[tauri::command]
@@ -48,23 +48,22 @@ fn read_album_file(path: &str) -> JsonAlbum {
 }
 
 #[tauri::command]
-fn write_album_file(path: &str, album_json_str: &str) -> Result<(), String> {
+fn write_album_file(path: &str, album_json_str: &str) -> Result<(), Error> {
     let album_json = JsonAlbum::from_str(album_json_str).unwrap();
     let album = Album::try_from(album_json).unwrap();
     let album_serialized_text = toml_edit::easy::to_string_pretty(&album).unwrap();
-    fs::write(path, album_serialized_text).map_err(|err| err.to_string())?;
+    fs::write(path, album_serialized_text)?;
     Ok(())
 }
 
 #[tauri::command]
-fn write_text_file_append(path: &str, content: &str) -> Result<(), String> {
+fn write_text_file_append(path: &str, content: &str) -> Result<(), Error> {
     let mut file = File::options()
         .create(true)
         .append(true)
         .open(path)
         .unwrap();
-    file.write_all(content.as_bytes())
-        .map_err(|err| err.to_string())?;
+    file.write_all(content.as_bytes())?;
     Ok(())
 }
 
@@ -90,9 +89,9 @@ fn create_album(
     workspace.create_album(&album_id, &album_path, album_disc_num)?;
     window
         .emit(
-            "event-name",
+            "workspace_status_change",
             Payload {
-                message_type: "workspace_status_change".into(),
+                body: workspace_path.to_str().unwrap().into(),
             },
         )
         .unwrap();

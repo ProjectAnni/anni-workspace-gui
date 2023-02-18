@@ -9,8 +9,7 @@ import { copyDirectory } from "@/utils/file";
 import Logger from "@/utils/log";
 import BasicInfoEditDialog from "./BasicInfoEditDialog";
 import CoverConfirmDialog from "./CoverConfirmDialog";
-import { downloadCover } from "./services";
-import { createWorkspaceAlbum, standardizeAlbumDirectoryName } from "@/utils/album";
+import { createWorkspaceAlbum, standardizeAlbumDirectoryName } from "./services";
 import GlobalLoading from "../Common/GlobalLoading";
 
 const DiscImportGuide: React.FC = () => {

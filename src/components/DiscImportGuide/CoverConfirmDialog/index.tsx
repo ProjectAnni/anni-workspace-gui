@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { Button, ButtonGroup, Dialog, DialogBody, DialogFooter, FormGroup, Intent, Spinner } from "@blueprintjs/core";
-import { readAlbumCover, writeAlbumCover } from "@/utils/album";
 import { fs, path } from "@tauri-apps/api";
 import { open } from "@tauri-apps/api/dialog";
 import { AppToaster } from "@/utils/toaster";
 import Logger from "@/utils/log";
 import CoverSearchDialog from "../CoverSearchDialog";
-import { downloadCover } from "../services";
+import { downloadCover, readAlbumCover, writeAlbumCover } from "../services";
 import styles from "./index.module.scss";
 
 interface Props {
