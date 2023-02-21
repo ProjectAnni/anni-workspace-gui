@@ -4,12 +4,13 @@
 )]
 
 use anni_repo::prelude::{Album, JsonAlbum};
-use anni_workspace::{AnniWorkspace, WorkspaceAlbum, WorkspaceError};
+use anni_workspace::{AnniWorkspace, WorkspaceAlbum, WorkspaceDisc, WorkspaceError};
+use serde::Serialize;
 use std::{
     fs::{self, File},
     io::Write,
     num::NonZeroU8,
-    path::Path,
+    path::{Path, PathBuf},
     str::FromStr,
 };
 use thiserror;
@@ -98,6 +99,39 @@ fn create_album(
     Ok(())
 }
 
+#[derive(Serialize)]
+struct WorkspaceDiscCopy {
+    index: usize,
+    path: PathBuf,
+    cover: PathBuf,
+    tracks: Vec<PathBuf>,
+}
+
+#[tauri::command]
+fn commit_album_prepare(
+    workspace_path: &str,
+    album_path: &str,
+) -> Result<Vec<WorkspaceDiscCopy>, Error> {
+    let workspace = AnniWorkspace::find(Path::new(workspace_path))?;
+    let mut discs_result: Vec<WorkspaceDiscCopy> = Vec::new();
+
+    let validator = |discs: &[WorkspaceDisc]| -> bool {
+        for (_, disc) in discs.into_iter().enumerate() {
+            discs_result.push(WorkspaceDiscCopy {
+                index: disc.index,
+                path: disc.path.clone(),
+                cover: disc.cover.clone(),
+                tracks: disc.tracks.clone(),
+            })
+        }
+        return false;
+    };
+
+    workspace.commit(&album_path, Some(validator)).ok();
+
+    return Ok(discs_result);
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -106,6 +140,7 @@ fn main() {
             write_text_file_append,
             get_workspace_albums,
             create_album,
+            commit_album_prepare,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

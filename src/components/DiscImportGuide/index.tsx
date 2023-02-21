@@ -9,7 +9,7 @@ import { copyDirectory } from "@/utils/file";
 import Logger from "@/utils/log";
 import BasicInfoEditDialog from "./BasicInfoEditDialog";
 import CoverConfirmDialog from "./CoverConfirmDialog";
-import { createWorkspaceAlbum, standardizeAlbumDirectoryName } from "./services";
+import { createWorkspaceAlbum, prepareCommitWorkspaceAlbum, standardizeAlbumDirectoryName } from "./services";
 import GlobalLoading from "../Common/GlobalLoading";
 
 const DiscImportGuide: React.FC = () => {
@@ -117,6 +117,8 @@ const DiscImportGuide: React.FC = () => {
         setIsShowGlobalLoading(true);
         try {
             await createWorkspaceAlbum(workspaceBasePath, workingDirectoryPath);
+            const prepareResult = await prepareCommitWorkspaceAlbum(workspaceBasePath, workingDirectoryPath);
+            console.log(prepareResult);
         } catch (e) {
             if (e instanceof Error) {
                 AppToaster.show({ message: e.message, intent: Intent.DANGER });

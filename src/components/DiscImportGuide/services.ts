@@ -100,6 +100,11 @@ export const standardizeAlbumDirectoryName = async (originPath: string, albumInf
     }`;
 
     const newAlbumDirectoryPath = await path.resolve(originPath, `../${finalName}`);
+
+    if (await fs.exists(newAlbumDirectoryPath)) {
+        throw new Error("目标文件夹已存在");
+    }
+
     Logger.debug(`Rename ${originPath} -> ${newAlbumDirectoryPath}`);
     // rename album directory
     await fs.renameFile(originPath, newAlbumDirectoryPath);
@@ -134,6 +139,19 @@ export const createWorkspaceAlbum = async (workspacePath: string, albumDirectory
             workspace: workspacePath,
             path: albumDirectoryPath,
             discNum,
+        });
+    } catch (e) {
+        throw processTauriError(e);
+    }
+};
+
+export const prepareCommitWorkspaceAlbum = async (workspacePath: string, albumDirectoryPath: string) => {
+    Logger.debug(`Prepare committing workspace album, workspace: ${workspacePath}, album: ${albumDirectoryPath}`);
+
+    try {
+        return await invoke("commit_album_prepare", {
+            workspacePath,
+            albumPath: albumDirectoryPath,
         });
     } catch (e) {
         throw processTauriError(e);
