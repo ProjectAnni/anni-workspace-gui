@@ -87,3 +87,12 @@
 .popoverAnchor {
     height: 0.16rem;
 }
+
+.actions {
+    margin-top: 0.08rem;
+    margin-left: 0.2rem;
+}
+
+.actionButton + .actionButton {
+    margin-left: 0.06rem;
+}
