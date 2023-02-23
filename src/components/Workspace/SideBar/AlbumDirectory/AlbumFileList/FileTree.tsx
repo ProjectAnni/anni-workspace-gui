@@ -2,12 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { VariableSizeTree as Tree } from "react-vtree";
 import { useAtom } from "jotai";
 import classNames from "classnames";
-import {
-    Icon,
-    InputGroup,
-    NonIdealState,
-    TreeNodeInfo,
-} from "@blueprintjs/core";
+import { Icon, InputGroup, NonIdealState, TreeNodeInfo } from "@blueprintjs/core";
 import { OpenedDocumentAtom } from "@/components/Workspace/state";
 import styles from "./index.module.scss";
 
@@ -51,11 +46,7 @@ const FileNode: React.FC<FileNodeProps> = (props: FileNodeProps) => {
                 }
             }}
         >
-            {isDirectory ? (
-                <Icon icon="folder-open" />
-            ) : (
-                <Icon icon="document" />
-            )}
+            {isDirectory ? <Icon icon="folder-open" /> : <Icon icon="document" />}
             <div className={styles.nodeLabel}>{label}</div>
         </div>
     );
@@ -68,6 +59,7 @@ interface Props {
 const FileTree: React.FC<Props> = (props: Props) => {
     const { contents: treeNodes } = props;
     const containerRef = useRef<HTMLDivElement>(null);
+    const treeRef = useRef<Tree<any>>(null);
     const [containerHeight, setContainerHeight] = useState(1000);
     const [keyword, setKeyword] = useState("");
     const [filteredTreeNodes, setFilteredTreeNodes] = useState(treeNodes);
@@ -116,25 +108,17 @@ const FileTree: React.FC<Props> = (props: Props) => {
             for (let i = 0; i < (parent.node.childNodes || []).length; i++) {
                 // Step [3]: Yielding all the children of the provided component. Then we
                 // will return for the step [2] with the first children.
-                yield getNodeData(
-                    parent.node.childNodes![i],
-                    parent.nestingLevel + 1
-                );
+                yield getNodeData(parent.node.childNodes![i], parent.nestingLevel + 1);
             }
         }
     }
 
-    const filterTreeNode = (
-        node: TreeNodeInfo,
-        keyword: string
-    ): TreeNodeInfo | null => {
+    const filterTreeNode = (node: TreeNodeInfo, keyword: string): TreeNodeInfo | null => {
         if ((node.label as string).includes(keyword)) {
             return node;
         }
         if (node.childNodes?.length) {
-            const matchedChildNodes = node.childNodes.filter((node) =>
-                filterTreeNode(node, keyword)
-            );
+            const matchedChildNodes = node.childNodes.filter((node) => filterTreeNode(node, keyword));
             if (matchedChildNodes.length > 0) {
                 return {
                     ...node,
@@ -153,17 +137,14 @@ const FileTree: React.FC<Props> = (props: Props) => {
             if (!newKeyword) {
                 setFilteredTreeNodes(treeNodes);
             }
-            const result = treeNodes.map((node) =>
-                filterTreeNode(node, newKeyword)
-            );
-            const nonNullNode = (
-                node: TreeNodeInfo | null
-            ): node is TreeNodeInfo => node !== null;
+            const result = treeNodes.map((node) => filterTreeNode(node, newKeyword));
+            const nonNullNode = (node: TreeNodeInfo | null): node is TreeNodeInfo => node !== null;
             setKeyword(newKeyword);
             setFilteredTreeNodes(result.filter(nonNullNode));
         },
         [treeNodes]
     );
+
     return (
         <div className={styles.fileList} ref={containerRef}>
             <InputGroup leftIcon="filter" small onChange={onKeywordChange} />
@@ -182,6 +163,7 @@ const FileTree: React.FC<Props> = (props: Props) => {
                     treeWalker={treeWalker}
                     height={containerHeight - 24}
                     width={288}
+                    ref={treeRef}
                 >
                     {/** @ts-ignore */}
                     {FileNode}

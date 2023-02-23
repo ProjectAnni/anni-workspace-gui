@@ -15,6 +15,7 @@ export interface DiscData {
     title?: string;
     artist?: string;
     type?: string;
+    tags?: string[];
     tracks: TrackData[];
 }
 
@@ -22,6 +23,7 @@ export interface TrackData {
     title: string;
     artist?: string;
     type?: string;
+    tags?: string[];
 }
 
 export interface ParsedAlbumData {
@@ -41,6 +43,7 @@ export interface ParsedDiscData {
     title?: string;
     artist?: Artist[];
     type?: string;
+    tags?: string[];
     tracks: ParsedTrackData[];
 }
 
@@ -48,6 +51,7 @@ export interface ParsedTrackData {
     title: string;
     artist?: Artist[];
     type?: string;
+    tags?: string[];
 }
 
 export interface Artist {

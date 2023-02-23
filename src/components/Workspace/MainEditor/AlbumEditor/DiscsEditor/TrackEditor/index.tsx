@@ -1,6 +1,7 @@
 import React from "react";
 import { useAtom } from "jotai";
-import { ButtonGroup, Divider, Icon } from "@blueprintjs/core";
+import classNames from "classnames";
+import { ButtonGroup, Divider, Button, Intent } from "@blueprintjs/core";
 import { Artist, ParsedDiscData, ParsedTrackData } from "@/types/album";
 import TrackTitleEditor from "./TrackTitleEditor";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "../../state";
@@ -71,6 +72,16 @@ const TrackEditor: React.FC<Props> = (props) => {
         });
     };
 
+    const onTrackDelete = () => {
+        dispatch({
+            type: AlbumDataActionTypes.DELETE_TRACK,
+            payload: {
+                discIndex,
+                trackIndex,
+            },
+        });
+    };
+
     return (
         <div className={styles.trackItem}>
             <TrackTitleEditor
@@ -96,6 +107,12 @@ const TrackEditor: React.FC<Props> = (props) => {
                         disc={disc}
                         discIndex={discIndex}
                         onChange={onTrackTypeChange}
+                    />
+                    <Divider />
+                    <Button
+                        text="删除"
+                        className={classNames(styles.secondaryActionButton, styles.danger)}
+                        onClick={onTrackDelete}
                     />
                 </ButtonGroup>
             </div>

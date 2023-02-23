@@ -31,6 +31,8 @@ export enum AlbumDataActionTypes {
     DELETE_DISC,
     /** 更新音轨 */
     UPDATE_TRACK,
+    /** 删除音轨 */
+    DELETE_TRACK,
     /** 新增碟片 */
     APPEND_DISC,
     /** 新增轨道 */
@@ -109,6 +111,13 @@ type AlbumDataActionPayload =
               discIndex: number;
               trackIndex: number;
               track: ParsedTrackData;
+          };
+      }
+    | {
+          type: AlbumDataActionTypes.DELETE_TRACK;
+          payload: {
+              discIndex: number;
+              trackIndex: number;
           };
       }
     | {
@@ -244,6 +253,22 @@ const albumDataReducer = (prev: ParsedAlbumData | null, action: AlbumDataActionP
                     tracks: [
                         ...prev!.discs[action.payload.discIndex].tracks.slice(0, action.payload.trackIndex),
                         action.payload.track,
+                        ...prev!.discs[action.payload.discIndex].tracks.slice(action.payload.trackIndex + 1),
+                    ],
+                },
+                ...prev!.discs.slice(action.payload.discIndex + 1),
+            ],
+        };
+    }
+    if (action.type === AlbumDataActionTypes.DELETE_TRACK) {
+        return {
+            ...prev!,
+            discs: [
+                ...prev!.discs.slice(0, action.payload.discIndex),
+                {
+                    ...prev!.discs[action.payload.discIndex],
+                    tracks: [
+                        ...prev!.discs[action.payload.discIndex].tracks.slice(0, action.payload.trackIndex),
                         ...prev!.discs[action.payload.discIndex].tracks.slice(action.payload.trackIndex + 1),
                     ],
                 },

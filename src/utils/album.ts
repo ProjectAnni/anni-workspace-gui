@@ -21,13 +21,13 @@ export const readAlbumFile = async (path: string): Promise<ParsedAlbumData> => {
     };
     for (const disc of content.discs) {
         const parsedDisc: ParsedDiscData = {
-            ...pick(disc, "title", "catalog", "type"),
+            ...pick(disc, "title", "catalog", "type", "tags"),
             ...(disc.artist ? { artist: parseArtists(disc.artist) } : {}),
             tracks: [],
         };
         for (const track of disc.tracks) {
             const parsedTrack: ParsedTrackData = {
-                ...pick(track, "title", "type"),
+                ...pick(track, "title", "type", "tags"),
                 ...(track.artist
                     ? {
                           artist: parseArtists(track.artist),
@@ -41,7 +41,7 @@ export const readAlbumFile = async (path: string): Promise<ParsedAlbumData> => {
     return parsedAlbum;
 };
 
-export const writeAlbumFile = throttle(async (content: ParsedAlbumData, path: string) => {
+export const writeAlbumFile = async (content: ParsedAlbumData, path: string) => {
     const albumData: AlbumData = {
         album_id: content.album_id,
         ...pick(content, "catalog", "date", "title", "type"),
@@ -55,6 +55,7 @@ export const writeAlbumFile = throttle(async (content: ParsedAlbumData, path: st
             ...pick(disc, "catalog"),
             ...(disc.title ? { title: disc.title } : {}),
             ...(disc.type ? { type: disc.type } : {}),
+            ...(disc.tags ? { tags: disc.tags } : {}),
             ...(disc.artist?.length ? { artist: stringifyArtists(disc.artist) } : {}),
             tracks: [],
         };
@@ -62,6 +63,7 @@ export const writeAlbumFile = throttle(async (content: ParsedAlbumData, path: st
             const trackData: TrackData = {
                 ...pick(track, "title"),
                 ...(track.type ? { type: track.type } : {}),
+                ...(track.tags ? { tags: track.tags } : {}),
                 ...(track.artist?.length
                     ? {
                           artist: stringifyArtists(track.artist),
@@ -80,4 +82,8 @@ export const writeAlbumFile = throttle(async (content: ParsedAlbumData, path: st
     } catch (e) {
         throw processTauriError(e);
     }
-}, 2000);
+};
+
+export const getAlbumFileWriter = () => {
+    return throttle(writeAlbumFile, 2000);
+};

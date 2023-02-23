@@ -1,7 +1,7 @@
 import { useAtom, useAtomValue } from "jotai";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Spinner } from "@blueprintjs/core";
-import { readAlbumFile, writeAlbumFile } from "@/utils/album";
+import { getAlbumFileWriter, readAlbumFile } from "@/utils/album";
 import Logger from "@/utils/log";
 import { OpenedDocumentAtom } from "../../state";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "./state";
@@ -13,6 +13,10 @@ const AlbumEditor: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [albumData, dispatch] = useAtom(AlbumDataReducerAtom);
     const openedDocument = useAtomValue(OpenedDocumentAtom);
+    const isInitialized = useRef(false);
+
+    const albumDataWriter = useMemo(() => getAlbumFileWriter(), []);
+
     useEffect(() => {
         let expired = false;
         (async () => {
@@ -28,6 +32,7 @@ const AlbumEditor: React.FC = () => {
                 }
                 Logger.debug("Load album toml done.");
                 setIsLoading(false);
+                isInitialized.current = true;
             }
         })();
         return () => {
@@ -37,11 +42,11 @@ const AlbumEditor: React.FC = () => {
 
     useEffect(() => {
         // 回写Album文件
-        if (openedDocument?.path && albumData && albumData.catalog && openedDocument.path.includes(albumData.catalog)) {
+        if (isInitialized.current && openedDocument.path && albumData) {
             Logger.debug(`Write album toml. label: ${openedDocument.label}, path: ${openedDocument.path}`);
-            writeAlbumFile(albumData, openedDocument.path);
+            albumDataWriter(albumData, openedDocument.path);
         }
-    }, [albumData, openedDocument]);
+    }, [albumData, openedDocument, albumDataWriter]);
 
     if (!openedDocument?.path) {
         return null;

@@ -45,6 +45,10 @@
     span {
         color: rgba(#000, 0.5);
     }
+
+    &.danger span {
+        color: #ac2f33;
+    }
 }
 
 .secondaryActionText {

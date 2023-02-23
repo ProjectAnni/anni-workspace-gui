@@ -43,7 +43,6 @@ const WorkspaceStatus: React.FC = () => {
                 {workspaceAlbums.map((album, index) => {
                     const { album_id: albumId, path, type } = album;
                     const { Catalog: catalog } = path.match(ALBUM_INFO_REGEX)?.groups || {};
-                    console.log(path, openedDocument.path);
                     return (
                         <div
                             key={albumId}
