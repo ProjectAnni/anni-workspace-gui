@@ -11,3 +11,10 @@ export interface WorkspaceAlbum {
     path: string;
     type: WorkspaceState;
 }
+
+export interface WorkspaceDisc {
+    index: number;
+    path: string;
+    cover: string;
+    tracks: string[];
+}

@@ -3,6 +3,7 @@ import { invoke, fs, path } from "@tauri-apps/api";
 import Logger from "@/utils/log";
 import { parseCatalog } from "@/utils/helper";
 import { processTauriError } from "@/utils/error";
+import { WorkspaceDisc } from "../Workspace/types";
 
 export interface CoverItem {
     id: string;
@@ -145,7 +146,10 @@ export const createWorkspaceAlbum = async (workspacePath: string, albumDirectory
     }
 };
 
-export const prepareCommitWorkspaceAlbum = async (workspacePath: string, albumDirectoryPath: string) => {
+export const prepareCommitWorkspaceAlbum = async (
+    workspacePath: string,
+    albumDirectoryPath: string
+): Promise<WorkspaceDisc[]> => {
     Logger.debug(`Prepare committing workspace album, workspace: ${workspacePath}, album: ${albumDirectoryPath}`);
 
     try {

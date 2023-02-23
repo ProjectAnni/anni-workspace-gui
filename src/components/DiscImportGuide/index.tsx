@@ -11,6 +11,8 @@ import BasicInfoEditDialog from "./BasicInfoEditDialog";
 import CoverConfirmDialog from "./CoverConfirmDialog";
 import { createWorkspaceAlbum, prepareCommitWorkspaceAlbum, standardizeAlbumDirectoryName } from "./services";
 import GlobalLoading from "../Common/GlobalLoading";
+import { WorkspaceDisc } from "../Workspace/types";
+import CommitConfirmDialog from "./CommitConfirmDialog";
 
 const DiscImportGuide: React.FC = () => {
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
@@ -22,9 +24,11 @@ const DiscImportGuide: React.FC = () => {
     const [originDirectoryPath, setOriginDirectoryPath] = useState("");
     const [workingDirectoryName, setWorkingDirectoryName] = useState("");
     const [workingDirectoryPath, setWorkingDirectoryPath] = useState("");
+    const [prepareResult, setPrepareResult] = useState<WorkspaceDisc[]>([]);
     const [isShowBasicInfoEditDialog, setIsShowBasicInfoEditDialog] = useState(false);
     const [isShowCoverConfirmDialog, setIsShowCoverConfirmDialog] = useState(false);
     const [isShowGlobalLoading, setIsShowGlobalLoading] = useState(false);
+    const [isShowCommitConfirmDialog, setIsShowCommitConfirmDialog] = useState(false);
     const processLock = useRef(false);
     const onFileDrop = useCallback(
         async (filePath: string) => {
@@ -113,20 +117,38 @@ const DiscImportGuide: React.FC = () => {
         [workingDirectoryPath]
     );
 
+    const onBasicInfoEditClose = useCallback(() => {
+        setIsShowBasicInfoEditDialog(false);
+        processLock.current = false;
+    }, []);
+
     const onCoverConfirm = useCallback(async () => {
         setIsShowGlobalLoading(true);
+        setIsShowCoverConfirmDialog(false);
         try {
             await createWorkspaceAlbum(workspaceBasePath, workingDirectoryPath);
             const prepareResult = await prepareCommitWorkspaceAlbum(workspaceBasePath, workingDirectoryPath);
-            console.log(prepareResult);
+            setPrepareResult(prepareResult);
+            setIsShowCommitConfirmDialog(true);
         } catch (e) {
             if (e instanceof Error) {
                 AppToaster.show({ message: e.message, intent: Intent.DANGER });
             }
         } finally {
+            setIsShowGlobalLoading(false);
             processLock.current = false;
         }
     }, [workspaceBasePath, workingDirectoryPath]);
+
+    const onCoverConfirmClose = useCallback(() => {
+        setIsShowCoverConfirmDialog(false);
+        processLock.current = false;
+    }, []);
+
+    const onCommitConfirmClose = useCallback(() => {
+        setIsShowCommitConfirmDialog(false);
+        processLock.current = false;
+    }, []);
 
     useFileDrop({ onDrop: onFileDrop });
 
@@ -135,19 +157,20 @@ const DiscImportGuide: React.FC = () => {
             <BasicInfoEditDialog
                 isOpen={isShowBasicInfoEditDialog}
                 workingDirectoryName={workingDirectoryName}
-                onClose={() => {
-                    setIsShowBasicInfoEditDialog(false);
-                }}
+                onClose={onBasicInfoEditClose}
                 onConfirm={onBasicInfoConfirm}
             />
             <CoverConfirmDialog
                 isOpen={isShowCoverConfirmDialog}
                 workingDirectoryPath={workingDirectoryPath}
                 albumName={albumName}
-                onClose={() => {
-                    setIsShowCoverConfirmDialog(false);
-                }}
+                onClose={onCoverConfirmClose}
                 onConfirm={onCoverConfirm}
+            />
+            <CommitConfirmDialog
+                isOpen={isShowCommitConfirmDialog}
+                discs={prepareResult}
+                onClose={onCommitConfirmClose}
             />
             <GlobalLoading isOpen={isShowGlobalLoading} text="处理中..." />
         </>

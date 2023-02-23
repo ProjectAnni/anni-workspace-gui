@@ -4,7 +4,7 @@ import { useAtom } from "jotai";
 import { Icon } from "@blueprintjs/core";
 import { OpenedDocumentAtom, WorkspaceBasePathAtom, WorkspaceRepoConfigAtom } from "../../state";
 import { getWorkspaceAlbums, searchFile } from "../services";
-import { WorkspaceAlbum } from "../../types";
+import { WorkspaceAlbum, WorkspaceState } from "../../types";
 import styles from "./index.module.scss";
 
 const ALBUM_INFO_REGEX =
@@ -40,25 +40,27 @@ const WorkspaceStatus: React.FC = () => {
     return (
         <div className={styles.workspaceStatusContainer}>
             <div className={styles.fileList}>
-                {workspaceAlbums.map((album, index) => {
-                    const { album_id: albumId, path, type } = album;
-                    const { Catalog: catalog } = path.match(ALBUM_INFO_REGEX)?.groups || {};
-                    return (
-                        <div
-                            key={albumId}
-                            className={classNames(styles.fileNode, {
-                                [styles.selected]: openedDocument.label === catalog,
-                            })}
-                            onClick={() => {
-                                onFileClick(catalog);
-                            }}
-                        >
-                            <Icon icon="document" />
-                            <div className={styles.nodeLabel}>{catalog}</div>
-                            <div className={styles.status}>{type}</div>
-                        </div>
-                    );
-                })}
+                {workspaceAlbums
+                    .filter((album) => album.type === WorkspaceState.COMMITTED)
+                    .map((album, index) => {
+                        const { album_id: albumId, path, type } = album;
+                        const { Catalog: catalog } = path.match(ALBUM_INFO_REGEX)?.groups || {};
+                        return (
+                            <div
+                                key={albumId}
+                                className={classNames(styles.fileNode, {
+                                    [styles.selected]: openedDocument.label === catalog,
+                                })}
+                                onClick={() => {
+                                    onFileClick(catalog);
+                                }}
+                            >
+                                <Icon icon="document" />
+                                <div className={styles.nodeLabel}>{catalog}</div>
+                                <div className={styles.status}>{type}</div>
+                            </div>
+                        );
+                    })}
             </div>
         </div>
     );
