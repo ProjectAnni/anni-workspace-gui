@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import { fs, path, invoke } from "@tauri-apps/api";
 import { Intent } from "@blueprintjs/core";
 import { useFileDrop } from "@/hooks/useFileDrop";
 import { AppToaster } from "@/utils/toaster";
-import { WorkspaceBasePathAtom } from "../Workspace/state";
-import { copyDirectory } from "@/utils/file";
+import { WorkspaceBasePathAtom, WorkspaceRepoConfigAtom } from "../Workspace/state";
+import { copyDirectory, searchFile } from "@/utils/file";
 import Logger from "@/utils/log";
 import BasicInfoEditDialog from "./BasicInfoEditDialog";
 import CoverConfirmDialog from "./CoverConfirmDialog";
@@ -21,6 +21,7 @@ import CommitConfirmDialog from "./CommitConfirmDialog";
 
 const DiscImportGuide: React.FC = () => {
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
+    const [repoConfig] = useAtom(WorkspaceRepoConfigAtom);
     const [releaseDate, setReleaseDate] = useState("");
     const [catalog, setCatalog] = useState("");
     const [albumName, setAlbumName] = useState("");
@@ -100,6 +101,12 @@ const DiscImportGuide: React.FC = () => {
             if (newEdition) {
                 setEdition(newEdition);
             }
+            if (await searchFile(repoConfig?.albumPaths || [], `${newCatalog}.toml`)) {
+                Logger.error(`Duplicated catalog: ${newCatalog}`);
+                AppToaster.show({ message: "已存在该品番的专辑", intent: Intent.DANGER });
+                processLock.current = false;
+                return;
+            }
             try {
                 const result = await standardizeAlbumDirectoryName(workingDirectoryPath, {
                     date: newReleaseDate,
@@ -113,6 +120,9 @@ const DiscImportGuide: React.FC = () => {
                 setWorkingDirectoryPath(result);
             } catch (e) {
                 if (e instanceof Error) {
+                    Logger.error(
+                        `Failed to standardize album directory, error: ${e.message}, albumPath: ${workingDirectoryPath}`
+                    );
                     AppToaster.show({ message: e.message, intent: Intent.DANGER });
                 }
                 processLock.current = false;
@@ -121,7 +131,7 @@ const DiscImportGuide: React.FC = () => {
             setIsShowBasicInfoEditDialog(false);
             setIsShowCoverConfirmDialog(true);
         },
-        [workingDirectoryPath]
+        [workingDirectoryPath, repoConfig]
     );
 
     const onBasicInfoEditClose = useCallback(() => {
@@ -139,6 +149,9 @@ const DiscImportGuide: React.FC = () => {
             setIsShowCommitConfirmDialog(true);
         } catch (e) {
             if (e instanceof Error) {
+                Logger.error(
+                    `Failed to create or prepare commit album, error: ${e.message}, albumPath: ${workingDirectoryPath}`
+                );
                 AppToaster.show({ message: e.message, intent: Intent.DANGER });
             }
             processLock.current = false;
@@ -159,6 +172,7 @@ const DiscImportGuide: React.FC = () => {
             await commitWorkspaceAlbum(workspaceBasePath, workingDirectoryPath);
         } catch (e) {
             if (e instanceof Error) {
+                Logger.error(`Failed to commit album, error: ${e.message}, albumPath: ${workingDirectoryPath}`);
                 AppToaster.show({ message: e.message, intent: Intent.DANGER });
             }
         } finally {

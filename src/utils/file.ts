@@ -22,3 +22,14 @@ export const copyDirectory = async (origin: string, destination: string) => {
         }
     }
 };
+
+export async function searchFile(basePath: string | string[], filename: string) {
+    const searchPaths = [...(Array.isArray(basePath) ? basePath : [basePath])];
+    for (const searchPath of searchPaths) {
+        const entries = await fs.readDir(searchPath, { recursive: true });
+        const result = entries.find((entry) => entry.name === filename);
+        if (result) {
+            return result.path;
+        }
+    }
+}

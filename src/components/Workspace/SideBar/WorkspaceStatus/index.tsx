@@ -3,8 +3,9 @@ import classNames from "classnames";
 import { useAtom } from "jotai";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { Button, Icon } from "@blueprintjs/core";
+import { searchFile } from "@/utils/file";
 import { OpenedDocumentAtom, WorkspaceBasePathAtom, WorkspaceRepoConfigAtom } from "../../state";
-import { getWorkspaceAlbums, searchFile } from "../services";
+import { getWorkspaceAlbums } from "../services";
 import { WorkspaceAlbum, WorkspaceState } from "../../types";
 import styles from "./index.module.scss";
 
