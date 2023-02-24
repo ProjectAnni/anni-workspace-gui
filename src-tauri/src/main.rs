@@ -3,10 +3,16 @@
     windows_subsystem = "windows"
 )]
 
-use anni_repo::prelude::{Album, JsonAlbum};
-use anni_workspace::{AnniWorkspace, WorkspaceAlbum, WorkspaceDisc, WorkspaceError};
+use anni_repo::{
+    library::AlbumFolderInfo,
+    prelude::{Album, JsonAlbum},
+};
+use anni_workspace::{
+    AnniWorkspace, ExtractedAlbumInfo, UntrackedWorkspaceAlbum, WorkspaceAlbum, WorkspaceError,
+};
 use serde::Serialize;
 use std::{
+    borrow::Cow,
     fs::{self, File},
     io::Write,
     num::NonZeroU8,
@@ -115,21 +121,55 @@ fn commit_album_prepare(
     let workspace = AnniWorkspace::find(Path::new(workspace_path))?;
     let mut discs_result: Vec<WorkspaceDiscCopy> = Vec::new();
 
-    let validator = |discs: &[WorkspaceDisc]| -> bool {
-        for (_, disc) in discs.into_iter().enumerate() {
-            discs_result.push(WorkspaceDiscCopy {
-                index: disc.index,
-                path: disc.path.clone(),
-                cover: disc.cover.clone(),
-                tracks: disc.tracks.clone(),
-            })
-        }
-        return false;
-    };
+    let untracked_album = workspace.get_untracked_album_overview(&album_path)?;
 
-    workspace.commit(&album_path, Some(validator)).ok();
+    for (_, disc) in untracked_album.discs.into_iter().enumerate() {
+        discs_result.push(WorkspaceDiscCopy {
+            index: disc.index,
+            path: disc.path.clone(),
+            cover: disc.cover.clone(),
+            tracks: disc.tracks.clone(),
+        })
+    }
 
     return Ok(discs_result);
+}
+
+#[tauri::command]
+fn commit_album(
+    window: tauri::Window,
+    workspace_path: &str,
+    album_path: &str,
+) -> Result<(), Error> {
+    let workspace = AnniWorkspace::find(Path::new(workspace_path))?;
+    let validator = |_album: &UntrackedWorkspaceAlbum| -> bool {
+        return true;
+    };
+    workspace.commit(&album_path, Some(validator))?;
+    workspace.import_tags(&album_path, |folder_name| {
+        let AlbumFolderInfo {
+            release_date,
+            catalog,
+            title,
+            edition,
+            ..
+        } = AlbumFolderInfo::from_str(&folder_name).ok()?;
+        Some(ExtractedAlbumInfo {
+            title: Cow::Owned(title),
+            edition: edition.map(|e| Cow::Owned(e)),
+            catalog: Cow::Owned(catalog),
+            release_date,
+        })
+    })?;
+    window
+        .emit(
+            "workspace_status_change",
+            Payload {
+                body: workspace_path.into(),
+            },
+        )
+        .unwrap();
+    Ok(())
 }
 
 fn main() {
@@ -141,6 +181,7 @@ fn main() {
             get_workspace_albums,
             create_album,
             commit_album_prepare,
+            commit_album,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -9,7 +9,12 @@ import { copyDirectory } from "@/utils/file";
 import Logger from "@/utils/log";
 import BasicInfoEditDialog from "./BasicInfoEditDialog";
 import CoverConfirmDialog from "./CoverConfirmDialog";
-import { createWorkspaceAlbum, prepareCommitWorkspaceAlbum, standardizeAlbumDirectoryName } from "./services";
+import {
+    commitWorkspaceAlbum,
+    createWorkspaceAlbum,
+    prepareCommitWorkspaceAlbum,
+    standardizeAlbumDirectoryName,
+} from "./services";
 import GlobalLoading from "../Common/GlobalLoading";
 import { WorkspaceDisc } from "../Workspace/types";
 import CommitConfirmDialog from "./CommitConfirmDialog";
@@ -56,6 +61,7 @@ const DiscImportGuide: React.FC = () => {
                 //     });
                 //     return;
                 // }
+                setIsShowGlobalLoading(true);
                 AppToaster.show({ message: "复制文件.." });
                 const destination = await path.resolve(workspaceBasePath, dirname);
                 await copyDirectory(filePath, destination);
@@ -76,7 +82,8 @@ const DiscImportGuide: React.FC = () => {
                     });
                 }
                 processLock.current = false;
-                return;
+            } finally {
+                setIsShowGlobalLoading(false);
             }
         },
         [workspaceBasePath]
@@ -134,9 +141,9 @@ const DiscImportGuide: React.FC = () => {
             if (e instanceof Error) {
                 AppToaster.show({ message: e.message, intent: Intent.DANGER });
             }
+            processLock.current = false;
         } finally {
             setIsShowGlobalLoading(false);
-            processLock.current = false;
         }
     }, [workspaceBasePath, workingDirectoryPath]);
 
@@ -144,6 +151,21 @@ const DiscImportGuide: React.FC = () => {
         setIsShowCoverConfirmDialog(false);
         processLock.current = false;
     }, []);
+
+    const onCommitConfirm = useCallback(async () => {
+        setIsShowGlobalLoading(true);
+        setIsShowCommitConfirmDialog(false);
+        try {
+            await commitWorkspaceAlbum(workspaceBasePath, workingDirectoryPath);
+        } catch (e) {
+            if (e instanceof Error) {
+                AppToaster.show({ message: e.message, intent: Intent.DANGER });
+            }
+        } finally {
+            setIsShowGlobalLoading(false);
+            processLock.current = false;
+        }
+    }, [workspaceBasePath, workingDirectoryPath]);
 
     const onCommitConfirmClose = useCallback(() => {
         setIsShowCommitConfirmDialog(false);
@@ -171,6 +193,7 @@ const DiscImportGuide: React.FC = () => {
                 isOpen={isShowCommitConfirmDialog}
                 discs={prepareResult}
                 onClose={onCommitConfirmClose}
+                onConfirm={onCommitConfirm}
             />
             <GlobalLoading isOpen={isShowGlobalLoading} text="处理中..." />
         </>

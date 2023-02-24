@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import { useAtom } from "jotai";
-import { Icon } from "@blueprintjs/core";
+import { listen, UnlistenFn } from "@tauri-apps/api/event";
+import { Button, Icon } from "@blueprintjs/core";
 import { OpenedDocumentAtom, WorkspaceBasePathAtom, WorkspaceRepoConfigAtom } from "../../state";
 import { getWorkspaceAlbums, searchFile } from "../services";
 import { WorkspaceAlbum, WorkspaceState } from "../../types";
@@ -15,6 +16,8 @@ const WorkspaceStatus: React.FC = () => {
     const [workspaceAlbums, setWorkspaceAlbums] = useState<WorkspaceAlbum[]>([]);
     const [openedDocument, setOpenedDocument] = useAtom(OpenedDocumentAtom);
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
+    const unlistenRef = useRef<UnlistenFn>();
+    const isInitialized = useRef(false);
     const refreshWorkspaceStatus = useCallback(async () => {
         if (!workspaceBasePath) {
             return;
@@ -22,6 +25,21 @@ const WorkspaceStatus: React.FC = () => {
         const result = await getWorkspaceAlbums(workspaceBasePath);
         setWorkspaceAlbums(result);
     }, [workspaceBasePath]);
+
+    useEffect(() => {
+        if (isInitialized.current) {
+            return;
+        }
+        isInitialized.current = true;
+        listen("workspace_status_change", refreshWorkspaceStatus).then((unlisten) => {
+            unlistenRef.current = unlisten;
+        });
+        return () => {
+            isInitialized.current = false;
+            unlistenRef.current && unlistenRef.current();
+        };
+    }, [refreshWorkspaceStatus]);
+
     const onFileClick = useCallback(
         async (catalog: string) => {
             if (!repoConfig?.albumPaths?.length) {
@@ -34,6 +52,9 @@ const WorkspaceStatus: React.FC = () => {
         },
         [repoConfig]
     );
+
+    const onPublish = () => {};
+
     useEffect(() => {
         refreshWorkspaceStatus();
     }, [workspaceBasePath]);
@@ -58,6 +79,16 @@ const WorkspaceStatus: React.FC = () => {
                                 <Icon icon="document" />
                                 <div className={styles.nodeLabel}>{catalog}</div>
                                 <div className={styles.status}>{type}</div>
+                                <div className={styles.actions}>
+                                    <Button
+                                        text="发布"
+                                        className={styles.actionButton}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onPublish();
+                                        }}
+                                    ></Button>
+                                </div>
                             </div>
                         );
                     })}

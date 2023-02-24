@@ -161,3 +161,15 @@ export const prepareCommitWorkspaceAlbum = async (
         throw processTauriError(e);
     }
 };
+
+export const commitWorkspaceAlbum = async (workspacePath: string, albumDirectoryPath: string): Promise<void> => {
+    Logger.debug(`Commit workspace album,workspace: ${workspacePath}, album: ${albumDirectoryPath} `);
+    try {
+        return await invoke("commit_album", {
+            workspacePath,
+            albumPath: albumDirectoryPath,
+        });
+    } catch (e) {
+        throw processTauriError(e);
+    }
+};

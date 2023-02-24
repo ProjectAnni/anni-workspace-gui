@@ -13,10 +13,11 @@ interface Props {
     isOpen: boolean;
     discs: WorkspaceDisc[];
     onClose: () => void;
+    onConfirm: () => void;
 }
 
 const CommitConfirmDialog: React.FC<Props> = (props) => {
-    const { isOpen, discs, onClose } = props;
+    const { isOpen, discs, onClose, onConfirm } = props;
     const parsedDiscs = useMemo<TreeNodeInfo[]>(() => {
         const result: TreeNodeInfo[] = [];
         if (!discs?.length) {
@@ -48,7 +49,9 @@ const CommitConfirmDialog: React.FC<Props> = (props) => {
             <DialogFooter
                 actions={
                     <>
-                        <Button intent={Intent.PRIMARY}>确认导入</Button>
+                        <Button intent={Intent.PRIMARY} onClick={onConfirm}>
+                            确认导入
+                        </Button>
                     </>
                 }
             ></DialogFooter>
