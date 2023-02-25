@@ -189,7 +189,7 @@ const DiscImportGuide: React.FC = () => {
     useFileDrop({ onDrop: onFileDrop });
 
     return (
-        <>
+        <React.Fragment key={originDirectoryPath}>
             <BasicInfoEditDialog
                 isOpen={isShowBasicInfoEditDialog}
                 workingDirectoryName={workingDirectoryName}
@@ -210,7 +210,7 @@ const DiscImportGuide: React.FC = () => {
                 onConfirm={onCommitConfirm}
             />
             <GlobalLoading isOpen={isShowGlobalLoading} text="处理中..." />
-        </>
+        </React.Fragment>
     );
 };
 

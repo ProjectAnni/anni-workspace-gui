@@ -76,7 +76,7 @@ const WorkspaceStatus: React.FC = () => {
             }
         } finally {
             setPublishingPath("");
-            publishLock.current = true;
+            publishLock.current = false;
         }
     };
 
