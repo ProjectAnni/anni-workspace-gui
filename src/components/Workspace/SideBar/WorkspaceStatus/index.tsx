@@ -19,6 +19,7 @@ const WorkspaceStatus: React.FC = () => {
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
     const unlistenRef = useRef<UnlistenFn>();
     const isInitialized = useRef(false);
+
     const refreshWorkspaceStatus = useCallback(async () => {
         if (!workspaceBasePath) {
             return;
@@ -51,14 +52,14 @@ const WorkspaceStatus: React.FC = () => {
                 setOpenedDocument({ path: tomlPath, label: catalog });
             }
         },
-        [repoConfig]
+        [repoConfig, setOpenedDocument]
     );
 
     const onPublish = () => {};
 
     useEffect(() => {
         refreshWorkspaceStatus();
-    }, [workspaceBasePath]);
+    }, [workspaceBasePath, refreshWorkspaceStatus]);
     return (
         <div className={styles.workspaceStatusContainer}>
             <div className={styles.fileList}>
