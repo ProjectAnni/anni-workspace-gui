@@ -176,6 +176,26 @@ fn commit_album(
     Ok(())
 }
 
+#[tauri::command]
+fn publish_album(
+    window: tauri::Window,
+    workspace_path: &str,
+    album_path: &str,
+) -> Result<(), Error> {
+    let workspace = AnniWorkspace::find(Path::new(workspace_path))?;
+    workspace.apply_tags(&album_path)?;
+    workspace.publish(album_path, false)?;
+    window
+        .emit(
+            "workspace_status_change",
+            Payload {
+                body: workspace_path.into(),
+            },
+        )
+        .unwrap();
+    Ok(())
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -186,6 +206,7 @@ fn main() {
             create_album,
             commit_album_prepare,
             commit_album,
+            publish_album
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -2,12 +2,13 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import { useAtom } from "jotai";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
-import { Button, Icon } from "@blueprintjs/core";
+import { Button, Icon, Intent } from "@blueprintjs/core";
 import { searchFile } from "@/utils/file";
 import { OpenedDocumentAtom, WorkspaceBasePathAtom, WorkspaceRepoConfigAtom } from "../../state";
-import { getWorkspaceAlbums } from "../services";
+import { getWorkspaceAlbums, publishAlbum } from "../services";
 import { WorkspaceAlbum, WorkspaceState } from "../../types";
 import styles from "./index.module.scss";
+import { AppToaster } from "@/utils/toaster";
 
 const ALBUM_INFO_REGEX =
     /\[(?<Year>\d{4}|\d{2})-?(?<Month>\d{2})-?(?<Date>\d{2})]\[(?<Catalog>[^\]]+)] (?<Name>.+?)(?:【(?<Edition>[^】]+)】)?(?: \[(?<DiscCount>\d+) Discs])?$/i;
@@ -17,8 +18,10 @@ const WorkspaceStatus: React.FC = () => {
     const [workspaceAlbums, setWorkspaceAlbums] = useState<WorkspaceAlbum[]>([]);
     const [openedDocument, setOpenedDocument] = useAtom(OpenedDocumentAtom);
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
+    const [publishingPath, setPublishingPath] = useState("");
     const unlistenRef = useRef<UnlistenFn>();
     const isInitialized = useRef(false);
+    const publishLock = useRef(false);
 
     const refreshWorkspaceStatus = useCallback(async () => {
         if (!workspaceBasePath) {
@@ -55,7 +58,23 @@ const WorkspaceStatus: React.FC = () => {
         [repoConfig, setOpenedDocument]
     );
 
-    const onPublish = () => {};
+    const onPublish = async (albumPath: string) => {
+        if (publishLock.current) {
+            return;
+        }
+        publishLock.current = true;
+        setPublishingPath(albumPath);
+        try {
+            await publishAlbum(workspaceBasePath, albumPath);
+        } catch (e) {
+            if (e instanceof Error) {
+                AppToaster.show({ message: e.message, intent: Intent.DANGER });
+            }
+        } finally {
+            setPublishingPath("");
+            publishLock.current = true;
+        }
+    };
 
     useEffect(() => {
         refreshWorkspaceStatus();
@@ -85,9 +104,10 @@ const WorkspaceStatus: React.FC = () => {
                                     <Button
                                         text="发布"
                                         className={styles.actionButton}
+                                        loading={path === publishingPath}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            onPublish();
+                                            onPublish(path);
                                         }}
                                     ></Button>
                                 </div>
