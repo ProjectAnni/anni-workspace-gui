@@ -4,11 +4,12 @@ import { useAtom } from "jotai";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
 import { Button, Icon, Intent } from "@blueprintjs/core";
 import { searchFile } from "@/utils/file";
+import Logger from "@/utils/log";
+import { AppToaster } from "@/utils/toaster";
 import { OpenedDocumentAtom, WorkspaceBasePathAtom, WorkspaceRepoConfigAtom } from "../../state";
 import { getWorkspaceAlbums, publishAlbum } from "../services";
 import { WorkspaceAlbum, WorkspaceState } from "../../types";
 import styles from "./index.module.scss";
-import { AppToaster } from "@/utils/toaster";
 
 const ALBUM_INFO_REGEX =
     /\[(?<Year>\d{4}|\d{2})-?(?<Month>\d{2})-?(?<Date>\d{2})]\[(?<Catalog>[^\]]+)] (?<Name>.+?)(?:【(?<Edition>[^】]+)】)?(?: \[(?<DiscCount>\d+) Discs])?$/i;
@@ -68,6 +69,9 @@ const WorkspaceStatus: React.FC = () => {
             await publishAlbum(workspaceBasePath, albumPath);
         } catch (e) {
             if (e instanceof Error) {
+                Logger.error(
+                    `Failed to publish album, error: ${e.message}, workspacePath: ${workspaceBasePath}, albumPath: ${albumPath}`
+                );
                 AppToaster.show({ message: e.message, intent: Intent.DANGER });
             }
         } finally {

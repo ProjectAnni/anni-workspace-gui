@@ -13,12 +13,10 @@ const LocalTagEditor: React.FC = () => {
             payload: tags,
         });
     };
-    if (!tags?.length) {
-        return null;
-    }
+
     return (
         <FormGroup label="专辑标签">
-            <CommonTagEditor initialTags={tags} onChange={onChange} />
+            <CommonTagEditor initialTags={tags || []} onChange={onChange} />
         </FormGroup>
     );
 };

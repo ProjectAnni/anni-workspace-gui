@@ -11,6 +11,7 @@ import styles from "./index.module.scss";
 
 const AlbumEditor: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
+    const [refreshIndicator, setRefreshIndicator] = useState(0);
     const [albumData, dispatch] = useAtom(AlbumDataReducerAtom);
     const openedDocument = useAtomValue(OpenedDocumentAtom);
     const isInitialized = useRef(false);
@@ -32,13 +33,14 @@ const AlbumEditor: React.FC = () => {
                 }
                 Logger.debug("Load album toml done.");
                 setIsLoading(false);
+                setRefreshIndicator((prev) => prev + 1);
                 isInitialized.current = true;
             }
         })();
         return () => {
             expired = true;
         };
-    }, [openedDocument]);
+    }, [openedDocument, dispatch]);
 
     useEffect(() => {
         // 回写Album文件
@@ -59,7 +61,7 @@ const AlbumEditor: React.FC = () => {
         );
     }
     return (
-        <div className={styles.albumContainer}>
+        <div className={styles.albumContainer} key={refreshIndicator}>
             <AlbumMetaInfoEditor />
             <div className={styles.divider} />
             <DiscsEditor />
