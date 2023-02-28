@@ -3,7 +3,7 @@ import { VariableSizeTree as Tree } from "react-vtree";
 import { useAtom } from "jotai";
 import classNames from "classnames";
 import { Icon, InputGroup, NonIdealState, TreeNodeInfo } from "@blueprintjs/core";
-import { OpenedDocumentAtom } from "@/components/Workspace/state";
+import { OpenedDocumentAtom, OpenedDocumentType } from "@/components/Workspace/state";
 import styles from "./index.module.scss";
 
 interface FileNodeData {
@@ -42,7 +42,7 @@ const FileNode: React.FC<FileNodeProps> = (props: FileNodeProps) => {
                 if (isDirectory) {
                     setOpen(!isOpen);
                 } else {
-                    setOpenedDocument({ label, path });
+                    setOpenedDocument({ label, path, type: OpenedDocumentType.ALBUM });
                 }
             }}
         >

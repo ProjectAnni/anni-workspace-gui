@@ -6,7 +6,7 @@ import { Button, Icon, Intent } from "@blueprintjs/core";
 import { searchFile } from "@/utils/file";
 import Logger from "@/utils/log";
 import { AppToaster } from "@/utils/toaster";
-import { OpenedDocumentAtom, WorkspaceBasePathAtom, WorkspaceRepoConfigAtom } from "../../state";
+import { OpenedDocumentAtom, OpenedDocumentType, WorkspaceBasePathAtom, WorkspaceRepoConfigAtom } from "../../state";
 import { getWorkspaceAlbums, publishAlbum } from "../services";
 import { WorkspaceAlbum, WorkspaceState } from "../../types";
 import styles from "./index.module.scss";
@@ -53,7 +53,7 @@ const WorkspaceStatus: React.FC = () => {
             }
             const tomlPath = await searchFile(repoConfig.albumPaths, `${catalog}.toml`);
             if (tomlPath) {
-                setOpenedDocument({ path: tomlPath, label: catalog });
+                setOpenedDocument({ path: tomlPath, label: catalog, type: OpenedDocumentType.ALBUM });
             }
         },
         [repoConfig, setOpenedDocument]
@@ -83,6 +83,7 @@ const WorkspaceStatus: React.FC = () => {
     useEffect(() => {
         refreshWorkspaceStatus();
     }, [workspaceBasePath, refreshWorkspaceStatus]);
+
     return (
         <div className={styles.workspaceStatusContainer}>
             <div className={styles.fileList}>

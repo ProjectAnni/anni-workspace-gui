@@ -1,10 +1,14 @@
+.tagDirectoryContainer {
+    height: 100%;
+}
+
 .fileList {
     height: 100%;
     width: 2.88rem;
     overflow-x: hidden;
 }
 
-.fileList > div {
+.fileList {
     font-size: 0.12rem;
 
     &::-webkit-scrollbar {
@@ -29,16 +33,6 @@
         background-color: rgba(#aaa, 0.25);
     }
 
-    &.level1 {
-        padding-left: 0.24rem;
-    }
-    &.level2 {
-        padding-left: 0.4rem;
-    }
-    &.level3 {
-        padding-left: 0.56rem;
-    }
-
     &.selected {
         background-color: rgba(0, 122, 204, 0.9);
         color: #fff;
@@ -47,13 +41,10 @@
 
 .nodeLabel {
     margin-left: 0.04rem;
+    flex-grow: 1;
     user-select: none;
     font-family: "Consolas", monospace;
-}
-
-.noResult {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    padding-top: 0.16rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }

@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 import { useAtom } from "jotai";
 import SetupGuide from "./components/SetupGuide";
 import { WorkspaceBasePathAtom } from "./components/Workspace/state";

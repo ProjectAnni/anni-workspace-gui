@@ -2,7 +2,7 @@ import { atom } from "jotai";
 import { WorkspaceRepoConfigAtom } from "../../state";
 import { readAlbumDir } from "./utils";
 
-export const AlbumDirectoriesAtom = atom(async (get) => {
+export const AlbumDirectoriesContentAtom = atom(async (get) => {
     const repoConfig = get(WorkspaceRepoConfigAtom);
     const { albumPaths } = repoConfig || {};
     if (!albumPaths?.length) {
