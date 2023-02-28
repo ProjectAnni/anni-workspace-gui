@@ -13,7 +13,7 @@
         "allowlist": {
             "all": true,
             "fs": {
-                "scope": ["**"]
+                "scope": ["**/.anni/**/*", "**"]
             },
             "http": {
                 "scope": ["https://**", "https://*"],
