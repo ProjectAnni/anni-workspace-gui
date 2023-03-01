@@ -5,18 +5,15 @@ import { open } from "@tauri-apps/api/dialog";
 import * as path from "@tauri-apps/api/path";
 import * as fs from "@tauri-apps/api/fs";
 import { WorkspaceBasePathAtom } from "@/components/Workspace/state";
+import Logger from "@/utils/log";
 import NonEmptyDirectoryErrorDialog from "./NonEmptyDirectoryErrorDialog";
 import CreateWorkspaceDialog from "./CreateWorkspaceDialog";
 import styles from "./index.module.scss";
 
 const SetupGuide: React.FC = () => {
-    const [isShowNonEmptyErrorDialog, setIsShowNonEmptyErrorDialog] =
-        useState(false);
-    const [isShowCreateWorkspaceDialog, setIsShowCreateWorkspaceDialog] =
-        useState(false);
-    const [workspaceBasePath, setWorkspaceBasePath] = useAtom(
-        WorkspaceBasePathAtom
-    );
+    const [isShowNonEmptyErrorDialog, setIsShowNonEmptyErrorDialog] = useState(false);
+    const [isShowCreateWorkspaceDialog, setIsShowCreateWorkspaceDialog] = useState(false);
+    const [workspaceBasePath, setWorkspaceBasePath] = useAtom(WorkspaceBasePathAtom);
     const onMainButtonClick = async () => {
         const selected = await open({
             directory: true,
@@ -25,14 +22,14 @@ const SetupGuide: React.FC = () => {
         if (!selected) {
             return;
         }
-        const anniWorkspaceConfigFilePath = await path.resolve(
-            selected as string,
-            ".anni/config.toml"
-        );
+        Logger.debug(`Workspace selected, workspace_path: ${selected}`);
+        const anniWorkspaceConfigFilePath = await path.resolve(selected as string, ".anni/config.toml");
         if (await fs.exists(anniWorkspaceConfigFilePath)) {
+            Logger.debug(`Existed workspace detected.`);
             // 一个已配置的 Anni Workspace 直接进入下一步
             setWorkspaceBasePath(selected as string);
         } else {
+            Logger.debug(`Try to create new workspace.`);
             // 未找到已存在的 Anni Workspace
             const entries = await fs.readDir(selected as string);
             if (entries.length > 0) {

@@ -10,11 +10,6 @@ export interface IndexedArtist {
     albumTitle: string;
 }
 
-export interface IndexedTag {
-    id: string;
-    name: string;
-}
-
 class AlbumFileIndexer {
     needIndexFilePaths: string[] = [];
     indexedFilePaths: string[] = [];
@@ -24,20 +19,10 @@ class AlbumFileIndexer {
 
     artistIndex: MiniSearch<IndexedArtist>;
 
-    tagIndex: MiniSearch<IndexedTag>;
-
     constructor() {
         this.artistIndex = new MiniSearch<IndexedArtist>({
             fields: ["name", "serializedFullStr"],
             storeFields: ["name", "serializedFullStr", "albumTitle"],
-            searchOptions: {
-                prefix: true,
-                fuzzy: true,
-            },
-        });
-        this.tagIndex = new MiniSearch<IndexedTag>({
-            fields: ["name"],
-            storeFields: ["name"],
             searchOptions: {
                 prefix: true,
                 fuzzy: true,
@@ -62,7 +47,6 @@ class AlbumFileIndexer {
             }
             const albumData = await readAlbumFile(filePath);
             const artists = albumData.artist || [];
-            const tags = albumData.tags || [];
             artists.forEach((artist, index) => {
                 const { name } = artist;
                 if (!this.artistIndex.has(`${albumData.album_id}-${index}`)) {
@@ -74,26 +58,14 @@ class AlbumFileIndexer {
                     });
                 }
             });
-            tags.forEach((tag) => {
-                if (!this.tagIndex.has(tag)) {
-                    this.tagIndex.add({
-                        id: tag,
-                        name: tag,
-                    });
-                }
-            });
             this.finishedCount += 1;
             this.indexedFilePaths.push(filePath);
         }
-        Logger.debug(`Artist indexing end. finishedCount: ${this.finishedCount}`);
+        Logger.debug(`Artist indexing end. finishedCount: ${this.artistIndex.documentCount}`);
     }
 
     searchArtist(keyword: string) {
         return this.artistIndex.search(keyword);
-    }
-
-    searchTags(keyword: string) {
-        return this.tagIndex.search(keyword);
     }
 }
 
