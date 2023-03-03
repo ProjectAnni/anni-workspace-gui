@@ -7,7 +7,7 @@ export interface IndexedTag {
     type: string;
     name: string;
     includes?: string[];
-    includedBy?: string;
+    includedBy?: string[];
 }
 
 class TagFileIndexer {
@@ -35,6 +35,10 @@ class TagFileIndexer {
         this.totalCount = this.needIndexFilePaths.length;
     }
 
+    addTag(tag: IndexedTag) {
+        this.tagIndex.add(tag);
+    }
+
     async start() {
         if (!this.needIndexFilePaths.length) {
             return;
@@ -51,7 +55,6 @@ class TagFileIndexer {
                     const { name, type, includes, includedBy } = tag;
                     const id = `${type}:${name}`;
                     if (!this.tagIndex.has(id)) {
-                        console.log("add", id);
                         this.tagIndex.add({
                             id,
                             name,
@@ -70,6 +73,10 @@ class TagFileIndexer {
 
     searchTag(keyword: string) {
         return this.tagIndex.search(keyword);
+    }
+
+    isTagNameUnique(tagName: string) {
+        return this.searchTag(tagName).filter((item) => item.name === tagName).length === 1;
     }
 }
 
