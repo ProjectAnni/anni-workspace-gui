@@ -17,7 +17,8 @@
     display: flex;
     align-items: center;
 
-    &:hover {
+    &:hover,
+    &.publishing {
         background-color: rgba(#aaa, 0.25);
 
         .status {

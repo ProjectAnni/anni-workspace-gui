@@ -92,11 +92,13 @@ const WorkspaceStatus: React.FC = () => {
                     .map((album, index) => {
                         const { album_id: albumId, path, type } = album;
                         const { Catalog: catalog } = path.match(ALBUM_INFO_REGEX)?.groups || {};
+                        const isPublishing = path === publishingPath;
                         return (
                             <div
                                 key={albumId}
                                 className={classNames(styles.fileNode, {
                                     [styles.selected]: openedDocument.label === catalog,
+                                    [styles.publishing]: isPublishing,
                                 })}
                                 onClick={() => {
                                     onFileClick(catalog);
@@ -109,7 +111,7 @@ const WorkspaceStatus: React.FC = () => {
                                     <Button
                                         text="发布"
                                         className={styles.actionButton}
-                                        loading={path === publishingPath}
+                                        loading={isPublishing}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             onPublish(path);
