@@ -7,7 +7,7 @@
     },
     "package": {
         "productName": "anni-workspace-gui",
-        "version": "0.0.0"
+        "version": "1.0.0"
     },
     "tauri": {
         "allowlist": {
@@ -35,7 +35,7 @@
                 "icons/icon.icns",
                 "icons/icon.ico"
             ],
-            "identifier": "rs.anni.ribbon.WorkspaceGUI",
+            "identifier": "rs.anni.ribbon.anni-workspace-gui",
             "longDescription": "",
             "macOS": {
                 "entitlements": null,
