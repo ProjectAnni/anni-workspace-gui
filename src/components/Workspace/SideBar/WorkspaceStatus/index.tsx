@@ -32,6 +32,30 @@ const WorkspaceStatus: React.FC = () => {
         setWorkspaceAlbums(result);
     }, [workspaceBasePath]);
 
+    const publish = useCallback(
+        async (albumPath: string) => {
+            if (publishLock.current) {
+                return;
+            }
+            publishLock.current = true;
+            setPublishingPath(albumPath);
+            try {
+                await publishAlbum(workspaceBasePath, albumPath);
+            } catch (e) {
+                if (e instanceof Error) {
+                    Logger.error(
+                        `Failed to publish album, error: ${e.message}, workspacePath: ${workspaceBasePath}, albumPath: ${albumPath}`
+                    );
+                    AppToaster.show({ message: e.message, intent: Intent.DANGER });
+                }
+            } finally {
+                setPublishingPath("");
+                publishLock.current = false;
+            }
+        },
+        [workspaceBasePath]
+    );
+
     useEffect(() => {
         if (isInitialized.current) {
             return;
@@ -60,23 +84,16 @@ const WorkspaceStatus: React.FC = () => {
     );
 
     const onPublish = async (albumPath: string) => {
-        if (publishLock.current) {
+        publish(albumPath);
+    };
+
+    const onPublishAll = async () => {
+        if (!workspaceAlbums?.length) {
             return;
         }
-        publishLock.current = true;
-        setPublishingPath(albumPath);
-        try {
-            await publishAlbum(workspaceBasePath, albumPath);
-        } catch (e) {
-            if (e instanceof Error) {
-                Logger.error(
-                    `Failed to publish album, error: ${e.message}, workspacePath: ${workspaceBasePath}, albumPath: ${albumPath}`
-                );
-                AppToaster.show({ message: e.message, intent: Intent.DANGER });
-            }
-        } finally {
-            setPublishingPath("");
-            publishLock.current = false;
+        const committedAlbums = workspaceAlbums.filter((album) => album.type === WorkspaceState.COMMITTED);
+        for (const album of committedAlbums) {
+            await publish(album.path);
         }
     };
 
@@ -86,6 +103,17 @@ const WorkspaceStatus: React.FC = () => {
 
     return (
         <div className={styles.workspaceStatusContainer}>
+            <div className={styles.workspaceActions}>
+                <Button
+                    icon="git-push"
+                    text="发布全部"
+                    small
+                    minimal
+                    intent={Intent.PRIMARY}
+                    disabled={!!publishingPath}
+                    onClick={onPublishAll}
+                ></Button>
+            </div>
             <div className={styles.fileList}>
                 {workspaceAlbums
                     .filter((album) => album.type === WorkspaceState.COMMITTED)
