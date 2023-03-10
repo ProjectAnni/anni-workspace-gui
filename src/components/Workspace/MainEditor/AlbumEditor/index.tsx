@@ -6,6 +6,7 @@ import Logger from "@/utils/log";
 import { OpenedDocumentAtom } from "../../state";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "./state";
 import AlbumMetaInfoEditor from "./AlbumMetaInfoEditor";
+import AlbumEditorActions from "./AlbumEditorActions";
 import DiscsEditor from "./DiscsEditor";
 import styles from "./index.module.scss";
 
@@ -63,6 +64,7 @@ const AlbumEditor: React.FC = () => {
     return (
         <div className={styles.albumContainer} key={refreshIndicator}>
             <AlbumMetaInfoEditor />
+            <AlbumEditorActions />
             <div className={styles.divider} />
             <DiscsEditor />
         </div>
