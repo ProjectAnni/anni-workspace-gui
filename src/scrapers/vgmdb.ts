@@ -1,13 +1,8 @@
+import axios from "axios";
 import { ParsedAlbumData } from "@/types/album";
+import BaseScraper, { ScraperSearchResult } from "./base";
 
-export interface ScraperSearchResult {
-    id: string;
-    exactMatch: boolean;
-    title: string;
-    cover?: string;
-}
-
-abstract class BaseScraper {
+class VGMDBScraper extends BaseScraper {
     public async search(album: ParsedAlbumData): Promise<ScraperSearchResult[]> {
         return [];
     }
@@ -17,4 +12,4 @@ abstract class BaseScraper {
     }
 }
 
-export default BaseScraper;
+export default new VGMDBScraper();
