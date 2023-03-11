@@ -4,7 +4,10 @@ export interface ScraperSearchResult {
     id: string;
     exactMatch: boolean;
     title: string;
+    releaseDate?: string;
+    artists?: string;
     cover?: string;
+    trackCount?: number;
 }
 
 abstract class BaseScraper {

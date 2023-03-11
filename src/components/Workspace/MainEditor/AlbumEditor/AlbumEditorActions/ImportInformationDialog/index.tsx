@@ -39,7 +39,15 @@ const ImportInformationDialog: React.FC<Props> = (props) => {
             <DialogBody>
                 {SOURCES.map((source) => {
                     const { name, scraper } = source;
-                    return <InformationProvider key={name} name={name} albumData={albumData} scraper={scraper} />;
+                    return (
+                        <InformationProvider
+                            active={isOpen}
+                            key={name}
+                            name={name}
+                            albumData={albumData}
+                            scraper={scraper}
+                        />
+                    );
                 })}
             </DialogBody>
             <DialogFooter
