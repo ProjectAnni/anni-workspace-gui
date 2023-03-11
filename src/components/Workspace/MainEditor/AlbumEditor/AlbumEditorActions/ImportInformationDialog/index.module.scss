@@ -28,19 +28,31 @@
 }
 
 .resultItem {
+    border-radius: 0.02rem;
     padding: 0.08rem 0.12rem;
     height: 0.6rem;
     background-color: rgba(#000, 0.04);
     display: flex;
     flex-direction: column;
+    cursor: pointer;
+    transition: background-color 0.2s;
     &:not(:first-child) {
         margin-top: 0.08rem;
+    }
+    &:hover {
+        background-color: rgba(#000, 0.06);
     }
 }
 
 .resultTitle {
     font-weight: bold;
     font-size: 0.18rem;
+    display: flex;
+    align-items: center;
+}
+
+.exactMatchTag {
+    margin-left: 0.08rem;
 }
 
 .resultSubTitle {

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import useSWR from "swr";
-import { Card, Icon, Spinner } from "@blueprintjs/core";
+import { Card, Icon, Intent, Spinner, Tag } from "@blueprintjs/core";
 import type BaseScraper from "@/scrapers/base";
 import type { ParsedAlbumData } from "@/types/album";
 import styles from "./index.module.scss";
@@ -18,7 +18,6 @@ const InformationProvider: React.FC<Props> = (props) => {
         return scraper.search(albumData);
     });
     const [isCollapsed, setIsCollapsed] = useState(true);
-    console.log(name, data);
     const resultNode = useMemo(() => {
         if (isLoading) {
             return <Spinner size={24} />;
@@ -32,10 +31,13 @@ const InformationProvider: React.FC<Props> = (props) => {
         return (
             <div className={styles.resultList}>
                 {data.slice(0, isCollapsed ? 2 : data.length).map((item) => {
-                    const { id, title, artists, releaseDate, trackCount } = item;
+                    const { id, title, artists, releaseDate, trackCount, exactMatch } = item;
                     return (
                         <div className={styles.resultItem} key={id}>
-                            <div className={styles.resultTitle}>{title}</div>
+                            <div className={styles.resultTitle}>
+                                <span>{title}</span>
+                                {exactMatch && <Tag intent={Intent.PRIMARY} className={styles.exactMatchTag} minimal>完全匹配</Tag>}
+                            </div>
                             {!!artists && (
                                 <div className={styles.resultSubTitle}>
                                     {artists}
