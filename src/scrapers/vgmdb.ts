@@ -7,7 +7,7 @@ class VGMDBScraper extends BaseScraper {
         return [];
     }
 
-    public async getDetail(result: ScraperSearchResult): Promise<ParsedAlbumData | null> {
+    public async getDetail(result: ScraperSearchResult): Promise<Omit<ParsedAlbumData, "album_id"> | null> {
         return null;
     }
 }

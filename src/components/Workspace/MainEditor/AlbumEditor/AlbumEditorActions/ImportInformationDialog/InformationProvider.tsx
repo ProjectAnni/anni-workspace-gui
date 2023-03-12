@@ -31,12 +31,19 @@ const InformationProvider: React.FC<Props> = (props) => {
         return (
             <div className={styles.resultList}>
                 {data.slice(0, isCollapsed ? 2 : data.length).map((item) => {
-                    const { id, title, artists, releaseDate, trackCount, exactMatch } = item;
+                    const { id, title, edition, artists, releaseDate, trackCount, exactMatch } = item;
                     return (
                         <div className={styles.resultItem} key={id}>
                             <div className={styles.resultTitle}>
-                                <span>{title}</span>
-                                {exactMatch && <Tag intent={Intent.PRIMARY} className={styles.exactMatchTag} minimal>完全匹配</Tag>}
+                                <span>
+                                    {title}
+                                    {edition ? `【${edition}】` : ""}
+                                </span>
+                                {exactMatch && (
+                                    <Tag intent={Intent.PRIMARY} className={styles.exactMatchTag} minimal>
+                                        完全匹配
+                                    </Tag>
+                                )}
                             </div>
                             {!!artists && (
                                 <div className={styles.resultSubTitle}>

@@ -63,7 +63,7 @@ export function parseArtists(artistStr: string) {
     });
 }
 
-function escapeArtistName(artistName: string) {
+export function escapeArtistName(artistName: string) {
     // regex by ChatGPT
     return artistName.replace(/([（）]|^、)/g, "\\$1").replace(/(?<!\\)、/g, "、、");
 }
