@@ -16,9 +16,9 @@
 
 .fileNode {
     position: relative;
-    height: 0.32rem;
-    padding: 0 0.04rem;
-    padding-left: 0.08rem;
+    height: 32px;
+    padding: 0 4px;
+    padding-left: 8px;
     display: flex;
     align-items: center;
 
@@ -42,7 +42,7 @@
 }
 
 .nodeLabel {
-    margin-left: 0.04rem;
+    margin-left: 4px;
     flex-grow: 1;
     user-select: none;
     font-family: "Consolas", monospace;
@@ -53,15 +53,15 @@
 
 .status {
     flex-shrink: 0;
-    margin-left: 0.08rem;
+    margin-left: 8px;
     font-family: "Consolas", monospace;
     font-size: smaller;
-    line-height: 0.18rem;
+    line-height: 18px;
 }
 
 .actions {
     position: absolute;
-    right: 0.08rem;
+    right: 8px;
     height: 100%;
     display: flex;
     align-items: center;
@@ -69,7 +69,7 @@
 }
 
 .actionButton.actionButton {
-    min-height: 0.2rem;
-    padding: 0.04rem 0.08rem;
-    font-size: 0.12rem;
+    min-height: 20px;
+    padding: 4px 8px;
+    font-size: 12px;
 }

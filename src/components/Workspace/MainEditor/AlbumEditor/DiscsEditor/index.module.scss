@@ -1,5 +1,5 @@
 .discContainer {
-    margin-bottom: 0.16rem;
+    margin-bottom: 16px;
 }
 
 .discTitleContainer {
@@ -8,12 +8,12 @@
 }
 
 .discTitle {
-    font-size: 0.24rem;
+    font-size: 24px;
     cursor: pointer;
 }
 
 .catalog {
-    margin-left: 0.08rem;
+    margin-left: 8px;
     flex-shrink: 0;
     color: rgba(0, 0, 0, 0.4);
     cursor: pointer;
@@ -28,18 +28,18 @@
 }
 
 .discTitleDivider {
-    margin: 0.04rem 0 0.02rem;
+    margin: 4px 0 2px;
     width: 100%;
     height: 2px;
     background-color: rgb(0, 122, 204);
 }
 
 .inputCard.inputCard {
-    padding: 0.08rem;
+    padding: 8px;
 }
 
 .secondaryActions {
-    min-height: 0.22rem;
+    min-height: 22px;
     position: relative;
     display: flex;
     align-items: center;
@@ -50,10 +50,10 @@
 }
 
 .secondaryActionButton.secondaryActionButton {
-    min-height: 0.18rem;
+    min-height: 18px;
     flex-shrink: 0;
-    font-size: 0.12rem;
-    padding: 0.03rem 0.08rem;
+    font-size: 12px;
+    padding: 3px 8px;
     span {
         color: rgba(#000, 0.5);
     }
@@ -62,8 +62,8 @@
 .secondaryActionText {
     display: inline-flex;
     align-items: center;
-    padding: 0 0.04rem;
-    font-size: 0.12rem;
+    padding: 0 4px;
+    font-size: 12px;
     color: rgba(#000, 0.5);
     cursor: pointer;
 
@@ -80,19 +80,19 @@
 
 .secondaryActionButtonGroup {
     & > div:first-child + .secondaryActionText {
-        margin-left: 0.06rem;
+        margin-left: 6px;
     }
 }
 
 .popoverAnchor {
-    height: 0.16rem;
+    height: 16px;
 }
 
 .actions {
-    margin-top: 0.08rem;
-    margin-left: 0.2rem;
+    margin-top: 8px;
+    margin-left: 20px;
 }
 
 .actionButton + .actionButton {
-    margin-left: 0.06rem;
+    margin-left: 6px;
 }

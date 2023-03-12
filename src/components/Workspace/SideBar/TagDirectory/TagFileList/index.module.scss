@@ -4,15 +4,15 @@
 
 .fileList {
     height: 100%;
-    width: 2.88rem;
+    width: 288px;
     overflow-x: hidden;
 }
 
 .fileList {
-    font-size: 0.12rem;
+    font-size: 12px;
 
     &::-webkit-scrollbar {
-        width: 0.08rem;
+        width: 8px;
     }
     &::-webkit-scrollbar-thumb {
         background-color: #aaa;
@@ -23,9 +23,9 @@
 }
 
 .fileNode {
-    height: 0.28rem;
-    padding: 0 0.04rem;
-    padding-left: 0.08rem;
+    height: 28px;
+    padding: 0 4px;
+    padding-left: 8px;
     display: flex;
     align-items: center;
 
@@ -40,7 +40,7 @@
 }
 
 .nodeLabel {
-    margin-left: 0.04rem;
+    margin-left: 4px;
     flex-grow: 1;
     user-select: none;
     font-family: "Consolas", monospace;

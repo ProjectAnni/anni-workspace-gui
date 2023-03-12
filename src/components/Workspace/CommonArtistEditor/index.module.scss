@@ -1,9 +1,9 @@
 .artistItem {
-    height: 0.2rem;
+    height: 20px;
     display: flex;
     align-items: center;
     color: #fff;
-    border-radius: 0.02rem;
+    border-radius: 2px;
     border: 1px solid #fff;
 
     &.depth0 {
@@ -29,16 +29,16 @@
     display: flex;
     height: 100%;
     align-items: center;
-    padding: 0 0.08rem;
+    padding: 0 8px;
     cursor: pointer;
 }
 
 .activeIndicator {
     position: absolute;
-    top: -0.2rem;
+    top: -20px;
     left: 0;
     width: 100%;
-    height: 0.2rem;
+    height: 20px;
     color: orange;
     span {
         position: absolute;
@@ -59,7 +59,7 @@
             position: absolute;
             left: 0;
             width: 2px;
-            height: 0.12rem;
+            height: 12px;
             background-color: orange;
         }
 
@@ -68,7 +68,7 @@
             position: absolute;
             right: 0;
             width: 2px;
-            height: 0.12rem;
+            height: 12px;
             background-color: orange;
         }
     }
@@ -92,7 +92,7 @@
 }
 
 .addIcon {
-    margin-left: 0.08rem;
+    margin-left: 8px;
 }
 
 .childLength {
@@ -100,14 +100,14 @@
 }
 
 .artistSuggestInputCard.artistSuggestInputCard {
-    padding: 0.08rem;
+    padding: 8px;
 }
 
 .suggestItem {
     display: flex;
 
     .artistName {
-        font-size: 0.12rem;
+        font-size: 12px;
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
@@ -115,7 +115,7 @@
 }
 
 .albumTitle {
-    font-size: 0.12rem;
+    font-size: 12px;
     color: rgba(#000, 0.6);
     text-overflow: ellipsis;
     overflow: hidden;
@@ -123,6 +123,6 @@
 }
 
 .cvTag {
-    padding: 0 0.04rem !important;
-    margin-left: 0.06rem;
+    padding: 0 4px !important;
+    margin-left: 6px;
 }

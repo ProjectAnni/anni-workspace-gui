@@ -9,9 +9,9 @@
 
 .resultCard.resultCard {
     display: flex;
-    margin-top: 0.06rem;
-    min-height: 0.5rem;
-    padding: 0.1rem;
+    margin-top: 6px;
+    min-height: 50px;
+    padding: 10px;
 }
 
 .noResult,
@@ -28,16 +28,16 @@
 }
 
 .resultItem {
-    border-radius: 0.02rem;
-    padding: 0.08rem 0.12rem;
-    height: 0.6rem;
+    border-radius: 2px;
+    padding: 8px 12px;
+    height: 60px;
     background-color: rgba(#000, 0.04);
     display: flex;
     flex-direction: column;
     cursor: pointer;
     transition: background-color 0.2s;
     &:not(:first-child) {
-        margin-top: 0.08rem;
+        margin-top: 80px;
     }
     &:hover {
         background-color: rgba(#000, 0.06);
@@ -46,13 +46,13 @@
 
 .resultTitle {
     font-weight: bold;
-    font-size: 0.18rem;
+    font-size: 18px;
     display: flex;
     align-items: center;
 }
 
 .exactMatchTag {
-    margin-left: 0.08rem;
+    margin-left: 8px;
 }
 
 .resultSubTitle {
@@ -60,9 +60,9 @@
 }
 
 .expand {
-    margin-top: 0.08rem;
+    margin-top: 8px;
     width: 100%;
-    height: 0.4rem;
+    height: 40px;
     display: flex;
     justify-content: center;
     align-items: center;

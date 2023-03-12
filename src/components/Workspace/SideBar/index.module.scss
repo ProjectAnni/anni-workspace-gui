@@ -1,5 +1,5 @@
 .sideBar {
-    width: 2.88rem;
+    width: 288px;
     height: 100%;
     background-color: rgb(240, 240, 240);
     border-right: 1px solid rgb(228, 228, 228);
@@ -13,7 +13,7 @@
         justify-content: center;
     }
     .bp4-tab-panel {
-        height: calc(100% - 0.34rem);
-        margin-top: 0.04rem !important;
+        height: calc(100% - 34px);
+        margin-top: 4px !important;
     }
 }

@@ -1,7 +1,7 @@
 .trackItem {
-    margin-top: 0.04rem;
-    padding-left: 0.2rem;
-    font-size: 0.14rem;
+    margin-top: 4px;
+    padding-left: 20px;
+    font-size: 14px;
     display: flex;
     flex-direction: column;
 }
@@ -12,7 +12,7 @@
 }
 
 .trackIndex {
-    width: 0.24rem;
+    width: 24px;
     user-select: none;
 }
 
@@ -24,11 +24,11 @@
 }
 
 .inputCard.inputCard {
-    padding: 0.08rem;
+    padding: 8px;
 }
 
 .secondaryActions {
-    margin-top: 0.02rem;
+    margin-top: 2px;
     display: flex;
     align-items: center;
 }
@@ -38,10 +38,10 @@
 }
 
 .secondaryActionButton.secondaryActionButton {
-    min-height: 0.18rem;
+    min-height: 18px;
     flex-shrink: 0;
-    font-size: 0.12rem;
-    padding: 0.03rem 0.08rem;
+    font-size: 12px;
+    padding: 3px 8px;
     span {
         color: rgba(#000, 0.5);
     }
@@ -52,13 +52,13 @@
 }
 
 .secondaryActionText {
-    font-size: 0.12rem;
-    line-height: 0.22rem;
+    font-size: 12px;
+    line-height: 22px;
     color: rgba(#000, 0.5);
     cursor: pointer;
 
     &:first-child {
-        margin-left: 0.08rem;
+        margin-left: 8px;
     }
 
     .prefix {
@@ -67,5 +67,5 @@
 }
 
 .popoverAnchor {
-    height: 0.16rem;
+    height: 16px;
 }

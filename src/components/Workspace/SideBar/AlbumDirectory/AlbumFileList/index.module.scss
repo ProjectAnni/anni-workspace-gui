@@ -1,14 +1,14 @@
 .fileList {
     height: 100%;
-    width: 2.88rem;
+    width: 288px;
     overflow-x: hidden;
 }
 
 .fileList > div {
-    font-size: 0.12rem;
+    font-size: 12px;
 
     &::-webkit-scrollbar {
-        width: 0.08rem;
+        width: 8px;
     }
     &::-webkit-scrollbar-thumb {
         background-color: #aaa;
@@ -19,9 +19,9 @@
 }
 
 .fileNode {
-    height: 0.28rem;
-    padding: 0 0.04rem;
-    padding-left: 0.08rem;
+    height: 28px;
+    padding: 0 4px;
+    padding-left: 8px;
     display: flex;
     align-items: center;
 
@@ -30,13 +30,13 @@
     }
 
     &.level1 {
-        padding-left: 0.24rem;
+        padding-left: 24px;
     }
     &.level2 {
-        padding-left: 0.4rem;
+        padding-left: 40px;
     }
     &.level3 {
-        padding-left: 0.56rem;
+        padding-left: 56px;
     }
 
     &.selected {
@@ -46,7 +46,7 @@
 }
 
 .nodeLabel {
-    margin-left: 0.04rem;
+    margin-left: 4px;
     user-select: none;
     font-family: "Consolas", monospace;
 }
@@ -55,5 +55,5 @@
     width: 100%;
     display: flex;
     justify-content: center;
-    padding-top: 0.16rem;
+    padding-top: 16px;
 }

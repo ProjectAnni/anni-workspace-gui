@@ -1,12 +1,12 @@
 .header {
-    height: 0.24rem;
+    height: 24px;
     background-color: rgba(#aaa, 0.15);
 }
 
 .currentFileInfo {
     height: 100%;
-    padding: 0 0.08rem;
-    font-size: 0.14rem;
+    padding: 0 8px;
+    font-size: 14px;
     display: flex;
     align-items: center;
     user-select: none;
