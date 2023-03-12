@@ -64,8 +64,8 @@ export function parseArtists(artistStr: string) {
 }
 
 export function escapeArtistName(artistName: string) {
-    // regex by ChatGPT
-    return artistName.replace(/([（）]|^、)/g, "\\$1").replace(/(?<!\\)、/g, "、、");
+    // regex by Serika
+    return artistName.replace(/([（）]|^、)/g, "\\$1").replace(/(^|[^\\])、/g, "$1、、");
 }
 
 export function stringifyArtist(artist: Artist): string {
