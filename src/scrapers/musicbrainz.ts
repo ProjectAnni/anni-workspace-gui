@@ -1,7 +1,7 @@
 import axios from "axios";
 import { uniqBy } from "lodash";
 import { ParsedAlbumData, ParsedTrackData } from "@/types/album";
-import { escapeArtistName, parseCatalog, stringifyArtists } from "@/utils/helper";
+import { escapeArtistName, parseCatalog, sleep, stringifyArtists } from "@/utils/helper";
 import Logger from "@/utils/log";
 import BaseScraper, { ScraperSearchResult } from "./base";
 import dayjs from "dayjs";
@@ -31,7 +31,7 @@ class MusicBrainzScraper extends BaseScraper {
     }
 
     public async getDetail(result: ScraperSearchResult): Promise<Omit<ParsedAlbumData, "album_id"> | null> {
-        return null;
+        return this.getReleaseInfo(result.id);
     }
     private async searchByTitle(title: string): Promise<ScraperSearchResult[]> {
         const API = `https://musicbrainz.org/ws/2/release?query=${title}&limit=10&fmt=json`;
@@ -82,10 +82,12 @@ class MusicBrainzScraper extends BaseScraper {
         }
         return result;
     }
-    private async getReleaseInfo(releaseId: string) {
+
+    private async getReleaseInfo(releaseId: string): Promise<Omit<ParsedAlbumData, "album_id">> {
         Logger.info(`[MusicBrainz] Get release info, releaseId: ${releaseId}`);
         const API = `https://musicbrainz.org/ws/2/release/${releaseId}?inc=recordings+artist-credits+labels&fmt=json`;
         const albumData = await axios.get(API).then((res) => res.data);
+        await sleep(1500); // API Rate Limit
         const title = albumData.title;
         const catalog = albumData["label-info"]?.[0]?.["catalog-number"]; // TODO: support multi catalogs
         const releaseDate = albumData.date;
@@ -128,6 +130,7 @@ class MusicBrainzScraper extends BaseScraper {
             });
             counter++;
         }
+        return result;
     }
     private async convertArtistCredits(artistCredits: any[], releaseDate: string): Promise<MiniArtistItem[]> {
         const parsedArtists = Array.from(artistCredits, (item) => {
@@ -140,7 +143,7 @@ class MusicBrainzScraper extends BaseScraper {
         // const groups = parsedArtists.filter((artist) => artist.type === "Group");
         const persons = parsedArtists.filter((artist) => artist.type === "Person");
         const characters = parsedArtists.filter((artist) => artist.type === "Character");
-        const result: MiniArtistItem[] = [];
+        const result: (MiniArtistItem & { isGroup?: boolean })[] = [];
         const usedPersonIds: string[] = [];
         for (const artist of parsedArtists) {
             // 形如组合名（AAA，BBB）形式，非组合类型项应加入最后一个组合中
@@ -150,6 +153,7 @@ class MusicBrainzScraper extends BaseScraper {
                     id: artist.id,
                     name: escapeArtistName(artist.name),
                     children: [],
+                    isGroup: true,
                 });
             } else if (artist.type === "Character") {
                 let correspondingPerson: MiniArtistItem | null = null;
@@ -220,7 +224,7 @@ class MusicBrainzScraper extends BaseScraper {
             }
         }
 
-        const noMemberGroups = result.filter((i) => i.children?.length === 0);
+        const noMemberGroups = result.filter((i) => i.isGroup && i.children?.length === 0);
         // 补充组合成员
         for (const group of noMemberGroups) {
             if (this.groupGroupMemberMap.has(group.name)) {
@@ -270,6 +274,7 @@ class MusicBrainzScraper extends BaseScraper {
                     });
                 }
             }
+            this.groupGroupMemberMap.set(group.name, group.children);
         }
 
         return result;
@@ -277,6 +282,7 @@ class MusicBrainzScraper extends BaseScraper {
     private async getVoiceActorForCharacter(characterId: string) {
         const API = `https://musicbrainz.org/ws/2/artist/${characterId}?fmt=json&inc=artist-rels`;
         const groupData = await axios.get(API).then((res) => res.data);
+        await sleep(1500); // API Rate Limit
         const relations = groupData.relations || [];
         const memberRelations = relations.filter((relation: any) => relation["type-id"] === RelationTypes.VoiceActor);
         if (memberRelations.length === 0) {
@@ -290,6 +296,7 @@ class MusicBrainzScraper extends BaseScraper {
     async getGroupMembers(groupId: string, date: string): Promise<any[]> {
         const API = `https://musicbrainz.org/ws/2/artist/${groupId}?fmt=json&inc=artist-rels`;
         const groupData = await axios.get(API).then((res) => res.data);
+        await sleep(1500); // API Rate Limit
         const relations = groupData.relations || [];
         const memberRelations = relations
             .filter((relation: any) => relation["type-id"] === RelationTypes.MemberOfGroup)

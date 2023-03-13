@@ -163,3 +163,7 @@ export function stringifyReleaseDate(releaseDate: AnniReleaseDate): string {
     const { year, month, date } = releaseDate;
     return `${year}${month ? `-${month}` : ""}${month && date ? `-${date}` : ""}`;
 }
+
+export function sleep(time: number) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+}

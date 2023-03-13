@@ -4,6 +4,7 @@ import { Card, Icon, Intent, Spinner, Tag } from "@blueprintjs/core";
 import type BaseScraper from "@/scrapers/base";
 import type { ParsedAlbumData } from "@/types/album";
 import styles from "./index.module.scss";
+import { ScraperSearchResult } from "@/scrapers/base";
 
 interface Props {
     active: boolean;
@@ -18,6 +19,12 @@ const InformationProvider: React.FC<Props> = (props) => {
         return scraper.search(albumData);
     });
     const [isCollapsed, setIsCollapsed] = useState(true);
+
+    const onClick = async (item: ScraperSearchResult) => {
+        const generatedResult = await scraper.getDetail(item);
+        console.log(generatedResult);
+    };
+
     const resultNode = useMemo(() => {
         if (isLoading) {
             return <Spinner size={24} />;
@@ -33,7 +40,13 @@ const InformationProvider: React.FC<Props> = (props) => {
                 {data.slice(0, isCollapsed ? 2 : data.length).map((item) => {
                     const { id, title, edition, artists, releaseDate, trackCount, exactMatch } = item;
                     return (
-                        <div className={styles.resultItem} key={id}>
+                        <div
+                            className={styles.resultItem}
+                            key={id}
+                            onClick={() => {
+                                onClick(item);
+                            }}
+                        >
                             <div className={styles.resultTitle}>
                                 <span>
                                     {title}
