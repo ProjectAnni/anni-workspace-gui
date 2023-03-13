@@ -5,6 +5,7 @@ import type BaseScraper from "@/scrapers/base";
 import type { ParsedAlbumData } from "@/types/album";
 import styles from "./index.module.scss";
 import { ScraperSearchResult } from "@/scrapers/base";
+import { serializeAlbumData } from "@/utils/album";
 
 interface Props {
     active: boolean;
@@ -22,7 +23,10 @@ const InformationProvider: React.FC<Props> = (props) => {
 
     const onClick = async (item: ScraperSearchResult) => {
         const generatedResult = await scraper.getDetail(item);
-        console.log(generatedResult);
+        if (generatedResult) {
+            const toml = await serializeAlbumData({ ...generatedResult, album_id: albumData.album_id });
+            console.log(toml);
+        }
     };
 
     const resultNode = useMemo(() => {

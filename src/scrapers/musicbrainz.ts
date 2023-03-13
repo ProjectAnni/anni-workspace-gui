@@ -101,6 +101,7 @@ class MusicBrainzScraper extends BaseScraper {
             date: releaseDate,
             edition,
             artist: albumArtists,
+            type: 'normal',
             discs: [],
         };
         let counter = 0;

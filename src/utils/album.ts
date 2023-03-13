@@ -4,15 +4,7 @@ import { AlbumData, DiscData, ParsedAlbumData, ParsedDiscData, ParsedTrackData, 
 import { parseArtists, stringifyArtists } from "./helper";
 import { processTauriError } from "./error";
 
-export const readAlbumFile = async (path: string): Promise<ParsedAlbumData> => {
-    let content: AlbumData;
-    try {
-        content = (await invoke("read_album_file", {
-            path,
-        })) as AlbumData;
-    } catch (e) {
-        throw processTauriError(e);
-    }
+export const parseAlbumData = (content: AlbumData): ParsedAlbumData => {
     const parsedAlbum: ParsedAlbumData = {
         album_id: content.album_id,
         ...pick(content, "catalog", "date", "tags", "title", "type", "edition"),
@@ -41,7 +33,7 @@ export const readAlbumFile = async (path: string): Promise<ParsedAlbumData> => {
     return parsedAlbum;
 };
 
-export const writeAlbumFile = async (content: ParsedAlbumData, path: string) => {
+export const unparseAlbumData = (content: ParsedAlbumData): AlbumData => {
     const albumData: AlbumData = {
         album_id: content.album_id,
         ...pick(content, "catalog", "date", "title", "type"),
@@ -74,9 +66,38 @@ export const writeAlbumFile = async (content: ParsedAlbumData, path: string) => 
         }
         albumData.discs.push(discData);
     }
+    return albumData;
+};
+
+export const readAlbumFile = async (path: string): Promise<ParsedAlbumData> => {
+    let content: AlbumData;
+    try {
+        content = (await invoke("read_album_file", {
+            path,
+        })) as AlbumData;
+    } catch (e) {
+        throw processTauriError(e);
+    }
+
+    return parseAlbumData(content);
+};
+
+export const writeAlbumFile = async (content: ParsedAlbumData, path: string) => {
+    const albumData = unparseAlbumData(content);
     try {
         await invoke("write_album_file", {
             path,
+            albumJsonStr: JSON.stringify(albumData),
+        });
+    } catch (e) {
+        throw processTauriError(e);
+    }
+};
+
+export const serializeAlbumData = async (content: ParsedAlbumData): Promise<string> => {
+    const albumData = unparseAlbumData(content);
+    try {
+        return await invoke("serialize_album", {
             albumJsonStr: JSON.stringify(albumData),
         });
     } catch (e) {

@@ -64,6 +64,21 @@ fn write_album_file(path: &str, album_json_str: &str) -> Result<(), Error> {
 }
 
 #[tauri::command]
+fn serialize_album(album_json_str: &str) -> Result<String, Error> {
+    let album_json = JsonAlbum::from_str(album_json_str).unwrap();
+    let album = Album::try_from(album_json).unwrap();
+    let album_serialized_text = toml_edit::easy::to_string_pretty(&album).unwrap();
+    Ok(album_serialized_text)
+}
+
+#[tauri::command]
+fn deserialize_album(album_toml_str: &str) -> Result<JsonAlbum, Error> {
+    let album = Album::from_str(&album_toml_str).unwrap();
+    let album_json = JsonAlbum::from(album);
+    Ok(album_json)
+}
+
+#[tauri::command]
 fn write_text_file_append(path: &str, content: &str) -> Result<(), Error> {
     let mut file = File::options()
         .create(true)
@@ -201,6 +216,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             read_album_file,
             write_album_file,
+            serialize_album,
+            deserialize_album,
             write_text_file_append,
             get_workspace_albums,
             create_album,
