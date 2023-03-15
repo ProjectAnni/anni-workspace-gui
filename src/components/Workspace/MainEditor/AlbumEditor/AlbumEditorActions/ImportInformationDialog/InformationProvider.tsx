@@ -33,7 +33,6 @@ const InformationProvider: React.FC<Props> = (props) => {
                 const generatedResult = await scraper.getDetail(item);
                 if (generatedResult) {
                     setGeneratedResult({ ...generatedResult, album_id: albumData.album_id });
-                    setGeneratedResult(generatedResult);
                     setIsShowResultPreviewDialog(true);
                 } else {
                     throw new Error("生成信息失败");
