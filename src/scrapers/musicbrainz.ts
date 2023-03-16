@@ -1,7 +1,7 @@
 import axios from "axios";
 import { uniqBy } from "lodash";
 import { ParsedAlbumData, ParsedTrackData } from "@/types/album";
-import { escapeArtistName, parseCatalog, sleep, stringifyArtists } from "@/utils/helper";
+import { parseCatalog, sleep, stringifyArtists } from "@/utils/helper";
 import Logger from "@/utils/log";
 import BaseScraper, { ScraperSearchResult } from "./base";
 import dayjs from "dayjs";
@@ -101,7 +101,7 @@ class MusicBrainzScraper extends BaseScraper {
             date: releaseDate,
             edition,
             artist: albumArtists,
-            type: 'normal',
+            type: "normal",
             discs: [],
         };
         let counter = 0;
@@ -119,7 +119,10 @@ class MusicBrainzScraper extends BaseScraper {
                 const trackArtists = await this.convertArtistCredits(chosenArtistCredit, releaseDate);
                 parsedTracks.push({
                     title: trackTitle,
-                    type: guessTrackType(trackTitle, trackArtists),
+                    type:
+                        guessTrackType(trackTitle, trackArtists) === "normal"
+                            ? ""
+                            : guessTrackType(trackTitle, trackArtists),
                     artist: stringifyArtists(trackArtists) === "[dialogue]" ? albumArtists : trackArtists,
                 });
             }
@@ -131,6 +134,7 @@ class MusicBrainzScraper extends BaseScraper {
             });
             counter++;
         }
+        console.log(result);
         return result;
     }
     private async convertArtistCredits(artistCredits: any[], releaseDate: string): Promise<MiniArtistItem[]> {
@@ -152,7 +156,7 @@ class MusicBrainzScraper extends BaseScraper {
             if (artist.type === "Group") {
                 result.push({
                     id: artist.id,
-                    name: escapeArtistName(artist.name),
+                    name: artist.name,
                     children: [],
                     isGroup: true,
                 });
@@ -253,9 +257,15 @@ class MusicBrainzScraper extends BaseScraper {
                                 `[MusicBrainz] Got character voice info, characterName: ${member.name}, cv: ${person.name}`
                             );
                             group.children.push({
-                                id: person.id,
-                                name: person.name,
-                                children: [],
+                                id: member.id,
+                                name: member.name,
+                                children: [
+                                    {
+                                        id: person.id,
+                                        name: person.name,
+                                        children: [],
+                                    },
+                                ],
                             });
                             this.characterPersonMap.set(member.name, {
                                 ...person,
