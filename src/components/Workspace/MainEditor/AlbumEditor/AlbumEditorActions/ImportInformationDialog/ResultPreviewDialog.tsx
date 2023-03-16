@@ -3,6 +3,7 @@ import { ParsedAlbumData } from "@/types/album";
 import { Button, Dialog, DialogBody, DialogFooter, Intent } from "@blueprintjs/core";
 import { stringifyArtists } from "@/utils/helper";
 import styles from "./index.module.scss";
+import { pick } from "lodash";
 
 interface Props {
     isOpen: boolean;
@@ -17,10 +18,30 @@ const ResultPreviewDialog: React.FC<Props> = (props) => {
     return (
         <Dialog isOpen={isOpen} onClose={onClose} title="预览结果" style={{ width: "60vw" }}>
             <DialogBody>
-                <div className={styles.previewItem}>
-                    <div className={styles.previewItemKey}>标题</div>
-                    <div className={styles.previewItemValue}>{title}</div>
+                <div className={styles.albumTitle}>
+                    <div className={styles.albumTitleText}>{title}</div>
+                    <div className={styles.albumAction}>
+                        <Button
+                            text="仅导入基本信息"
+                            minimal
+                            onClick={() => {
+                                onApply({
+                                    ...pick(previewData, [
+                                        "title",
+                                        "catalog",
+                                        "date",
+                                        "edition",
+                                        "artist",
+                                        "type",
+                                        "tags",
+                                    ]),
+                                });
+                            }}
+                            intent={Intent.PRIMARY}
+                        ></Button>
+                    </div>
                 </div>
+                <div className={styles.divider} style={{ margin: "8px 0" }}></div>
                 <div className={styles.previewItem}>
                     <div className={styles.previewItemKey}>品番</div>
                     <div className={styles.previewItemValue}>{catalog}</div>
@@ -56,7 +77,7 @@ const ResultPreviewDialog: React.FC<Props> = (props) => {
                                     {index === 0 && (
                                         <div className={styles.discAction}>
                                             <Button
-                                                text="导入碟片信息"
+                                                text="仅导入碟片信息"
                                                 minimal
                                                 onClick={() => {
                                                     onApply({ discs });
