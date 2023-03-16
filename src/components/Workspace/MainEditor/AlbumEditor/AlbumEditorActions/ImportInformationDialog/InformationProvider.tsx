@@ -4,7 +4,6 @@ import { Card, Icon, Intent, Spinner, Tag } from "@blueprintjs/core";
 import type BaseScraper from "@/scrapers/base";
 import type { ParsedAlbumData } from "@/types/album";
 import { ScraperSearchResult } from "@/scrapers/base";
-import { serializeAlbumData } from "@/utils/album";
 import { AppToaster } from "@/utils/toaster";
 import styles from "./index.module.scss";
 import ResultPreviewDialog from "./ResultPreviewDialog";
@@ -14,10 +13,11 @@ interface Props {
     name: string;
     albumData: ParsedAlbumData;
     scraper: BaseScraper;
+    onApply: (albumData: Partial<ParsedAlbumData>) => void;
 }
 
 const InformationProvider: React.FC<Props> = (props) => {
-    const { active, name, albumData, scraper } = props;
+    const { active, name, albumData, scraper, onApply } = props;
     const { data, error, isLoading } = useSWR(active ? ["scraper-search", name, albumData] : null, () => {
         return scraper.search(albumData);
     });
@@ -124,6 +124,10 @@ const InformationProvider: React.FC<Props> = (props) => {
                     previewData={generatedResult}
                     onClose={() => {
                         setIsShowResultPreviewDialog(false);
+                    }}
+                    onApply={(data) => {
+                        AppToaster.show({ message: "导入成功", intent: Intent.SUCCESS });
+                        onApply(data);
                     }}
                 />
             )}

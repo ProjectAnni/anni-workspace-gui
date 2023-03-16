@@ -1,17 +1,18 @@
 import React from "react";
 import { ParsedAlbumData } from "@/types/album";
-import { Button, Dialog, DialogBody, DialogFooter, Intent, Label, Text } from "@blueprintjs/core";
-import styles from "./index.module.scss";
+import { Button, Dialog, DialogBody, DialogFooter, Intent } from "@blueprintjs/core";
 import { stringifyArtists } from "@/utils/helper";
+import styles from "./index.module.scss";
 
 interface Props {
     isOpen: boolean;
     previewData: ParsedAlbumData;
     onClose: () => void;
+    onApply: (data: Partial<ParsedAlbumData>) => void;
 }
 
 const ResultPreviewDialog: React.FC<Props> = (props) => {
-    const { isOpen, previewData, onClose } = props;
+    const { isOpen, previewData, onClose, onApply } = props;
     const { title, catalog, date, type, artist, edition, tags, discs } = previewData;
     return (
         <Dialog isOpen={isOpen} onClose={onClose} title="预览结果" style={{ width: "60vw" }}>
@@ -50,7 +51,21 @@ const ResultPreviewDialog: React.FC<Props> = (props) => {
                         const { catalog, tracks } = disc;
                         return (
                             <div className={styles.previewDisc} key={catalog}>
-                                <div className={styles.discTitle}>Disc {index + 1}</div>
+                                <div className={styles.discTitle}>
+                                    <div>Disc {index + 1}</div>
+                                    {index === 0 && (
+                                        <div className={styles.discAction}>
+                                            <Button
+                                                text="导入碟片信息"
+                                                minimal
+                                                onClick={() => {
+                                                    onApply({ discs });
+                                                }}
+                                                intent={Intent.PRIMARY}
+                                            ></Button>
+                                        </div>
+                                    )}
+                                </div>
                                 <div className={styles.divider} style={{ margin: "8px 0" }}></div>
                                 {!!tracks?.length && (
                                     <div className={styles.trackList}>
@@ -81,8 +96,16 @@ const ResultPreviewDialog: React.FC<Props> = (props) => {
             <DialogFooter
                 actions={
                     <>
-                        <Button>取消</Button>
-                        <Button intent={Intent.PRIMARY}>确认导入</Button>
+                        <Button onClick={onClose}>取消</Button>
+                        <Button
+                            intent={Intent.PRIMARY}
+                            onClick={() => {
+                                onApply(previewData);
+                                onClose();
+                            }}
+                        >
+                            确认导入
+                        </Button>
                     </>
                 }
             ></DialogFooter>
