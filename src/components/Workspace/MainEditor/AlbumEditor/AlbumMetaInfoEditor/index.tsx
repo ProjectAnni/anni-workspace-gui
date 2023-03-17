@@ -10,7 +10,7 @@ import styles from "./index.module.scss";
 
 const AlbumMetaInfoEditor: React.FC = () => {
     const [albumData, dispatch] = useAtom(AlbumDataReducerAtom);
-    const { album_id: albumId, title, catalog } = albumData || {};
+    const { album_id: albumId, title, catalog, edition } = albumData || {};
 
     const onRefreshAlbumId = () => {
         dispatch({
@@ -39,6 +39,13 @@ const AlbumMetaInfoEditor: React.FC = () => {
         });
     };
 
+    const onEditionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch({
+            type: AlbumDataActionTypes.UPDATE_EDITION,
+            payload: e.target.value,
+        });
+    };
+
     if (!albumId) {
         return null;
     }
@@ -58,6 +65,9 @@ const AlbumMetaInfoEditor: React.FC = () => {
                 <InputGroup value={catalog} onChange={onCatalogChange} />
             </FormGroup>
             <ReleaseDateEditor onChange={onReleaseDateChange} />
+            <FormGroup label="版本" labelInfo="(optional)">
+                <InputGroup value={edition} onChange={onEditionChange} />
+            </FormGroup>
             <TypeEditor />
             <ArtistEditor />
             <TagEditor />

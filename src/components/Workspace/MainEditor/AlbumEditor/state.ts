@@ -13,6 +13,8 @@ export enum AlbumDataActionTypes {
     UPDATE_CATALOG,
     /** 设置发售日期 */
     UPDATE_RELEASE_DATE,
+    /** 设置版本 */
+    UPDATE_EDITION,
     /** 设置主艺术家 */
     UPDATE_ARTIST,
     /** 设置Tags */
@@ -57,6 +59,10 @@ type AlbumDataActionPayload =
       }
     | {
           type: AlbumDataActionTypes.UPDATE_RELEASE_DATE;
+          payload: string;
+      }
+    | {
+          type: AlbumDataActionTypes.UPDATE_EDITION;
           payload: string;
       }
     | {
@@ -165,6 +171,12 @@ const albumDataReducer = (prev: ParsedAlbumData | null, action: AlbumDataActionP
         return {
             ...prev!,
             date: action.payload,
+        };
+    }
+    if (action.type === AlbumDataActionTypes.UPDATE_EDITION) {
+        return {
+            ...prev!,
+            edition: action.payload,
         };
     }
     if (action.type === AlbumDataActionTypes.UPDATE_ARTIST) {
