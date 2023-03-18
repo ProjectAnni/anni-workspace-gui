@@ -9,9 +9,14 @@ const SideBar: React.FC = () => {
     return (
         <div className={styles.sideBar}>
             <Tabs>
-                <Tab id="album_files" panel={<AlbumDirectory />} title="Albums" />
-                <Tab id="tag_files" panel={<TagDirectory />} title="Tags" />
-                <Tab id="workspace_status" panel={<WorkspaceStatus />} title="Workspace" />
+                <Tab style={{ lineHeight: "2.1428em" }} id="album_files" panel={<AlbumDirectory />} title="Albums" />
+                <Tab style={{ lineHeight: "2.1428em" }} id="tag_files" panel={<TagDirectory />} title="Tags" />
+                <Tab
+                    style={{ lineHeight: "2.1428em" }}
+                    id="workspace_status"
+                    panel={<WorkspaceStatus />}
+                    title="Workspace"
+                />
             </Tabs>
         </div>
     );

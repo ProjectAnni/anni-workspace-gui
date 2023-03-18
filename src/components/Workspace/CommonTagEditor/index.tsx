@@ -57,7 +57,7 @@ const CommonTagEditor: React.FC<Props> = (props) => {
                 items={[]}
                 selectedItems={tags.map((tag) => ({ name: tag }))}
                 tagRenderer={(tag) => {
-                    return <Tag>{tag.name}</Tag>;
+                    return <Tag style={{ lineHeight: "normal" }}>{tag.name}</Tag>;
                 }}
                 itemRenderer={(tag, itemProps) => {
                     const { name, type } = tag;
