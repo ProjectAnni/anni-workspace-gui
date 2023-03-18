@@ -1,6 +1,7 @@
 import { atomWithReducer } from "jotai/utils";
 import { Artist, ParsedAlbumData, ParsedTrackData } from "@/types/album";
 import Logger from "@/utils/log";
+import { atom } from "jotai";
 
 export enum AlbumDataActionTypes {
     /** 重置数据 */
@@ -314,3 +315,5 @@ const albumDataReducer = (prev: ParsedAlbumData | null, action: AlbumDataActionP
 };
 
 export const AlbumDataReducerAtom = atomWithReducer(null, albumDataReducer);
+
+export const AlbumDataRefreshIndicatorAtom = atom(0);

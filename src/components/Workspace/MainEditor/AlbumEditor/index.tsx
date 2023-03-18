@@ -4,7 +4,7 @@ import { Spinner } from "@blueprintjs/core";
 import { getAlbumFileWriter, readAlbumFile } from "@/utils/album";
 import Logger from "@/utils/log";
 import { OpenedDocumentAtom } from "../../state";
-import { AlbumDataActionTypes, AlbumDataReducerAtom } from "./state";
+import { AlbumDataActionTypes, AlbumDataReducerAtom, AlbumDataRefreshIndicatorAtom } from "./state";
 import AlbumMetaInfoEditor from "./AlbumMetaInfoEditor";
 import AlbumEditorActions from "./AlbumEditorActions";
 import DiscsEditor from "./DiscsEditor";
@@ -12,7 +12,7 @@ import styles from "./index.module.scss";
 
 const AlbumEditor: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const [refreshIndicator, setRefreshIndicator] = useState(0);
+    const [refreshIndicator, setRefreshIndicator] = useAtom(AlbumDataRefreshIndicatorAtom);
     const [albumData, dispatch] = useAtom(AlbumDataReducerAtom);
     const openedDocument = useAtomValue(OpenedDocumentAtom);
     const isInitialized = useRef(false);
@@ -41,7 +41,7 @@ const AlbumEditor: React.FC = () => {
         return () => {
             expired = true;
         };
-    }, [openedDocument, dispatch]);
+    }, [openedDocument, dispatch, setRefreshIndicator]);
 
     useEffect(() => {
         // 回写Album文件

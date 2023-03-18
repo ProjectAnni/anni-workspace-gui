@@ -1,8 +1,25 @@
-import { pick, throttle } from "lodash";
+import { pick, sortBy, throttle } from "lodash";
 import { invoke } from "@tauri-apps/api";
-import { AlbumData, DiscData, ParsedAlbumData, ParsedDiscData, ParsedTrackData, TrackData } from "@/types/album";
+import {
+    AlbumData,
+    Artist,
+    DiscData,
+    ParsedAlbumData,
+    ParsedDiscData,
+    ParsedTrackData,
+    TrackData,
+} from "@/types/album";
 import { parseArtists, stringifyArtists } from "./helper";
 import { processTauriError } from "./error";
+
+const isArtistsEqual = (artists1?: Artist[], artists2?: Artist[]): boolean => {
+    if ((artists1 && !artists2) || (!artists1 && artists2)) {
+        return false;
+    }
+    const sortedArtists1 = sortBy(artists1, "name");
+    const sortedArtists2 = sortBy(artists2, "name");
+    return stringifyArtists(sortedArtists1) === stringifyArtists(sortedArtists2);
+};
 
 export const parseAlbumData = (content: AlbumData): ParsedAlbumData => {
     const parsedAlbum: ParsedAlbumData = {
@@ -59,6 +76,43 @@ export const unparseAlbumData = (content: ParsedAlbumData): AlbumData => {
                 ...(track.artist?.length
                     ? {
                           artist: stringifyArtists(track.artist),
+                      }
+                    : {}),
+            };
+            discData.tracks.push(trackData);
+        }
+        albumData.discs.push(discData);
+    }
+    return albumData;
+};
+
+/** 简化AlbumData - 去除track与disc类型重复等问题 */
+export const simplifyAlbumData = (content: ParsedAlbumData): ParsedAlbumData => {
+    const albumData: ParsedAlbumData = {
+        album_id: content.album_id,
+        ...pick(content, "catalog", "date", "title", "type"),
+        ...(content.edition ? { edition: content.edition } : {}),
+        ...(content.tags ? { tags: content.tags } : { tags: [] }),
+        ...(content.artist ? { artist: content.artist } : { artist: [] }),
+        discs: [],
+    };
+    for (const disc of content.discs) {
+        const discData: ParsedDiscData = {
+            ...pick(disc, "catalog"),
+            ...(disc.title ? { title: disc.title } : {}),
+            ...(disc.type && disc.type !== albumData.type ? { type: disc.type } : {}),
+            ...(disc.tags ? { tags: disc.tags } : {}),
+            ...(disc.artist?.length && !isArtistsEqual(disc.artist, albumData.artist) ? { artist: disc.artist } : {}),
+            tracks: [],
+        };
+        for (const track of disc.tracks) {
+            const trackData: ParsedTrackData = {
+                ...pick(track, "title"),
+                ...(track.type && track.type !== disc.type ? { type: track.type } : {}),
+                ...(track.tags ? { tags: track.tags } : {}),
+                ...(track.artist?.length && isArtistsEqual(track.artist, disc.artist)
+                    ? {
+                          artist: track.artist,
                       }
                     : {}),
             };

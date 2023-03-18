@@ -1,12 +1,13 @@
 import React from "react";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { Button, Dialog, DialogBody, DialogFooter } from "@blueprintjs/core";
 import MusicBrainzScraper from "@/scrapers/musicbrainz";
 import VGMDBScraper from "@/scrapers/vgmdb";
 import type BaseScraper from "@/scrapers/base";
+import { simplifyAlbumData } from "@/utils/album";
 import { ParsedAlbumData } from "@/types/album";
-import { AlbumDataActionTypes, AlbumDataReducerAtom } from "../../state";
 import InformationProvider from "./InformationProvider";
+import { AlbumDataActionTypes, AlbumDataReducerAtom, AlbumDataRefreshIndicatorAtom } from "../../state";
 
 interface Source {
     name: string;
@@ -32,17 +33,19 @@ interface Props {
 const ImportInformationDialog: React.FC<Props> = (props) => {
     const { isOpen, onClose } = props;
     const [albumData, dispatch] = useAtom(AlbumDataReducerAtom);
+    const setRefreshIndicator = useSetAtom(AlbumDataRefreshIndicatorAtom);
     const onApply = (data: Partial<ParsedAlbumData>) => {
         if (!albumData || !data) {
             return;
         }
         dispatch({
             type: AlbumDataActionTypes.RESET,
-            payload: {
+            payload: simplifyAlbumData({
                 ...albumData,
                 ...data,
-            },
+            }),
         });
+        setRefreshIndicator((prev) => prev + 1);
     };
     if (!albumData) {
         return null;

@@ -1,10 +1,10 @@
 import React, { useRef } from "react";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { Button, Dialog, DialogBody, DialogFooter, Intent } from "@blueprintjs/core";
 import Editor from "@monaco-editor/react";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { AppToaster } from "@/utils/toaster";
-import { AlbumDataActionTypes, AlbumDataReducerAtom } from "../../state";
+import { AlbumDataActionTypes, AlbumDataReducerAtom, AlbumDataRefreshIndicatorAtom } from "../../state";
 
 interface Props {
     isOpen: boolean;
@@ -15,6 +15,7 @@ const ViewCodeDialog: React.FC<Props> = (props) => {
     const { isOpen, onClose } = props;
     const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
     const [albumData, dispatch] = useAtom(AlbumDataReducerAtom);
+    const setRefreshIndicator = useSetAtom(AlbumDataRefreshIndicatorAtom);
     const onCopy = async () => {
         try {
             await navigator.clipboard.writeText(JSON.stringify(albumData, null, 2));
@@ -37,6 +38,7 @@ const ViewCodeDialog: React.FC<Props> = (props) => {
             return;
         }
         dispatch({ type: AlbumDataActionTypes.RESET, payload: JSON.parse(editorRef.current.getValue()) });
+        setRefreshIndicator((prev) => prev + 1);
         AppToaster.show({ message: "应用成功", intent: Intent.SUCCESS });
         onClose();
     };
