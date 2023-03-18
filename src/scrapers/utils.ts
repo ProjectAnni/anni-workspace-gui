@@ -1,10 +1,6 @@
 import { Artist } from "@/types/album";
 import { stringifyArtists } from "@/utils/helper";
 
-export function escapeArtist(artist: string) {
-    return artist.replaceAll("、", "、、");
-}
-
 export function guessTrackType(trackTitle: string, trackArtists: Artist[]) {
     const matches = [
         {

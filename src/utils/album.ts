@@ -18,6 +18,12 @@ const isArtistsEqual = (artists1?: Artist[], artists2?: Artist[]): boolean => {
     }
     const sortedArtists1 = sortBy(artists1, "name");
     const sortedArtists2 = sortBy(artists2, "name");
+    sortedArtists1.forEach((artist) => {
+        artist.children = sortBy(artist.children, "name");
+    });
+    sortedArtists2.forEach((artist) => {
+        artist.children = sortBy(artist.children, "name");
+    });
     return stringifyArtists(sortedArtists1) === stringifyArtists(sortedArtists2);
 };
 
@@ -106,11 +112,20 @@ export const simplifyAlbumData = (content: ParsedAlbumData): ParsedAlbumData => 
             tracks: [],
         };
         for (const track of disc.tracks) {
+            const shouldUseTrackArtist =
+                track.artist?.length &&
+                // track 与 disc 艺术家一致则忽略
+                !isArtistsEqual(track.artist, disc.artist) &&
+                !(
+                    // track 与 album 艺术家一致且 disc 无艺术家则忽略
+                    (!disc.artist?.length && isArtistsEqual(track.artist, albumData.artist))
+                );
+            console.log(isArtistsEqual(track.artist, albumData.artist), track.artist, albumData.artist);
             const trackData: ParsedTrackData = {
                 ...pick(track, "title"),
                 ...(track.type && track.type !== disc.type ? { type: track.type } : {}),
                 ...(track.tags ? { tags: track.tags } : {}),
-                ...(track.artist?.length && isArtistsEqual(track.artist, disc.artist)
+                ...(shouldUseTrackArtist
                     ? {
                           artist: track.artist,
                       }
