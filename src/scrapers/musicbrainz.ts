@@ -134,7 +134,6 @@ class MusicBrainzScraper extends BaseScraper {
             });
             counter++;
         }
-        console.log(result);
         return result;
     }
     private async convertArtistCredits(artistCredits: any[], releaseDate: string): Promise<MiniArtistItem[]> {
@@ -187,7 +186,6 @@ class MusicBrainzScraper extends BaseScraper {
                             ...person,
                             children: [],
                         };
-                        usedPersonIds.push(person.id);
                         this.characterPersonMap.set(artist.name, correspondingPerson);
                     } else {
                         Logger.warning(
@@ -196,6 +194,7 @@ class MusicBrainzScraper extends BaseScraper {
                     }
                 }
                 if (correspondingPerson) {
+                    usedPersonIds.push(correspondingPerson.id);
                     pushTarget.push({
                         id: artist.id,
                         name: artist.name,
