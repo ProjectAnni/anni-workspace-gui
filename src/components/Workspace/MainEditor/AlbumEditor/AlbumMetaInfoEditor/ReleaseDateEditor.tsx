@@ -16,7 +16,7 @@ const EditReleaseDate: React.FC<Props> = (props: Props) => {
         onChange(newDate);
     };
 
-    return <CommonDateEditor initialValue={date} onChange={onTextValueChange} />;
+    return <CommonDateEditor key={date} initialValue={date} onChange={onTextValueChange} />;
 };
 
 export default EditReleaseDate;

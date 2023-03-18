@@ -18,7 +18,7 @@ const TypeEditor: React.FC = () => {
     }
     return (
         <FormGroup label="类型" labelInfo="(required)">
-            <CommonTypeEditor initialValue={type} onChange={onTypeChange} />
+            <CommonTypeEditor key={type} initialValue={type} onChange={onTypeChange} />
         </FormGroup>
     );
 };

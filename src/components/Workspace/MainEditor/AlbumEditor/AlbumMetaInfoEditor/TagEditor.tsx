@@ -16,7 +16,7 @@ const LocalTagEditor: React.FC = () => {
 
     return (
         <FormGroup label="专辑标签">
-            <CommonTagEditor initialTags={tags || []} onChange={onChange} />
+            <CommonTagEditor key={JSON.stringify(tags)} initialTags={tags || []} onChange={onChange} />
         </FormGroup>
     );
 };
