@@ -11,6 +11,8 @@ interface Props {
 
 const ALBUM_INFO_REGEX =
     /^\[(?<Year>\d{4}|\d{2})-?(?<Month>\d{2})-?(?<Date>\d{2})]\[(?<Catalog>[^\]]+)] (?<Name>.+?)(?:【(?<Edition>[^】]+)】)?(?: \[(?<DiscCount>\d+) Discs])?$/i;
+const RELEASE_DATE_REGEX = /[[【(](?<Year>\d{4}|\d{2})-?(?<Month>\d{2})-?(?<Date>\d{2})[\]】)]/i;
+const CATALOG_REGEX = /[[【(](?<Catalog>[A-Z]{3,4}-[0-9]{3,5})[\]】)]/i;
 
 const BasicInfoEditDialog: React.FC<Props> = (props) => {
     const { isOpen, workingDirectoryName, onClose, onConfirm } = props;
@@ -22,11 +24,23 @@ const BasicInfoEditDialog: React.FC<Props> = (props) => {
         const parsedDirectoryName = workingDirectoryName.match(ALBUM_INFO_REGEX);
         if (parsedDirectoryName?.groups) {
             const { Year, Month, Date, Catalog, Name, Edition, DiscCount } = parsedDirectoryName.groups;
-            setReleaseDate(Year.length === 4 ? `${Year}-${Month}-${Date}` : `20${Year}-${Month}-${Year}`);
+            setReleaseDate(Year.length === 4 ? `${Year}-${Month}-${Date}` : `20${Year}-${Month}-${Date}`);
             setCatalog(Catalog);
             setAlbumName(Name);
             if (Edition) {
                 setEdition(Edition);
+            }
+        } else {
+            // guess from directory name
+            const releaseDateMatchResult = workingDirectoryName.match(RELEASE_DATE_REGEX);
+            if (releaseDateMatchResult?.groups) {
+                const { Year, Month, Date } = releaseDateMatchResult.groups;
+                setReleaseDate(Year.length === 4 ? `${Year}-${Month}-${Date}` : `20${Year}-${Month}-${Date}`);
+            }
+            const catalogMatchResult = workingDirectoryName.match(CATALOG_REGEX);
+            if (catalogMatchResult?.groups) {
+                const { Catalog } = catalogMatchResult.groups;
+                setCatalog(Catalog);
             }
         }
     }, [workingDirectoryName]);

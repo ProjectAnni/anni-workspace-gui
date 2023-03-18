@@ -17,7 +17,7 @@ export function guessTrackType(trackTitle: string, trackArtists: Artist[]) {
         },
     ];
     for (const match of matches) {
-        if (match.keywords.some((keyword) => trackTitle.includes(keyword))) {
+        if (match.keywords.some((keyword) => trackTitle.toLowerCase().includes(keyword))) {
             return match.type;
         }
     }

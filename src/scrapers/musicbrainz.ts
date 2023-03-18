@@ -1,10 +1,10 @@
 import axios from "axios";
 import { uniqBy } from "lodash";
+import dayjs from "dayjs";
 import { ParsedAlbumData, ParsedTrackData } from "@/types/album";
 import { parseCatalog, sleep, stringifyArtists } from "@/utils/helper";
 import Logger from "@/utils/log";
 import BaseScraper, { ScraperSearchResult } from "./base";
-import dayjs from "dayjs";
 import { guessTrackType } from "./utils";
 
 const RelationTypes = {
@@ -151,7 +151,7 @@ class MusicBrainzScraper extends BaseScraper {
         const usedPersonIds: string[] = [];
         for (const artist of parsedArtists) {
             // 形如组合名（AAA，BBB）形式，非组合类型项应加入最后一个组合中
-            const pushTarget = result[result.length - 1]?.children ? result[result.length - 1].children : result;
+            const pushTarget = result[result.length - 1]?.isGroup ? result[result.length - 1].children : result;
             if (artist.type === "Group") {
                 result.push({
                     id: artist.id,
