@@ -20,7 +20,7 @@ const LocalArtistEditor: React.FC = () => {
     }
     return (
         <FormGroup label="艺术家" labelInfo="(required)">
-            <CommonArtistEditor key={JSON.stringify(artist)} initialArtists={artist} onChange={onArtistChange} />
+            <CommonArtistEditor initialArtists={artist} onChange={onArtistChange} />
         </FormGroup>
     );
 };

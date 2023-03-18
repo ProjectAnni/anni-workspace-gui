@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import classNames from "classnames";
 import { useAtom } from "jotai";
 import { listen, UnlistenFn } from "@tauri-apps/api/event";
@@ -23,6 +23,13 @@ const WorkspaceStatus: React.FC = () => {
     const unlistenRef = useRef<UnlistenFn>();
     const isInitialized = useRef(false);
     const publishLock = useRef(false);
+
+    const committedAlbums = useMemo(() => {
+        if (!workspaceAlbums?.length) {
+            return [];
+        }
+        return workspaceAlbums.filter((album) => album.type === WorkspaceState.COMMITTED);
+    }, [workspaceAlbums]);
 
     const refreshWorkspaceStatus = useCallback(async () => {
         if (!workspaceBasePath) {
@@ -88,10 +95,9 @@ const WorkspaceStatus: React.FC = () => {
     };
 
     const onPublishAll = async () => {
-        if (!workspaceAlbums?.length) {
+        if (!committedAlbums?.length) {
             return;
         }
-        const committedAlbums = workspaceAlbums.filter((album) => album.type === WorkspaceState.COMMITTED);
         for (const album of committedAlbums) {
             await publish(album.path);
         }
@@ -103,52 +109,52 @@ const WorkspaceStatus: React.FC = () => {
 
     return (
         <div className={styles.workspaceStatusContainer}>
-            <div className={styles.workspaceActions}>
-                <Button
-                    icon="git-push"
-                    text="发布全部"
-                    small
-                    minimal
-                    intent={Intent.PRIMARY}
-                    disabled={!!publishingPath}
-                    onClick={onPublishAll}
-                ></Button>
-            </div>
+            {!!committedAlbums?.length && (
+                <div className={styles.workspaceActions}>
+                    <Button
+                        icon="git-push"
+                        text="发布全部"
+                        small
+                        minimal
+                        intent={Intent.PRIMARY}
+                        disabled={!!publishingPath}
+                        onClick={onPublishAll}
+                    ></Button>
+                </div>
+            )}
             <div className={styles.fileList}>
-                {workspaceAlbums
-                    .filter((album) => album.type === WorkspaceState.COMMITTED)
-                    .map((album, index) => {
-                        const { album_id: albumId, path, type } = album;
-                        const { Catalog: catalog } = path.match(ALBUM_INFO_REGEX)?.groups || {};
-                        const isPublishing = path === publishingPath;
-                        return (
-                            <div
-                                key={albumId}
-                                className={classNames(styles.fileNode, {
-                                    [styles.selected]: openedDocument.label === catalog,
-                                    [styles.publishing]: isPublishing,
-                                })}
-                                onClick={() => {
-                                    onFileClick(catalog);
-                                }}
-                            >
-                                <Icon icon="document" />
-                                <div className={styles.nodeLabel}>{catalog}</div>
-                                <div className={styles.status}>{type}</div>
-                                <div className={styles.actions}>
-                                    <Button
-                                        text="发布"
-                                        className={styles.actionButton}
-                                        loading={isPublishing}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onPublish(path);
-                                        }}
-                                    ></Button>
-                                </div>
+                {committedAlbums.map((album, index) => {
+                    const { album_id: albumId, path, type } = album;
+                    const { Catalog: catalog } = path.match(ALBUM_INFO_REGEX)?.groups || {};
+                    const isPublishing = path === publishingPath;
+                    return (
+                        <div
+                            key={albumId}
+                            className={classNames(styles.fileNode, {
+                                [styles.selected]: openedDocument.label === catalog,
+                                [styles.publishing]: isPublishing,
+                            })}
+                            onClick={() => {
+                                onFileClick(catalog);
+                            }}
+                        >
+                            <Icon icon="document" />
+                            <div className={styles.nodeLabel}>{catalog}</div>
+                            <div className={styles.status}>{type}</div>
+                            <div className={styles.actions}>
+                                <Button
+                                    text="发布"
+                                    className={styles.actionButton}
+                                    loading={isPublishing}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onPublish(path);
+                                    }}
+                                ></Button>
                             </div>
-                        );
-                    })}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

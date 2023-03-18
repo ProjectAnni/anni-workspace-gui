@@ -30,6 +30,12 @@ const ViewCodeDialog: React.FC<Props> = (props) => {
         if (!editorRef.current) {
             return;
         }
+        try {
+            JSON.parse(editorRef.current.getValue());
+        } catch {
+            AppToaster.show({ message: "JSON不合法", intent: Intent.DANGER });
+            return;
+        }
         dispatch({ type: AlbumDataActionTypes.RESET, payload: JSON.parse(editorRef.current.getValue()) });
         AppToaster.show({ message: "应用成功", intent: Intent.SUCCESS });
         onClose();
