@@ -55,7 +55,9 @@ checksum = "ec66320836265a59098af8343573a2160b12b8db033b6b879fa01fbcf95a50ed"
 
 [[package]]
 name = "anni-common"
-version = "0.1.1"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a7ebb7cd9ef26afeb1d00a5a35db2ad9cbdcc2430f2d4b5f4f3d3d8ed087842c"
 dependencies = [
  "anni-artist",
  "byteorder",
@@ -75,6 +77,8 @@ dependencies = [
 [[package]]
 name = "anni-flac"
 version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0492af056dbc029f697067d5c55d60f8e8803a70c38c1bfead1b6a4b5c331fb9"
 dependencies = [
  "byteorder",
  "hex",
@@ -87,35 +91,34 @@ dependencies = [
 
 [[package]]
 name = "anni-repo"
-version = "0.1.1"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db8108ba4d1722b4a554d4d8adeb5b7a2d468f66341ee365c91f71341579e498"
 dependencies = [
  "alphanumeric-sort",
  "anni-artist",
  "anni-common",
  "anni-flac",
- "getrandom 0.2.8",
- "git2",
+ "git2 0.16.1",
  "git2-ureq",
  "indexmap",
- "js-sys",
  "log",
  "once_cell",
  "pathdiff",
  "regex",
  "serde",
- "serde-wasm-bindgen",
  "serde_json",
- "sqlite-vfs",
  "thiserror",
  "toml 0.7.2",
- "toml_edit 0.19.3",
+ "toml_edit",
  "uuid 1.2.2",
- "wasm-bindgen",
 ]
 
 [[package]]
 name = "anni-workspace"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60796da27fee10b92a19294b99c2c3f4891e595a43cfc47aca49c47d4ea183af"
 dependencies = [
  "alphanumeric-sort",
  "anni-common",
@@ -135,11 +138,9 @@ dependencies = [
  "anni-repo",
  "anni-workspace",
  "serde",
- "serde_json",
  "tauri",
  "tauri-build",
  "thiserror",
- "toml_edit 0.14.4",
  "uuid 1.2.2",
 ]
 
@@ -1158,12 +1159,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "git2"
+version = "0.16.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ccf7f68c2995f392c49fffb4f95ae2c873297830eb25c6bc4c114ce8f4562acc"
+dependencies = [
+ "bitflags",
+ "libc",
+ "libgit2-sys",
+ "log",
+ "url",
+]
+
+[[package]]
 name = "git2-ureq"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aa07d44469f5c307aec164038957adda6aee03acbbaf84fe1896bff3eabfd815"
 dependencies = [
- "git2",
+ "git2 0.15.0",
  "log",
  "ureq",
  "url",
@@ -1491,15 +1505,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "itertools"
-version = "0.10.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
-dependencies = [
- "either",
-]
-
-[[package]]
 name = "itoa"
 version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1641,18 +1646,6 @@ dependencies = [
  "libc",
  "libz-sys",
  "pkg-config",
-]
-
-[[package]]
-name = "libsqlite3-sys"
-version = "0.25.2"
-source = "git+https://github.com/ProjectAnni/rusqlite?branch=wasm32-unknown-unknown#887f219f3fc3b3a8375d4a3b7b17bc51b5809c8f"
-dependencies = [
- "cc",
- "getrandom 0.2.8",
- "js-sys",
- "pkg-config",
- "vcpkg",
 ]
 
 [[package]]
@@ -2837,17 +2830,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde-wasm-bindgen"
-version = "0.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e3b4c031cd0d9014307d82b8abf653c0290fbdaeb4c02d00c63cf52f728628bf"
-dependencies = [
- "js-sys",
- "serde",
- "wasm-bindgen",
-]
-
-[[package]]
 name = "serde_derive"
 version = "1.0.152"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3064,18 +3046,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7dccf47db1b41fa1573ed27ccf5e08e3ca771cb994f776668c5ebda893b248fc"
 dependencies = [
  "lock_api",
-]
-
-[[package]]
-name = "sqlite-vfs"
-version = "0.1.0"
-source = "git+https://github.com/ProjectAnni/sqlite-vfs#ba5edd8a3aad6766dd9ed723cf66957a066d43df"
-dependencies = [
- "getrandom 0.2.8",
- "libsqlite3-sys",
- "log",
- "rand 0.8.5",
- "time 0.3.15",
 ]
 
 [[package]]
@@ -3586,7 +3556,7 @@ dependencies = [
  "serde",
  "serde_spanned",
  "toml_datetime",
- "toml_edit 0.19.3",
+ "toml_edit",
 ]
 
 [[package]]
@@ -3595,17 +3565,6 @@ version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3ab8ed2edee10b50132aed5f331333428b011c99402b5a534154ed15746f9622"
 dependencies = [
- "serde",
-]
-
-[[package]]
-name = "toml_edit"
-version = "0.14.4"
-source = "git+https://github.com/ProjectAnni/toml_edit?branch=master#b215cf7a1b5372ee47bf7fe7320a81615a264716"
-dependencies = [
- "combine",
- "indexmap",
- "itertools",
  "serde",
 ]
 
@@ -3686,9 +3645,9 @@ dependencies = [
 
 [[package]]
 name = "trash"
-version = "2.1.5"
+version = "3.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe090367848cd40c4230ff3ce4e2ff6a2fd511c1e14ae047a4a4c37ef7965236"
+checksum = "a27b2a127810fceb959593bbc6c7b8e0282c2d318d76f0749252197c52a1dd0c"
 dependencies = [
  "chrono",
  "libc",
@@ -3697,7 +3656,7 @@ dependencies = [
  "once_cell",
  "scopeguard",
  "url",
- "windows 0.37.0",
+ "windows 0.44.0",
 ]
 
 [[package]]
@@ -3877,8 +3836,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eaf9f5aceeec8be17c128b2e93e031fb8a4d469bb9c4ae2d7dc1888b26887268"
 dependencies = [
  "cfg-if",
- "serde",
- "serde_json",
  "wasm-bindgen-macro",
 ]
 
@@ -4117,6 +4074,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "windows"
+version = "0.44.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e745dab35a0c4c77aa3ce42d595e13d2003d6902d6b08c9ef5fc326d08da12b"
+dependencies = [
+ "windows-targets",
+]
+
+[[package]]
 name = "windows-bindgen"
 version = "0.39.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4162,12 +4128,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a3e1820f08b8513f676f7ab6c1f99ff312fb97b553d30ff4dd86f9f15728aa7"
 dependencies = [
  "windows_aarch64_gnullvm",
- "windows_aarch64_msvc 0.42.0",
- "windows_i686_gnu 0.42.0",
- "windows_i686_msvc 0.42.0",
- "windows_x86_64_gnu 0.42.0",
+ "windows_aarch64_msvc 0.42.2",
+ "windows_i686_gnu 0.42.2",
+ "windows_i686_msvc 0.42.2",
+ "windows_x86_64_gnu 0.42.2",
  "windows_x86_64_gnullvm",
- "windows_x86_64_msvc 0.42.0",
+ "windows_x86_64_msvc 0.42.2",
+]
+
+[[package]]
+name = "windows-targets"
+version = "0.42.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e5180c00cd44c9b1c88adb3693291f1cd93605ded80c250a75d472756b4d071"
+dependencies = [
+ "windows_aarch64_gnullvm",
+ "windows_aarch64_msvc 0.42.2",
+ "windows_i686_gnu 0.42.2",
+ "windows_i686_msvc 0.42.2",
+ "windows_x86_64_gnu 0.42.2",
+ "windows_x86_64_gnullvm",
+ "windows_x86_64_msvc 0.42.2",
 ]
 
 [[package]]
@@ -4178,9 +4159,9 @@ checksum = "f838de2fe15fe6bac988e74b798f26499a8b21a9d97edec321e79b28d1d7f597"
 
 [[package]]
 name = "windows_aarch64_gnullvm"
-version = "0.42.0"
+version = "0.42.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41d2aa71f6f0cbe00ae5167d90ef3cfe66527d6f613ca78ac8024c3ccab9a19e"
+checksum = "597a5118570b68bc08d8d59125332c54f1ba9d9adeedeef5b99b02ba2b0698f8"
 
 [[package]]
 name = "windows_aarch64_msvc"
@@ -4202,9 +4183,9 @@ checksum = "ec7711666096bd4096ffa835238905bb33fb87267910e154b18b44eaabb340f2"
 
 [[package]]
 name = "windows_aarch64_msvc"
-version = "0.42.0"
+version = "0.42.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd0f252f5a35cac83d6311b2e795981f5ee6e67eb1f9a7f64eb4500fbc4dcdb4"
+checksum = "e08e8864a60f06ef0d0ff4ba04124db8b0fb3be5776a5cd47641e942e58c4d43"
 
 [[package]]
 name = "windows_i686_gnu"
@@ -4226,9 +4207,9 @@ checksum = "763fc57100a5f7042e3057e7e8d9bdd7860d330070251a73d003563a3bb49e1b"
 
 [[package]]
 name = "windows_i686_gnu"
-version = "0.42.0"
+version = "0.42.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fbeae19f6716841636c28d695375df17562ca208b2b7d0dc47635a50ae6c5de7"
+checksum = "c61d927d8da41da96a81f029489353e68739737d3beca43145c8afec9a31a84f"
 
 [[package]]
 name = "windows_i686_msvc"
@@ -4250,9 +4231,9 @@ checksum = "7bc7cbfe58828921e10a9f446fcaaf649204dcfe6c1ddd712c5eebae6bda1106"
 
 [[package]]
 name = "windows_i686_msvc"
-version = "0.42.0"
+version = "0.42.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84c12f65daa39dd2babe6e442988fc329d6243fdce47d7d2d155b8d874862246"
+checksum = "44d840b6ec649f480a41c8d80f9c65108b92d89345dd94027bfe06ac444d1060"
 
 [[package]]
 name = "windows_x86_64_gnu"
@@ -4274,15 +4255,15 @@ checksum = "6868c165637d653ae1e8dc4d82c25d4f97dd6605eaa8d784b5c6e0ab2a252b65"
 
 [[package]]
 name = "windows_x86_64_gnu"
-version = "0.42.0"
+version = "0.42.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf7b1b21b5362cbc318f686150e5bcea75ecedc74dd157d874d754a2ca44b0ed"
+checksum = "8de912b8b8feb55c064867cf047dda097f92d51efad5b491dfb98f6bbb70cb36"
 
 [[package]]
 name = "windows_x86_64_gnullvm"
-version = "0.42.0"
+version = "0.42.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09d525d2ba30eeb3297665bd434a54297e4170c7f1a44cad4ef58095b4cd2028"
+checksum = "26d41b46a36d453748aedef1486d5c7a85db22e56aff34643984ea85514e94a3"
 
 [[package]]
 name = "windows_x86_64_msvc"
@@ -4304,9 +4285,9 @@ checksum = "5e4d40883ae9cae962787ca76ba76390ffa29214667a111db9e0a1ad8377e809"
 
 [[package]]
 name = "windows_x86_64_msvc"
-version = "0.42.0"
+version = "0.42.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f40009d85759725a34da6d89a94e63d7bdc50a862acf0dbc7c8e488f1edcb6f5"
+checksum = "9aec5da331524158c6d1a4ac0ab1541149c0b9505fde06423b02f5ef0106b9f0"
 
 [[package]]
 name = "winres"
@@ -4399,13 +4380,3 @@ checksum = "589245df6230839c305984dcc0a8385cc72af1fd223f360ffd5d65efa4216d40"
 dependencies = [
  "simd-adler32",
 ]
-
-[[patch.unused]]
-name = "colored"
-version = "2.0.0"
-source = "git+https://github.com/ProjectAnni/colored?branch=master#1d6b88d1f7f8704b4dc44bf9042478c0568833dc"
-
-[[patch.unused]]
-name = "rusqlite"
-version = "0.28.0"
-source = "git+https://github.com/ProjectAnni/rusqlite?branch=wasm32-unknown-unknown#887f219f3fc3b3a8375d4a3b7b17bc51b5809c8f"
