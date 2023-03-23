@@ -5,7 +5,9 @@ import { ExtendedRepoConfig, RepoConfig } from "@/types/repo";
 
 export const WorkspaceBasePathAtom = atomWithStorage("workspace_base_path", "");
 
-export const WorkspaceRepoBasePathAtom = atom(async (get) => window.__native_bridge.path.resolve(get(WorkspaceBasePathAtom), ".anni/repo/"));
+export const WorkspaceRepoBasePathAtom = atom(async (get) =>
+    window.__native_bridge.path.resolve(get(WorkspaceBasePathAtom), ".anni/repo/")
+);
 
 export const WorkspaceRepoTagBasePathAtom = atom(async (get) =>
     window.__native_bridge.path.resolve(get(WorkspaceBasePathAtom), ".anni/repo/tag/")

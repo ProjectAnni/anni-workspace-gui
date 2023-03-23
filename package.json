@@ -20,6 +20,7 @@
         "build:linux": "electron-vite build && electron-builder --linux --config"
     },
     "dependencies": {
+        "@anni-rs/anni-javascript-binding": "^1.0.0",
         "@blueprintjs/core": "^4.17.7",
         "@blueprintjs/popover2": "^1.13.11",
         "@blueprintjs/select": "^4.9.11",
@@ -55,6 +56,7 @@
         "eslint-config-prettier": "^8.7.0",
         "eslint-plugin-prettier": "^4.2.1",
         "eslint-plugin-react": "^7.32.2",
+        "eslint-plugin-react-hooks": "^4.6.0",
         "prettier": "^2.8.4",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
