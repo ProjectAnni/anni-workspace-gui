@@ -1,5 +1,5 @@
 import { ipcMain, IpcMainInvokeEvent } from "electron";
-const Anni = require("anni-javascript-binding");
+import Anni from "@anni-rs/anni-javascript-binding";
 
 class AnniRustModule {
     listen() {

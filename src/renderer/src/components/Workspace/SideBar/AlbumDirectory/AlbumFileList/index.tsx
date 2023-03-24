@@ -15,7 +15,6 @@ const AlbumFileList: React.FC = () => {
             return;
         }
         const content: TreeNodeInfo[] = convertDirectoriesToTreeNodes(albumDirectories, openedDocument);
-        console.log(content)
         setTreeContent(content);
     }, [albumDirectories, openedDocument]);
     if (!treeContent) {

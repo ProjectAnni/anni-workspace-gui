@@ -20,7 +20,7 @@
         "build:linux": "electron-vite build && electron-builder --linux --config"
     },
     "dependencies": {
-        "@anni-rs/anni-javascript-binding": "^1.0.0",
+        "@anni-rs/anni-javascript-binding": "^1.0.4",
         "@blueprintjs/core": "^4.17.7",
         "@blueprintjs/popover2": "^1.13.11",
         "@blueprintjs/select": "^4.9.11",
