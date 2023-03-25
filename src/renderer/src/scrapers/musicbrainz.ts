@@ -2,7 +2,7 @@ import axios from "axios";
 import { uniqBy } from "lodash";
 import dayjs from "dayjs";
 import { ParsedAlbumData, ParsedTrackData } from "@/types/album";
-import { parseCatalog, sleep, stringifyArtists } from "@/utils/helper";
+import { escapeTrackTitle, parseCatalog, sleep, stringifyArtists } from "@/utils/helper";
 import Logger from "@/utils/log";
 import BaseScraper, { ScraperSearchResult } from "./base";
 import { guessTrackType } from "./utils";
@@ -118,7 +118,7 @@ class MusicBrainzScraper extends BaseScraper {
                         : trackRecodingArtistCredit; // TODO: cover songs
                 const trackArtists = await this.convertArtistCredits(chosenArtistCredit, releaseDate);
                 parsedTracks.push({
-                    title: trackTitle,
+                    title: escapeTrackTitle(trackTitle),
                     type:
                         guessTrackType(trackTitle, trackArtists) === "normal"
                             ? ""

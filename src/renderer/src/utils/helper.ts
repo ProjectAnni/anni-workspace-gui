@@ -47,7 +47,7 @@ function readArtist(reader: ArtistParserReader) {
 }
 
 function readArtists(reader: ArtistParserReader) {
-    const res = [];
+    const res: Artist[] = [];
     res.push(readArtist(reader));
     while (reader.data[reader.idx] === "、") {
         reader.idx += 1;
@@ -66,6 +66,10 @@ export function parseArtists(artistStr: string) {
 export function escapeArtistName(artistName: string) {
     // regex by Serika
     return artistName.replace(/([（）]|^、)/g, "\\$1").replace(/(^|[^\\])、/g, "$1、、");
+}
+
+export function escapeTrackTitle(trackTitle: string) {
+    return trackTitle.replaceAll("〜", "～");
 }
 
 export function stringifyArtist(artist: Artist): string {
