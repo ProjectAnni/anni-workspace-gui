@@ -56,6 +56,7 @@ const BasicInfoEditDialog: React.FC<Props> = (props) => {
             canOutsideClickClose={false}
         >
             <DialogBody>
+                <FormGroup>导入目录: {workingDirectoryName}</FormGroup>
                 <CommonDateEditor
                     initialValue={releaseDate}
                     onChange={(newDate) => {
