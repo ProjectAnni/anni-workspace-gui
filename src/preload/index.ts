@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld("__native_bridge", {
         rename: (...args) => ipcRenderer.invoke("file:rename", ...args),
         copyFile: (...args) => ipcRenderer.invoke("file:copyFile", ...args),
         createDir: (...args) => ipcRenderer.invoke("file:createDir", ...args),
+        deleteDirectory: (...args) => ipcRenderer.invoke("file:deleteDirectory", ...args),
     },
     path: {
         resolve: (...args) => ipcRenderer.invoke("path:resolve", ...args),

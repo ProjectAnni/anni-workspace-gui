@@ -12,6 +12,7 @@ class FileModule {
         ipcMain.handle("file:rename", this.rename);
         ipcMain.handle("file:copyFile", this.copyFile);
         ipcMain.handle("file:createDir", this.createDir);
+        ipcMain.handle("file:deleteDirectory", this.deleteDirectory);
     }
 
     readTextFile(e: IpcMainInvokeEvent, filePath: string) {
@@ -47,6 +48,23 @@ class FileModule {
 
     createDir(e: IpcMainInvokeEvent, newPath: string) {
         return fs.mkdirSync(newPath);
+    }
+
+    static _deleteDirectory = (directoryPath: string) => {
+        const dir = fs.readdirSync(directoryPath, { withFileTypes: true });
+        for (const entry of dir) {
+            const entryPath = path.resolve(directoryPath, entry.name);
+            if (entry.isDirectory()) {
+                FileModule._deleteDirectory(entryPath);
+            } else {
+                fs.unlinkSync(entryPath);
+            }
+        }
+        fs.rmdirSync(directoryPath);
+    };
+
+    deleteDirectory(e: IpcMainInvokeEvent, directoryPath: string) {
+        return FileModule._deleteDirectory(directoryPath);
     }
 }
 

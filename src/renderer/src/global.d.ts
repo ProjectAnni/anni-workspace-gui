@@ -24,6 +24,7 @@ declare global {
                 rename: (oldPath: string, newPath: string) => Promise<void>;
                 copyFile: (sourcePath: string, targetPath: string) => Promise<void>;
                 createDir: (newPath: string) => Promise<void>;
+                deleteDirectory: (directoryPath: string) => Promise<void>;
             };
             path: {
                 resolve: (...args: string[]) => Promise<string>;

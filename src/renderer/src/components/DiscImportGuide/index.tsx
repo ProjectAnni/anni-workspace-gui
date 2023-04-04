@@ -17,6 +17,7 @@ import {
 import GlobalLoading from "../Common/GlobalLoading";
 import { WorkspaceDisc } from "../Workspace/types";
 import CommitConfirmDialog from "./CommitConfirmDialog";
+import InterruptConfirmDialog from "./InterruptConfirmDialog";
 
 const DiscImportGuide: React.FC = () => {
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
@@ -34,6 +35,7 @@ const DiscImportGuide: React.FC = () => {
     const [isShowCoverConfirmDialog, setIsShowCoverConfirmDialog] = useState(false);
     const [isShowGlobalLoading, setIsShowGlobalLoading] = useState(false);
     const [isShowCommitConfirmDialog, setIsShowCommitConfirmDialog] = useState(false);
+    const [isShowInterruptConfirmDialog, setIsShowInterruptConfirmDialog] = useState(false);
     const processLock = useRef(false);
     const onFileDrop = useCallback(
         async (filePath: string) => {
@@ -134,8 +136,7 @@ const DiscImportGuide: React.FC = () => {
     );
 
     const onBasicInfoEditClose = useCallback(() => {
-        setIsShowBasicInfoEditDialog(false);
-        processLock.current = false;
+        setIsShowInterruptConfirmDialog(true);
     }, []);
 
     const onCoverConfirm = useCallback(async () => {
@@ -160,8 +161,7 @@ const DiscImportGuide: React.FC = () => {
     }, [workspaceBasePath, workingDirectoryPath]);
 
     const onCoverConfirmClose = useCallback(() => {
-        setIsShowCoverConfirmDialog(false);
-        processLock.current = false;
+        setIsShowInterruptConfirmDialog(true);
     }, []);
 
     const onCommitConfirm = useCallback(async () => {
@@ -181,9 +181,42 @@ const DiscImportGuide: React.FC = () => {
     }, [workspaceBasePath, workingDirectoryPath]);
 
     const onCommitConfirmClose = useCallback(() => {
+        setIsShowInterruptConfirmDialog(true);
+    }, []);
+
+    const onInterruptConfirmClose = useCallback(() => {
+        setIsShowInterruptConfirmDialog(false);
+    }, []);
+
+    const onInterruptConfirmCancel = useCallback(() => {
+        setIsShowInterruptConfirmDialog(false);
+        setIsShowBasicInfoEditDialog(false);
+        setIsShowCoverConfirmDialog(false);
         setIsShowCommitConfirmDialog(false);
         processLock.current = false;
     }, []);
+
+    const onInterruptConfirmConfirm = useCallback(async () => {
+        setIsShowGlobalLoading(true);
+        try {
+            Logger.info(`Disc import interrupted, clean up working directory: albumPath: ${workingDirectoryPath}`);
+            await window.__native_bridge.fs.deleteDirectory(workingDirectoryPath);
+            setIsShowInterruptConfirmDialog(false);
+            setIsShowBasicInfoEditDialog(false);
+            setIsShowCoverConfirmDialog(false);
+            setIsShowCommitConfirmDialog(false);
+            processLock.current = false;
+        } catch (e) {
+            if (e instanceof Error) {
+                Logger.error(
+                    `Failed to delete album working directory, error: ${e.message}, albumPath: ${workingDirectoryPath}`
+                );
+                AppToaster.show({ message: e.message, intent: Intent.DANGER });
+            }
+        } finally {
+            setIsShowGlobalLoading(false);
+        }
+    }, [workingDirectoryPath]);
 
     useFileDrop({ onDrop: onFileDrop });
 
@@ -207,6 +240,13 @@ const DiscImportGuide: React.FC = () => {
                 discs={prepareResult}
                 onClose={onCommitConfirmClose}
                 onConfirm={onCommitConfirm}
+            />
+            <InterruptConfirmDialog
+                isOpen={isShowInterruptConfirmDialog}
+                workingDirectoryPath={workingDirectoryPath}
+                onClose={onInterruptConfirmClose}
+                onCancel={onInterruptConfirmCancel}
+                onConfirm={onInterruptConfirmConfirm}
             />
             <GlobalLoading isOpen={isShowGlobalLoading} text="处理中..." />
         </React.Fragment>
