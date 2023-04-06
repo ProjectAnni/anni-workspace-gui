@@ -17,11 +17,12 @@ interface ArtistItemProps {
     artist: Artist;
     depth: number;
     index: number;
+    onSearch?: (keyword: string) => IndexedArtist[];
     onChange: (index: number, newArtistData: Artist | null) => void;
 }
 
 const ArtistItem: React.FC<ArtistItemProps> = (props: ArtistItemProps) => {
-    const { artist: initialArtist, depth, index, onChange } = props;
+    const { artist: initialArtist, depth, index, onSearch, onChange } = props;
     const artistNameRef = useRef<HTMLDivElement>(null);
     const [artist, setArtist] = useState(initialArtist);
     const [isActive, setIsActive] = useState(false);
@@ -39,10 +40,8 @@ const ArtistItem: React.FC<ArtistItemProps> = (props: ArtistItemProps) => {
     };
 
     const onMouseEnterActionIcons = (e: React.MouseEvent<HTMLDivElement>) => {
-        const { left: iconLeft, width: iconWidth } =
-            e.currentTarget.getBoundingClientRect();
-        const { left: nameLeft, width: nameWidth } =
-            artistNameRef.current!.getBoundingClientRect();
+        const { left: iconLeft, width: iconWidth } = e.currentTarget.getBoundingClientRect();
+        const { left: nameLeft, width: nameWidth } = artistNameRef.current!.getBoundingClientRect();
         setIndicatorLineStartX(nameLeft + nameWidth / 2);
         setIndicatorLineEndX(iconLeft + iconWidth / 2);
         setIsActive(true);
@@ -77,24 +76,22 @@ const ArtistItem: React.FC<ArtistItemProps> = (props: ArtistItemProps) => {
         });
     };
 
-    const onChildChange = (
-        childIndex: number,
-        newArtistData: Artist | null
-    ) => {
+    const onArtistSearch = (keyword: string): IndexedArtist[] => {
+        if (!onSearch) {
+            return [];
+        }
+        return onSearch(keyword);
+    };
+
+    const onChildChange = (childIndex: number, newArtistData: Artist | null) => {
         if (!newArtistData) {
             setArtist({
                 ...artist,
-                children: [
-                    ...artist.children.slice(0, childIndex),
-                    ...artist.children.slice(childIndex + 1),
-                ],
+                children: [...artist.children.slice(0, childIndex), ...artist.children.slice(childIndex + 1)],
             });
             onChange(index, {
                 ...artist,
-                children: [
-                    ...artist.children.slice(0, childIndex),
-                    ...artist.children.slice(childIndex + 1),
-                ],
+                children: [...artist.children.slice(0, childIndex), ...artist.children.slice(childIndex + 1)],
             });
         } else {
             setArtist({
@@ -135,9 +132,7 @@ const ArtistItem: React.FC<ArtistItemProps> = (props: ArtistItemProps) => {
                         <div
                             className={styles.indicatorLine}
                             style={{
-                                width: `${
-                                    indicatorLineEndX - indicatorLineStartX
-                                }px`,
+                                width: `${indicatorLineEndX - indicatorLineStartX}px`,
                             }}
                         ></div>
                     </div>
@@ -169,10 +164,7 @@ const ArtistItem: React.FC<ArtistItemProps> = (props: ArtistItemProps) => {
                                 />
                             </>
                         ) : (
-                            <span
-                                className={styles.childLength}
-                                title="点击展开子艺术家"
-                            >
+                            <span className={styles.childLength} title="点击展开子艺术家">
                                 +{children.length}
                             </span>
                         )}
@@ -210,6 +202,7 @@ const ArtistItem: React.FC<ArtistItemProps> = (props: ArtistItemProps) => {
                         top: floatingInputTop,
                         width: "300px",
                     }}
+                    onSearch={onArtistSearch}
                     onClose={() => {
                         setIsShowFloatInput(false);
                     }}
@@ -224,32 +217,22 @@ const ArtistItem: React.FC<ArtistItemProps> = (props: ArtistItemProps) => {
 
 interface Props {
     initialArtists: Artist[];
+    onSearch?: (keyword: string) => IndexedArtist[];
     onChange: (newArtists: Artist[]) => void;
     autoFocus?: boolean;
 }
 
 const CommonArtistEditor: React.FC<Props> = (props: Props) => {
-    const { initialArtists, autoFocus = false, onChange } = props;
+    const { initialArtists, autoFocus = false, onSearch, onChange } = props;
     const [artists, setArtists] = useState(initialArtists);
     const [query, setQuery] = useState("");
     const onArtistChange = (index: number, newArtistData: Artist | null) => {
         if (!newArtistData) {
-            setArtists([
-                ...artists.slice(0, index),
-                ...artists.slice(index + 1),
-            ]);
+            setArtists([...artists.slice(0, index), ...artists.slice(index + 1)]);
             onChange([...artists.slice(0, index), ...artists.slice(index + 1)]);
         } else {
-            setArtists([
-                ...artists.slice(0, index),
-                newArtistData,
-                ...artists.slice(index + 1),
-            ]);
-            onChange([
-                ...artists.slice(0, index),
-                newArtistData,
-                ...artists.slice(index + 1),
-            ]);
+            setArtists([...artists.slice(0, index), newArtistData, ...artists.slice(index + 1)]);
+            onChange([...artists.slice(0, index), newArtistData, ...artists.slice(index + 1)]);
         }
     };
     const onArtistAdded = (newArtistData: Artist) => {
@@ -258,6 +241,7 @@ const CommonArtistEditor: React.FC<Props> = (props: Props) => {
     };
     const onCreateNewItemFromQuery = (query: string): IndexedArtist => {
         if (!query) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             return;
         }
@@ -270,6 +254,7 @@ const CommonArtistEditor: React.FC<Props> = (props: Props) => {
                 albumTitle: "",
             };
         } catch (e) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             return;
         }
@@ -290,9 +275,7 @@ const CommonArtistEditor: React.FC<Props> = (props: Props) => {
                     itemRendererProps={itemRendererProps}
                     onClick={(e) => {
                         setQuery("");
-                        onArtistAdded(
-                            parseArtists(artist.serializedFullStr)[0]
-                        );
+                        onArtistAdded(parseArtists(artist.serializedFullStr)[0]);
                     }}
                 />
             )}
@@ -335,6 +318,7 @@ const CommonArtistEditor: React.FC<Props> = (props: Props) => {
                                 depth={0}
                                 key={artist.name}
                                 index={index}
+                                onSearch={onSearch}
                                 onChange={onArtistChange}
                             />
                         ))}

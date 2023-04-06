@@ -1,27 +1,28 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
-import { uniqBy } from "lodash";
 import { Suggest2 } from "@blueprintjs/select";
 import { Card, MenuItem } from "@blueprintjs/core";
 import { parseArtists } from "@/utils/helper";
-import AlbumFileIndexer, { IndexedArtist } from "@/indexer/AlbumFileIndexer";
+import type { IndexedArtist } from "@/indexer/AlbumFileIndexer";
 import ArtistSuggestItem from "./ArtistSuggestItem";
 import styles from "./index.module.scss";
 
 interface Props {
     style: React.CSSProperties;
+    onSearch: (keyword: string) => IndexedArtist[];
     onClose: () => void;
     onItemSelected: (indexedArtist: IndexedArtist) => void;
 }
 
 const ArtistSuggestInput: React.FC<Props> = (props) => {
-    const { style, onClose, onItemSelected } = props;
+    const { style, onSearch, onClose, onItemSelected } = props;
     const [query, setQuery] = useState("");
     const onCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
     };
     const onCreateNewItemFromQuery = (query: string): IndexedArtist => {
         if (!query) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             return;
         }
@@ -34,16 +35,13 @@ const ArtistSuggestInput: React.FC<Props> = (props) => {
                 albumTitle: "",
             };
         } catch (e) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             return;
         }
     };
     return ReactDOM.createPortal(
-        <Card
-            style={style}
-            className={styles.artistSuggestInputCard}
-            onClick={onCardClick}
-        >
+        <Card style={style} className={styles.artistSuggestInputCard} onClick={onCardClick}>
             <Suggest2<IndexedArtist>
                 items={[]}
                 query={query}
@@ -64,16 +62,7 @@ const ArtistSuggestInput: React.FC<Props> = (props) => {
                     />
                 )}
                 itemListPredicate={(keyword) => {
-                    const searchResults =
-                        AlbumFileIndexer.searchArtist(keyword);
-                    return uniqBy(searchResults, "serializedFullStr")
-                        .map((result) => ({
-                            id: result.id,
-                            name: result.name,
-                            serializedFullStr: result.serializedFullStr,
-                            albumTitle: result.albumTitle,
-                        }))
-                        .slice(0, 10);
+                    return onSearch(keyword);
                 }}
                 createNewItemFromQuery={onCreateNewItemFromQuery}
                 createNewItemRenderer={(query, active) => {
