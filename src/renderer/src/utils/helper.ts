@@ -83,6 +83,19 @@ export function stringifyArtists(artists: Artist[]) {
     return artists.map(stringifyArtist).join("、");
 }
 
+export function flattenArtists(artists: Artist[]) {
+    const result: Artist[] = [];
+    for (const artist of artists) {
+        if (artist.children.length > 0) {
+            result.push(artist);
+            result.push(...flattenArtists(artist.children));
+        } else {
+            result.push(artist);
+        }
+    }
+    return result;
+}
+
 function escapeRegExpChars(text: string) {
     return text.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }

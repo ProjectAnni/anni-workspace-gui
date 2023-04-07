@@ -1,25 +1,16 @@
 import React from "react";
 import { useAtom } from "jotai";
-import { uniqBy } from "lodash";
 import { FormGroup } from "@blueprintjs/core";
 import CommonArtistEditor from "@/components/Workspace/CommonArtistEditor";
 import { Artist } from "@/types/album";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "../state";
-import AlbumFileIndexer from "@/indexer/AlbumFileIndexer";
+import LocalAlbumFileIndexer from "../indexer";
 
 const LocalArtistEditor: React.FC = () => {
     const [albumData, dispatch] = useAtom(AlbumDataReducerAtom);
     const { artist } = albumData || {};
     const onArtistSearch = (keyword: string) => {
-        const searchResults = AlbumFileIndexer.searchArtist(keyword);
-        return uniqBy(searchResults, "serializedFullStr")
-            .map((result) => ({
-                id: result.id,
-                name: result.name,
-                serializedFullStr: result.serializedFullStr,
-                albumTitle: result.albumTitle,
-            }))
-            .slice(0, 10);
+        return LocalAlbumFileIndexer.searchArtist(keyword);
     };
     const onArtistChange = (artists: Artist[]) => {
         dispatch({
@@ -27,6 +18,7 @@ const LocalArtistEditor: React.FC = () => {
             payload: artists,
         });
     };
+
     if (!artist) {
         // TODO
         return null;

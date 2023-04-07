@@ -4,6 +4,7 @@ import { Popover2 } from "@blueprintjs/popover2";
 import { ParsedTrackData, ParsedDiscData, Artist } from "@/types/album";
 import CommonArtistEditor from "@/components/Workspace/CommonArtistEditor";
 import { stringifyArtists } from "@/utils/helper";
+import LocalAlbumFileIndexer from "../../indexer";
 import styles from "./index.module.scss";
 
 interface Props {
@@ -19,6 +20,10 @@ const TrackArtistEditor: React.FC<Props> = (props) => {
     const { artist } = track;
     const [localArtists, setLocalArtists] = useState<Artist[]>(artist || []);
     const [isShowInputCard, setIsShowInputCard] = useState(false);
+
+    const onArtistSearch = (keyword: string) => {
+        return LocalAlbumFileIndexer.searchArtist(keyword);
+    };
 
     const onArtistChange = (newArtists: Artist[]) => {
         setLocalArtists(newArtists);
@@ -46,6 +51,7 @@ const TrackArtistEditor: React.FC<Props> = (props) => {
                         <CommonArtistEditor
                             autoFocus
                             initialArtists={localArtists}
+                            onSearch={onArtistSearch}
                             onChange={onArtistChange}
                         />
                     </Card>
@@ -63,7 +69,7 @@ const TrackArtistEditor: React.FC<Props> = (props) => {
             >
                 <div className={styles.popoverAnchor}></div>
             </Popover2>
-            {!!artist?.length ? (
+            {artist?.length ? (
                 <div
                     className={styles.secondaryActionText}
                     onClick={() => {
@@ -71,9 +77,7 @@ const TrackArtistEditor: React.FC<Props> = (props) => {
                     }}
                 >
                     <span className={styles.prefix}>主艺术家: </span>
-                    <span title="点击设置主艺术家">
-                        {stringifyArtists(artist)}
-                    </span>
+                    <span title="点击设置主艺术家">{stringifyArtists(artist)}</span>
                 </div>
             ) : (
                 <Button

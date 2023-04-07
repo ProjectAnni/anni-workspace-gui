@@ -5,6 +5,7 @@ import { Popover2 } from "@blueprintjs/popover2";
 import { stringifyArtists } from "@/utils/helper";
 import CommonArtistEditor from "@/components/Workspace/CommonArtistEditor";
 import { Artist, ParsedDiscData } from "@/types/album";
+import LocalAlbumFileIndexer from "../indexer";
 import styles from "./index.module.scss";
 
 interface Props {
@@ -17,6 +18,10 @@ const DiscArtistEditor: React.FC<Props> = (props) => {
     const { artist } = disc || {};
     const [localArtists, setLocalArtists] = useState<Artist[]>(artist || []);
     const [isShowInputCard, setIsShowInputCard] = useState(false);
+
+    const onArtistSearch = (keyword: string) => {
+        return LocalAlbumFileIndexer.searchArtist(keyword);
+    };
 
     const onArtistChange = (newArtists: Artist[]) => {
         setLocalArtists(newArtists);
@@ -43,6 +48,7 @@ const DiscArtistEditor: React.FC<Props> = (props) => {
                         <CommonArtistEditor
                             autoFocus
                             initialArtists={localArtists}
+                            onSearch={onArtistSearch}
                             onChange={onArtistChange}
                         />
                     </Card>
@@ -60,20 +66,15 @@ const DiscArtistEditor: React.FC<Props> = (props) => {
             >
                 <div className={styles.popoverAnchor}></div>
             </Popover2>
-            {!!artist?.length ? (
+            {artist?.length ? (
                 <>
                     <div
-                        className={classNames(
-                            styles.secondaryActionText,
-                            styles.discArtist
-                        )}
+                        className={classNames(styles.secondaryActionText, styles.discArtist)}
                         onClick={() => {
                             setIsShowInputCard(true);
                         }}
                     >
-                        <span title="点击设置艺术家">
-                            {stringifyArtists(artist)}
-                        </span>
+                        <span title="点击设置艺术家">{stringifyArtists(artist)}</span>
                     </div>
                 </>
             ) : (

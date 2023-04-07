@@ -286,15 +286,7 @@ const CommonArtistEditor: React.FC<Props> = (props: Props) => {
                 onArtistAdded(parseArtists(item.serializedFullStr)[0]);
             }}
             itemListPredicate={(keyword) => {
-                const searchResults = AlbumFileIndexer.searchArtist(keyword);
-                return uniqBy(searchResults, "serializedFullStr")
-                    .map((result) => ({
-                        id: result.id,
-                        name: result.name,
-                        serializedFullStr: result.serializedFullStr,
-                        albumTitle: result.albumTitle,
-                    }))
-                    .slice(0, 10);
+                return onSearch ? onSearch(keyword) : [];
             }}
             createNewItemFromQuery={onCreateNewItemFromQuery}
             createNewItemRenderer={(query, active) => {

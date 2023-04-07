@@ -1,13 +1,17 @@
 import { useAtom, useAtomValue } from "jotai";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { uniqBy } from "lodash";
 import { Spinner } from "@blueprintjs/core";
 import { getAlbumFileWriter, readAlbumFile } from "@/utils/album";
 import Logger from "@/utils/log";
+import { Artist } from "@/types/album";
+import { flattenArtists, stringifyArtist } from "@/utils/helper";
 import { OpenedDocumentAtom } from "../../state";
 import { AlbumDataActionTypes, AlbumDataReducerAtom, AlbumDataRefreshIndicatorAtom } from "./state";
 import AlbumMetaInfoEditor from "./AlbumMetaInfoEditor";
 import AlbumEditorActions from "./AlbumEditorActions";
 import DiscsEditor from "./DiscsEditor";
+import LocalAlbumFileIndexer from "./indexer";
 import styles from "./index.module.scss";
 
 const AlbumEditor: React.FC = () => {
@@ -50,6 +54,29 @@ const AlbumEditor: React.FC = () => {
             albumDataWriter(albumData, openedDocument.path);
         }
     }, [albumData, openedDocument, albumDataWriter]);
+
+    useEffect(() => {
+        // 索引当前文件Artist
+        const localArtists: Artist[] = [];
+        if (albumData?.artist?.length) {
+            localArtists.push(...flattenArtists(albumData.artist));
+        }
+        if (albumData?.discs?.length) {
+            for (const disc of albumData.discs) {
+                for (const track of disc.tracks) {
+                    if (track.artist?.length) {
+                        localArtists.push(...flattenArtists(track.artist));
+                    }
+                }
+            }
+        }
+        uniqBy(localArtists, (i) => stringifyArtist(i)).forEach((artist) => {
+            LocalAlbumFileIndexer.add(artist);
+        });
+        return () => {
+            LocalAlbumFileIndexer.clear();
+        };
+    }, [albumData]);
 
     if (!openedDocument?.path) {
         return null;
