@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useAtom } from "jotai";
+import { Alert, Intent } from "@blueprintjs/core";
 import { WorkspaceBasePathAtom } from "@/components/Workspace/state";
 import styles from "./index.module.scss";
-import { Alert, Intent } from "@blueprintjs/core";
 import { useRepository } from "../../context";
 
 const WorkspaceSwitch: React.FC = () => {
