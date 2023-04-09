@@ -53,6 +53,7 @@ const ViewCodeDialog: React.FC<Props> = (props) => {
                     defaultLanguage="json"
                     defaultValue={JSON.stringify(albumData, null, 2)}
                     onMount={handleEditorDidMount}
+                    options={{ fontFamily: '"JetBrains Mono", "Droid Sans Mono", "monospace", monospace', fontLigatures: true }}
                 />
             </DialogBody>
             <DialogFooter
