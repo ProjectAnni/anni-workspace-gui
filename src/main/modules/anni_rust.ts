@@ -34,13 +34,13 @@ class AnniRustModule {
 
     commitAlbum(e: IpcMainInvokeEvent, workspacePath: string, albumPath: string): void {
         const result = Anni.commitAlbum(workspacePath, albumPath);
-        ipcMain.emit("workspace_status_change");
+        e.sender.send("workspace_status_change");
         return result;
     }
 
     publishAlbum(e: IpcMainInvokeEvent, workspacePath: string, albumPath: string): void {
         const result = Anni.publishAlbum(workspacePath, albumPath);
-        ipcMain.emit("workspace_status_change");
+        e.sender.send("workspace_status_change");
         return result;
     }
 }

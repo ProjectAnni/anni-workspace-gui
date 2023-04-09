@@ -33,7 +33,9 @@ contextBridge.exposeInMainWorld("__native_bridge", {
     },
     events: {
         onWorkspaceStatusChange: (callback) => {
-            ipcRenderer.on("workspace_status_change", callback);
+            ipcRenderer.on("workspace_status_change", () => {
+                callback();
+            });
             return () => {
                 ipcRenderer.removeListener("workspace_status_change", callback);
             };

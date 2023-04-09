@@ -34,6 +34,7 @@ const WorkspaceStatus: React.FC = () => {
         if (!workspaceBasePath) {
             return;
         }
+        Logger.info('Workspace status change, refresh.')
         const result = await getWorkspaceAlbums(workspaceBasePath);
         setWorkspaceAlbums(result);
     }, [workspaceBasePath]);
