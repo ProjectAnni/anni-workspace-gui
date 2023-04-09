@@ -5,8 +5,7 @@ import Logger from "@/utils/log";
 class DuplicatedTagError extends Error {}
 
 export const readTagFile = async (tagFilePath: string) => {
-    let content = "";
-    await window.__native_bridge.fs.readTextFile(tagFilePath);
+    const content = await window.__native_bridge.fs.readTextFile(tagFilePath);
     const result: ParsedTag[] = [];
     const parsedTagFile = TOML.parse(content) as { tag?: Tag[] };
     if (parsedTagFile?.tag?.length) {
