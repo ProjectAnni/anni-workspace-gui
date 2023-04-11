@@ -139,6 +139,7 @@ export const standardizeAlbumDirectoryName = async (originPath: string, albumInf
             );
             Logger.debug(`Rename ${originDiscDirectoryPath} -> ${newDiscDirectoryPath}`);
             await window.__native_bridge.fs.rename(originDiscDirectoryPath, newDiscDirectoryPath);
+            counter += 1;
         }
     }
 
@@ -163,4 +164,65 @@ export const prepareCommitWorkspaceAlbum = async (
 export const commitWorkspaceAlbum = async (workspacePath: string, albumDirectoryPath: string): Promise<void> => {
     Logger.debug(`Commit workspace album,workspace: ${workspacePath}, album: ${albumDirectoryPath} `);
     return await window.__anni_bridge.commitAlbum(workspacePath, albumDirectoryPath);
+};
+
+interface AutoParseAlbumInformationParams {
+    apiEndpoint: string;
+    apiKey: string;
+    model: string;
+    text: string;
+}
+
+export interface AutoParseAlbumInformationResult {
+    title: string;
+    date: string;
+    catalog: string;
+}
+
+export const autoParseAlbumInformation = async ({
+    apiEndpoint,
+    apiKey,
+    model,
+    text,
+}: AutoParseAlbumInformationParams) => {
+    const url = `${apiEndpoint}/v1/chat/completions`;
+    const prompt = `你的任务是从一段文本中提取一张专辑的相关信息，包括标题（title）、品番（catalog）、发售日期（date）。品番一般是由三到四位大写字母和四到五位数字用「-」连接的字符串，例如LACM-20199。将你提取的信息用JSON格式返回。你需要将发售日期转换为YYYY-MM-DD的格式。如果无法在文本中提取出某一信息，就不要在结果中包含对应字段。你的返回只应该包含JSON内容，不要添加其他内容，不要说明理由。你的提取结果应该准确无误。下面是你需要处理的文本：`;
+    Logger.debug(`Try getting parsed album information from OpenAI, text: ${text}`);
+    const response = await axios.post(
+        url,
+        {
+            model,
+            messages: [
+                {
+                    role: "user",
+                    content: `${prompt}${text}`,
+                },
+            ],
+        },
+        {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${apiKey}`,
+            },
+        }
+    );
+    const result = response.data?.choices?.[0]?.message?.content;
+    let parsedAlbum: AutoParseAlbumInformationResult;
+    try {
+        parsedAlbum = JSON.parse(
+            result
+                .replaceAll("\n", "")
+                .match(/({.+})/)[1]
+                .trim()
+        );
+    } catch (e) {
+        Logger.error(`Failed to parse text, wrong model output? response: ${result}`);
+        throw new Error("无法识别或无法解析");
+    }
+    if (!parsedAlbum.title || !parsedAlbum.catalog || !parsedAlbum.date) {
+        Logger.error(`Failed to parse text, missing required fields, response: ${result}`);
+        throw new Error("无法识别或无法解析: 缺少信息");
+    }
+    Logger.debug(`Got parsed album information, result: ${JSON.stringify(parsedAlbum)}`);
+    return parsedAlbum;
 };

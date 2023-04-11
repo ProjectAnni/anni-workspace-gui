@@ -1,6 +1,10 @@
 import React, { useLayoutEffect, useState } from "react";
 import { Button, Dialog, DialogBody, DialogFooter, FormGroup, InputGroup, Intent } from "@blueprintjs/core";
 import CommonDateEditor from "@/components/Workspace/CommonDateEditor";
+import { useSettings } from "@/state/settings";
+import InformationAutoParsingDialog from "./InformationAutoParsingDialog";
+import styles from "./index.module.scss";
+import { AppToaster } from "@/utils/toaster";
 
 interface Props {
     isOpen: boolean;
@@ -20,6 +24,8 @@ const BasicInfoEditDialog: React.FC<Props> = (props) => {
     const [catalog, setCatalog] = useState("");
     const [albumName, setAlbumName] = useState("");
     const [edition, setEdition] = useState("");
+    const [isShowInformationAutoParsingDialog, setIsShowInformationAutoParsingDialog] = useState(false);
+    const [openAiApiKey] = useSettings("assistant.openai.apiKey");
     useLayoutEffect(() => {
         const parsedDirectoryName = workingDirectoryName.match(ALBUM_INFO_REGEX);
         if (parsedDirectoryName?.groups) {
@@ -47,6 +53,13 @@ const BasicInfoEditDialog: React.FC<Props> = (props) => {
     const onButtonClick = () => {
         onConfirm(releaseDate, catalog, albumName, edition);
     };
+    const onAutoParsingButtonClick = () => {
+        if (!openAiApiKey) {
+            AppToaster.show({ message: "请先在设置中填写 OpenAI API Key", intent: Intent.DANGER });
+            return;
+        }
+        setIsShowInformationAutoParsingDialog(true);
+    };
     return (
         <Dialog
             isOpen={isOpen}
@@ -58,6 +71,7 @@ const BasicInfoEditDialog: React.FC<Props> = (props) => {
             <DialogBody>
                 <FormGroup>导入目录: {workingDirectoryName}</FormGroup>
                 <CommonDateEditor
+                    key={releaseDate}
                     initialValue={releaseDate}
                     onChange={(newDate) => {
                         setReleaseDate(newDate);
@@ -88,6 +102,23 @@ const BasicInfoEditDialog: React.FC<Props> = (props) => {
                         }}
                     />
                 </FormGroup>
+                <div className={styles.actions}>
+                    <Button icon="clean" small onClick={onAutoParsingButtonClick}>
+                        自动解析
+                    </Button>
+                </div>
+                <InformationAutoParsingDialog
+                    isOpen={isShowInformationAutoParsingDialog}
+                    onClose={() => {
+                        setIsShowInformationAutoParsingDialog(false);
+                    }}
+                    onParsed={(result) => {
+                        setAlbumName(result.title);
+                        setCatalog(result.catalog);
+                        setReleaseDate(result.date);
+                        setIsShowInformationAutoParsingDialog(false);
+                    }}
+                />
             </DialogBody>
             <DialogFooter
                 actions={
