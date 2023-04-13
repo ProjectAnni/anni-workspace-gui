@@ -13,6 +13,7 @@ class FileModule {
         ipcMain.handle("file:copyFile", this.copyFile);
         ipcMain.handle("file:createDir", this.createDir);
         ipcMain.handle("file:deleteDirectory", this.deleteDirectory);
+        ipcMain.handle("file:deleteFile", this.deleteFile);
     }
 
     readTextFile(e: IpcMainInvokeEvent, filePath: string) {
@@ -65,6 +66,10 @@ class FileModule {
 
     deleteDirectory(e: IpcMainInvokeEvent, directoryPath: string) {
         return FileModule._deleteDirectory(directoryPath);
+    }
+
+    deleteFile(e: IpcMainInvokeEvent, filePath: string) {
+        return fs.unlinkSync(filePath);
     }
 }
 

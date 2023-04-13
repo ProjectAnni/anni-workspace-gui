@@ -23,6 +23,7 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
     const [coverNaturalHeight, setCoverNaturalHeight] = useState(0);
     const [isCoverLoading, setIsCoverLoading] = useState(false);
     const [isShowCoverSearchDialog, setIsShowCoverSearchDialog] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const coverRef = useRef<HTMLImageElement>(null);
 
     const readAlbumCoverFromDirectory = useCallback(async () => {
@@ -36,7 +37,7 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
                 const [coverData, coverPath] = result;
                 const coverExt = await window.__native_bridge.path.extname(coverPath);
                 const coverFilename = await window.__native_bridge.path.basename(coverPath);
-                const mimeType = coverExt === "png" ? "image/png" : "image/jpeg";
+                const mimeType = coverExt.toLocaleLowerCase() === ".png" ? "image/png" : "image/jpeg";
                 const blob = new Blob([coverData.buffer], { type: mimeType });
                 const url = URL.createObjectURL(blob);
                 setCoverUrl(url);
@@ -50,8 +51,7 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
 
     useEffect(() => {
         readAlbumCoverFromDirectory();
-        return () => {};
-    }, [workingDirectoryPath]);
+    }, [readAlbumCoverFromDirectory, workingDirectoryPath]);
 
     const onCoverSelected = useCallback(
         async (url: string, mimeType = "image/jpeg") => {
@@ -70,7 +70,7 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
                 setIsCoverLoading(false);
             }
         },
-        [workingDirectoryPath]
+        [readAlbumCoverFromDirectory, workingDirectoryPath]
     );
 
     const onSelectFile = async () => {
@@ -81,8 +81,8 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
                     extensions: ["png", "jpg", "jpeg"],
                 },
             ],
-            properties: ['openFile']
-        })
+            properties: ["openFile"],
+        });
         if (!selected) {
             return;
         }
@@ -99,6 +99,45 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
             setIsCoverLoading(false);
         }
         setIsCoverLoading(false);
+    };
+
+    const onConfirmClick = async () => {
+        const coverExt = await window.__native_bridge.path.extname(currentCoverFilePath);
+        if (coverExt.toLowerCase() === ".png") {
+            if (!coverRef.current || !coverNaturalHeight || !coverNaturalWidth) {
+                AppToaster.show({ message: "图片未加载完成", intent: Intent.DANGER });
+                return;
+            }
+            try {
+                setIsLoading(true);
+                // Convert PNG to JPEG
+                const canvas = document.createElement("canvas");
+                canvas.width = coverNaturalWidth;
+                canvas.height = coverNaturalHeight;
+                const ctx = canvas.getContext("2d");
+                ctx?.drawImage(coverRef.current, 0, 0);
+                const dataURL = canvas.toDataURL("image/jpeg", 1.0);
+                const binaryData = window.atob(dataURL.split(",")[1]);
+                const coverData: Uint8Array = new Uint8Array(binaryData.length);
+                for (let i = 0; i < binaryData.length; i++) {
+                    coverData[i] = binaryData.charCodeAt(i);
+                }
+                await writeAlbumCover(workingDirectoryPath, coverData);
+                AppToaster.show({ message: "已将封面格式转换为JPEG" });
+                onConfirm();
+            } catch (e) {
+                if (e instanceof Error) {
+                    Logger.error(
+                        `Failed to convert cover from png to jpeg, coverPath: ${currentCoverFilePath}, error: ${e.message}`
+                    );
+                    AppToaster.show({ message: "图片未加载完成", intent: Intent.DANGER });
+                }
+            } finally {
+                setIsLoading(false);
+            }
+        } else {
+            onConfirm();
+        }
     };
 
     const onImageLoaded = () => {
@@ -153,7 +192,12 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
                 </DialogBody>
                 <DialogFooter
                     actions={
-                        <Button intent={Intent.PRIMARY} disabled={!coverUrl} onClick={onConfirm}>
+                        <Button
+                            intent={Intent.PRIMARY}
+                            disabled={!coverUrl}
+                            onClick={onConfirmClick}
+                            loading={isLoading}
+                        >
                             确认封面
                         </Button>
                     }

@@ -1,5 +1,6 @@
 import React from "react";
 import { Button, Dialog, DialogBody, DialogFooter, Intent } from "@blueprintjs/core";
+import { createPortal } from "react-dom";
 
 interface Props {
     isOpen: boolean;
@@ -11,7 +12,7 @@ interface Props {
 
 const InterruptConfirmDialog: React.FC<Props> = (props) => {
     const { isOpen, workingDirectoryPath, onClose, onCancel, onConfirm } = props;
-    return (
+    return createPortal(
         <Dialog title="中断流程确认" isOpen={isOpen} onClose={onClose}>
             <DialogBody>是否清理中间文件</DialogBody>
             <DialogFooter
@@ -24,7 +25,8 @@ const InterruptConfirmDialog: React.FC<Props> = (props) => {
                     </>
                 }
             ></DialogFooter>
-        </Dialog>
+        </Dialog>,
+        document.body
     );
 };
 
