@@ -8,6 +8,7 @@ import { AlbumDataActionTypes, AlbumDataReducerAtom } from "../../state";
 import styles from "./index.module.scss";
 import TrackArtistEditor from "./TrackArtistEditor";
 import TrackTypeEditor from "./TrackTypeEditor";
+import TrackTagEditor from "./TrackTagEditor";
 
 interface Props {
     trackIndex: number;
@@ -72,6 +73,20 @@ const TrackEditor: React.FC<Props> = (props) => {
         });
     };
 
+    const onTrackTagChange = (newTags: string[]) => {
+        dispatch({
+            type: AlbumDataActionTypes.UPDATE_TRACK,
+            payload: {
+                discIndex,
+                trackIndex,
+                track: {
+                    ...track,
+                    tags: newTags,
+                },
+            },
+        });
+    };
+
     const onTrackDelete = () => {
         dispatch({
             type: AlbumDataActionTypes.DELETE_TRACK,
@@ -107,6 +122,14 @@ const TrackEditor: React.FC<Props> = (props) => {
                         disc={disc}
                         discIndex={discIndex}
                         onChange={onTrackTypeChange}
+                    />
+                    <Divider />
+                    <TrackTagEditor
+                        track={track}
+                        trackIndex={trackIndex}
+                        disc={disc}
+                        discIndex={discIndex}
+                        onChange={onTrackTagChange}
                     />
                     <Divider />
                     <Button
