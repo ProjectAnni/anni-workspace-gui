@@ -123,6 +123,7 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
                     coverData[i] = binaryData.charCodeAt(i);
                 }
                 await writeAlbumCover(workingDirectoryPath, coverData);
+                await window.__native_bridge.fs.deleteFile(currentCoverFilePath);
                 AppToaster.show({ message: "已将封面格式转换为JPEG" });
                 onConfirm();
             } catch (e) {
