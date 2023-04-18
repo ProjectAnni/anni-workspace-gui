@@ -31,7 +31,7 @@ export const downloadCover = async (url: string) => {
     const response = await axios.get<Uint8Array>(url, {
         responseType: "arraybuffer",
     });
-    return response.data;
+    return new Uint8Array(response.data);
 };
 
 export const readAlbumCover = async (baseDirectory: string) => {
