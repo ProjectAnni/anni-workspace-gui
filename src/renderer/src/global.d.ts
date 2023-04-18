@@ -20,7 +20,7 @@ declare global {
                 readBinaryFile: (filePath: string) => Promise<Uint8Array>;
                 writeFile: (filePath: string, content: string | Uint8Array) => Promise<void>;
                 exists: (filePath: string) => Promise<boolean>;
-                readDir: (directoryPath: string) => Promise<(Dirent & { isDirectory: boolean })[]>;
+                readDir: (directoryPath: string) => Promise<(Omit<Dirent, 'isDirectory'> & { isDirectory: boolean })[]>;
                 rename: (oldPath: string, newPath: string) => Promise<void>;
                 copyFile: (sourcePath: string, targetPath: string) => Promise<void>;
                 createDir: (newPath: string) => Promise<void>;
