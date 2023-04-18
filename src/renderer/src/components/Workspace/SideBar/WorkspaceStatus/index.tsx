@@ -9,9 +9,15 @@ import { OpenedDocumentAtom, OpenedDocumentType, WorkspaceBasePathAtom, Workspac
 import { getWorkspaceAlbums, publishAlbum } from "../services";
 import { WorkspaceAlbum, WorkspaceState } from "../../types";
 import styles from "./index.module.scss";
+import PublishProgressDialog from "./PublishProgressDialog";
 
 const ALBUM_INFO_REGEX =
     /\[(?<Year>\d{4}|\d{2})-?(?<Month>\d{2})-?(?<Date>\d{2})]\[(?<Catalog>[^\]]+)] (?<Name>.+?)(?:【(?<Edition>[^】]+)】)?(?: \[(?<DiscCount>\d+) Discs])?$/i;
+
+interface PublishOptions {
+    onSuccess?: (albumPath: string) => void;
+    onError?: (albumPath: string, e: Error) => void;
+}
 
 const WorkspaceStatus: React.FC = () => {
     const [repoConfig] = useAtom(WorkspaceRepoConfigAtom);
@@ -19,6 +25,8 @@ const WorkspaceStatus: React.FC = () => {
     const [openedDocument, setOpenedDocument] = useAtom(OpenedDocumentAtom);
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
     const [publishingPath, setPublishingPath] = useState("");
+    const [publishStatus, setPublishStatus] = useState<{ current: number; total: number }>({ current: 0, total: 1 });
+    const [isShowPublishProgressDialog, setIsShowPublishProgressDialog] = useState(false);
     const unlistenFunctionRef = useRef<() => void>();
     const isInitialized = useRef(false);
     const publishLock = useRef(false);
@@ -34,13 +42,14 @@ const WorkspaceStatus: React.FC = () => {
         if (!workspaceBasePath) {
             return;
         }
-        Logger.info('Workspace status change, refresh.')
+        Logger.info("Workspace status change, refresh.");
         const result = await getWorkspaceAlbums(workspaceBasePath);
         setWorkspaceAlbums(result);
     }, [workspaceBasePath]);
 
     const publish = useCallback(
-        async (albumPath: string) => {
+        async (albumPath: string, options?: PublishOptions) => {
+            const { onSuccess, onError } = options || {};
             if (publishLock.current) {
                 return;
             }
@@ -48,12 +57,14 @@ const WorkspaceStatus: React.FC = () => {
             setPublishingPath(albumPath);
             try {
                 await publishAlbum(workspaceBasePath, albumPath);
+                onSuccess && onSuccess(albumPath);
             } catch (e) {
                 if (e instanceof Error) {
                     Logger.error(
                         `Failed to publish album, error: ${e.message}, workspacePath: ${workspaceBasePath}, albumPath: ${albumPath}`
                     );
                     AppToaster.show({ message: e.message, intent: Intent.DANGER });
+                    onError && onError(albumPath, e);
                 }
             } finally {
                 setPublishingPath("");
@@ -95,9 +106,23 @@ const WorkspaceStatus: React.FC = () => {
         if (!committedAlbums?.length) {
             return;
         }
+        setPublishStatus({ current: 0, total: committedAlbums.length });
+        setIsShowPublishProgressDialog(true);
+        let errorFlag = false;
         for (const album of committedAlbums) {
-            await publish(album.path);
+            if (errorFlag) {
+                break;
+            }
+            await publish(album.path, {
+                onSuccess: () => {
+                    setPublishStatus((prevStatus) => ({ ...prevStatus, current: prevStatus.current + 1 }));
+                },
+                onError: () => {
+                    errorFlag = true;
+                },
+            });
         }
+        setIsShowPublishProgressDialog(false);
     };
 
     useEffect(() => {
@@ -117,6 +142,11 @@ const WorkspaceStatus: React.FC = () => {
                         disabled={!!publishingPath}
                         onClick={onPublishAll}
                     ></Button>
+                    <PublishProgressDialog
+                        current={publishStatus.current}
+                        total={publishStatus.total}
+                        isOpen={isShowPublishProgressDialog}
+                    />
                 </div>
             )}
             <div className={styles.fileList}>
