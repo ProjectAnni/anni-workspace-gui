@@ -131,7 +131,7 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
                     Logger.error(
                         `Failed to convert cover from png to jpeg, coverPath: ${currentCoverFilePath}, error: ${e.message}`
                     );
-                    AppToaster.show({ message: "图片未加载完成", intent: Intent.DANGER });
+                    AppToaster.show({ message: "图片格式转换失败", intent: Intent.DANGER });
                 }
             } finally {
                 setIsLoading(false);

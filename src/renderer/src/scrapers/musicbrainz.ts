@@ -51,7 +51,8 @@ class MusicBrainzScraper extends BaseScraper {
                         ? release["artist-credit"].map((credit: any) => credit.name).join("、")
                         : "",
                 releaseDate: release.date,
-                trackCount: release["track-count"] || undefined,
+                trackCount: release["track-count"] ?? undefined,
+                edition: release["disambiguation"],
             });
         }
         return result;
@@ -76,7 +77,8 @@ class MusicBrainzScraper extends BaseScraper {
                             ? release["artist-credit"].map((credit: any) => credit.name).join("、")
                             : "",
                     releaseDate: release.date,
-                    trackCount: release["track-count"] || undefined,
+                    trackCount: release["track-count"] ?? undefined,
+                    edition: release["disambiguation"],
                 });
             }
         }
