@@ -24,16 +24,17 @@ class MusicBrainzScraper extends BaseScraper {
 
     public async search(album: ParsedAlbumData): Promise<ScraperSearchResult[]> {
         const [result1, result2] = await Promise.all([
-            album.catalog ? this.searchByCatalog(album.catalog) : Promise.resolve([]),
-            album.title ? this.searchByTitle(album.title) : Promise.resolve([]),
+            album.catalog ? this.searchByCatalog(album) : Promise.resolve([]),
+            album.title ? this.searchByTitle(album) : Promise.resolve([]),
         ]);
         return uniqBy([...result1, ...result2], "id");
     }
 
     public async getDetail(result: ScraperSearchResult): Promise<Omit<ParsedAlbumData, "album_id"> | null> {
-        return this.getReleaseInfo(result.id);
+        return this.getReleaseInfo(result.id, result.searchParams.catalog);
     }
-    private async searchByTitle(title: string): Promise<ScraperSearchResult[]> {
+    private async searchByTitle(album: ParsedAlbumData): Promise<ScraperSearchResult[]> {
+        const { title, catalog } = album;
         const API = `https://musicbrainz.org/ws/2/release?query=${title}&limit=10&fmt=json`;
         const searchResult = await axios.get(API).then((res) => res.data);
         const releases = searchResult?.releases;
@@ -53,12 +54,17 @@ class MusicBrainzScraper extends BaseScraper {
                 releaseDate: release.date,
                 trackCount: release["track-count"] ?? undefined,
                 edition: release["disambiguation"],
+                searchParams: {
+                    title,
+                    catalog,
+                },
             });
         }
         return result;
     }
-    private async searchByCatalog(catalog: string): Promise<ScraperSearchResult[]> {
-        const parsedCatalog = parseCatalog(catalog);
+    private async searchByCatalog(album: ParsedAlbumData): Promise<ScraperSearchResult[]> {
+        const { title, catalog } = album;
+        const parsedCatalog = parseCatalog(catalog!);
         const API = `https://musicbrainz.org/ws/2/release?query=catno:${parsedCatalog[0]}&fmt=json`;
         const searchResult = await axios.get(API).then((res) => res.data);
         const releases = searchResult?.releases;
@@ -79,27 +85,41 @@ class MusicBrainzScraper extends BaseScraper {
                     releaseDate: release.date,
                     trackCount: release["track-count"] ?? undefined,
                     edition: release["disambiguation"],
+                    searchParams: {
+                        title,
+                        catalog,
+                    },
                 });
             }
         }
         return result;
     }
 
-    private async getReleaseInfo(releaseId: string): Promise<Omit<ParsedAlbumData, "album_id">> {
+    private async getReleaseInfo(
+        releaseId: string,
+        fallbackCatalog?: string
+    ): Promise<Omit<ParsedAlbumData, "album_id">> {
         Logger.info(`[MusicBrainz] Get release info, releaseId: ${releaseId}`);
         const API = `https://musicbrainz.org/ws/2/release/${releaseId}?inc=recordings+artist-credits+labels&fmt=json`;
         const albumData = await axios.get(API).then((res) => res.data);
         await sleep(1500); // API Rate Limit
         const title = albumData.title;
-        const catalog = albumData["label-info"]?.[0]?.["catalog-number"]; // TODO: support multi catalogs
+        const catalog = albumData["label-info"]?.[0]?.["catalog-number"] ?? undefined; // TODO: support multi catalogs
         const releaseDate = albumData.date;
         const albumArtistCredit = albumData["artist-credit"];
         const edition = albumData.disambiguation;
         const albumArtists = await this.convertArtistCredits(albumArtistCredit, releaseDate);
         const discs = albumData.media;
+
+        if (!catalog && !fallbackCatalog) {
+            throw new Error("无法确定碟片品番");
+        }
+
+        const parsedFallbackCatalogs = fallbackCatalog ? parseCatalog(fallbackCatalog) : [];
+
         const result: Omit<ParsedAlbumData, "album_id"> = {
             title,
-            catalog,
+            catalog: catalog || parsedFallbackCatalogs[0],
             date: releaseDate,
             edition,
             artist: albumArtists,
@@ -107,6 +127,7 @@ class MusicBrainzScraper extends BaseScraper {
             discs: [],
         };
         let counter = 0;
+
         for (const disc of discs) {
             const tracks = disc.tracks;
             const parsedTracks: ParsedTrackData[] = [];
@@ -132,7 +153,9 @@ class MusicBrainzScraper extends BaseScraper {
                 tracks: parsedTracks,
                 catalog:
                     albumData["label-info"]?.[counter]?.["catalog-number"] ||
-                    albumData["label-info"]?.[0]?.["catalog-number"],
+                    albumData["label-info"]?.[0]?.["catalog-number"] ||
+                    parsedFallbackCatalogs[counter] ||
+                    parsedFallbackCatalogs[0],
             });
             counter++;
         }

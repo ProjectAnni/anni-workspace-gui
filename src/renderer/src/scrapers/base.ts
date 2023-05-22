@@ -9,6 +9,11 @@ export interface ScraperSearchResult {
     artists?: string;
     cover?: string;
     trackCount?: number;
+
+    searchParams: {
+        catalog?: string;
+        title?: string;
+    };
 }
 
 abstract class BaseScraper {

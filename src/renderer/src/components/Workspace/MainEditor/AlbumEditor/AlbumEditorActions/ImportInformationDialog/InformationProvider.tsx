@@ -5,8 +5,8 @@ import type BaseScraper from "@/scrapers/base";
 import type { ParsedAlbumData } from "@/types/album";
 import { ScraperSearchResult } from "@/scrapers/base";
 import { AppToaster } from "@/utils/toaster";
-import styles from "./index.module.scss";
 import ResultPreviewDialog from "./ResultPreviewDialog";
+import styles from "./index.module.scss";
 
 interface Props {
     active: boolean;

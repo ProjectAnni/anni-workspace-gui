@@ -19,6 +19,7 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
     const [coverUrl, setCoverUrl] = useState("");
     const [currentCoverFilePath, setCurrentCoverFilePath] = useState("");
     const [currentCoverFilename, setCurrentCoverFilename] = useState("");
+    const [currentCoverData, setCurrentCoverData] = useState<Uint8Array>();
     const [coverNaturalWidth, setCoverNaturalWidth] = useState(0);
     const [coverNaturalHeight, setCoverNaturalHeight] = useState(0);
     const [isCoverLoading, setIsCoverLoading] = useState(false);
@@ -43,6 +44,7 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
                 setCoverUrl(url);
                 setCurrentCoverFilename(coverFilename);
                 setCurrentCoverFilePath(coverPath);
+                setCurrentCoverData(coverData);
             }
         } catch (e) {
             AppToaster.show({ message: "读取封面失败", intent: Intent.DANGER });
@@ -135,6 +137,22 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
                 }
             } finally {
                 setIsLoading(false);
+            }
+        } else if (!currentCoverFilename.endsWith("cover.jpg")) {
+            if (!currentCoverData) {
+                AppToaster.show({ message: "图片未加载完成", intent: Intent.DANGER });
+                return;
+            }
+            try {
+                await writeAlbumCover(workingDirectoryPath, currentCoverData);
+                await window.__native_bridge.fs.deleteFile(currentCoverFilePath);
+                AppToaster.show({ message: "已将封面重命名为cover.jpg" });
+                onConfirm();
+            } catch (e) {
+                if (e instanceof Error) {
+                    Logger.error(`Failed to write cover, coverPath: ${currentCoverFilePath}, error: ${e.message}`);
+                    AppToaster.show({ message: "图片格式转换失败", intent: Intent.DANGER });
+                }
             }
         } else {
             onConfirm();
