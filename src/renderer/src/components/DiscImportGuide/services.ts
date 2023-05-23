@@ -107,7 +107,7 @@ export const cleanupCover = async (baseDirectory: string) => {
         }
     }
 
-    if (!hasMultiDiscs) {
+    if (hasMultiDiscs) {
         const discEntries = dir.filter((entry) => entry.isDirectory);
         for (const discEntry of discEntries) {
             const discPath = await window.__native_bridge.path.resolve(baseDirectory, discEntry.name);
@@ -170,7 +170,7 @@ export const standardizeAlbumDirectoryName = async (originPath: string, albumInf
                 newAlbumDirectoryPath,
                 discEntry.name
             );
-            const newDiscDirectoryName = `[${catalogs[counter - 1]}] ${title} [Disc ${counter}]`;
+            const newDiscDirectoryName = `Disc ${counter}`;
             const newDiscDirectoryPath = await window.__native_bridge.path.resolve(
                 originDiscDirectoryPath,
                 `../${newDiscDirectoryName}`
