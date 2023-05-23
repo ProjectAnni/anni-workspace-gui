@@ -71,7 +71,6 @@ const BasicInfoEditDialog: React.FC<Props> = (props) => {
             <DialogBody>
                 <FormGroup>导入目录: {workingDirectoryName}</FormGroup>
                 <CommonDateEditor
-                    key={releaseDate}
                     initialValue={releaseDate}
                     onChange={(newDate) => {
                         setReleaseDate(newDate);
