@@ -63,18 +63,19 @@ export const writeAlbumCover = async (baseDirectory: string, coverData: Uint8Arr
     Logger.debug(`Write cover: ${baseDirectory}`);
     const dir = await window.__native_bridge.fs.readDir(baseDirectory);
     const hasMultiDiscs = dir.some((entry) => entry.isDirectory);
-    if (!hasMultiDiscs) {
-        Logger.debug(
-            `Write cover data: [binary] -> ${await window.__native_bridge.path.resolve(
-                baseDirectory,
-                DEFAULT_COVER_FILENAME
-            )}`
-        );
-        await window.__native_bridge.fs.writeFile(
-            await window.__native_bridge.path.resolve(baseDirectory, DEFAULT_COVER_FILENAME),
-            coverData
-        );
-    } else {
+
+    Logger.debug(
+        `Write cover data: [binary] -> ${await window.__native_bridge.path.resolve(
+            baseDirectory,
+            DEFAULT_COVER_FILENAME
+        )}`
+    );
+    await window.__native_bridge.fs.writeFile(
+        await window.__native_bridge.path.resolve(baseDirectory, DEFAULT_COVER_FILENAME),
+        coverData
+    );
+
+    if (hasMultiDiscs) {
         const discEntries = dir.filter((entry) => entry.isDirectory);
         for (const discEntry of discEntries) {
             Logger.debug(
@@ -97,15 +98,16 @@ export const cleanupCover = async (baseDirectory: string) => {
     Logger.debug(`Cleanup covers in directory: ${baseDirectory}`);
     const dir = await window.__native_bridge.fs.readDir(baseDirectory);
     const hasMultiDiscs = dir.some((entry) => entry.isDirectory);
-    if (!hasMultiDiscs) {
-        for (const entry of dir) {
-            if (entry.name !== DEFAULT_COVER_FILENAME && alternativeCoverFilenames.includes(entry.name)) {
-                const coverPath = await window.__native_bridge.path.resolve(baseDirectory, entry.name);
-                Logger.debug(`Cleanup cover file: ${coverPath}`);
-                await window.__native_bridge.fs.deleteFile(coverPath);
-            }
+
+    for (const entry of dir) {
+        if (entry.name !== DEFAULT_COVER_FILENAME && alternativeCoverFilenames.includes(entry.name)) {
+            const coverPath = await window.__native_bridge.path.resolve(baseDirectory, entry.name);
+            Logger.debug(`Cleanup cover file: ${coverPath}`);
+            await window.__native_bridge.fs.deleteFile(coverPath);
         }
-    } else {
+    }
+
+    if (!hasMultiDiscs) {
         const discEntries = dir.filter((entry) => entry.isDirectory);
         for (const discEntry of discEntries) {
             const discPath = await window.__native_bridge.path.resolve(baseDirectory, discEntry.name);
