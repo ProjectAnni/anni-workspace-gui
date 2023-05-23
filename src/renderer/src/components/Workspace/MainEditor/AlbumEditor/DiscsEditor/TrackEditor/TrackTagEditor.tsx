@@ -41,7 +41,7 @@ const TrackTagEditor: React.FC<Props> = (props) => {
                             e.stopPropagation();
                         }}
                     >
-                        <CommonTagEditor initialTags={localTags} onChange={onTagChange} />
+                        <CommonTagEditor autoFocus initialTags={localTags} onChange={onTagChange} />
                     </Card>
                 }
                 position="bottom-left"

@@ -7,6 +7,7 @@ import CreateTagDialog from "./CreateTagDialog";
 
 interface Props {
     initialTags: string[];
+    autoFocus?: boolean;
     allowCreate?: boolean;
     onChange: (tags: string[]) => void;
 }
@@ -18,7 +19,7 @@ interface TagItem {
 }
 
 const CommonTagEditor: React.FC<Props> = (props) => {
-    const { initialTags, allowCreate = true, onChange } = props;
+    const { initialTags, autoFocus = false, allowCreate = true, onChange } = props;
     const [query, setQuery] = useState("");
     const [tags, setTags] = useState(initialTags);
     const [isShowCreateTagDialog, setIsShowCreateTagDialog] = useState(false);
@@ -112,6 +113,11 @@ const CommonTagEditor: React.FC<Props> = (props) => {
                         });
                     }
                     return result;
+                }}
+                tagInputProps={{
+                    inputProps: {
+                        autoFocus,
+                    },
                 }}
                 onItemSelect={onItemSelect}
                 onRemove={onItemRemove}
