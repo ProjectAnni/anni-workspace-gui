@@ -3,7 +3,7 @@ import { Button, ButtonGroup, Dialog, DialogBody, DialogFooter, FormGroup, Inten
 import { AppToaster } from "@/utils/toaster";
 import Logger from "@/utils/log";
 import CoverSearchDialog from "../CoverSearchDialog";
-import { downloadCover, readAlbumCover, writeAlbumCover } from "../services";
+import { cleanupCover, downloadCover, readAlbumCover, writeAlbumCover } from "../services";
 import styles from "./index.module.scss";
 
 interface Props {
@@ -104,7 +104,13 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
     };
 
     const onConfirmClick = async () => {
+        if (!currentCoverData) {
+            AppToaster.show({ message: "请选择封面图片", intent: Intent.DANGER });
+            return;
+        }
+
         const coverExt = await window.__native_bridge.path.extname(currentCoverFilePath);
+        // 如当前有效封面为 PNG 格式则利用 Canvas 进行格式转换
         if (coverExt.toLowerCase() === ".png") {
             if (!coverRef.current || !coverNaturalHeight || !coverNaturalWidth) {
                 AppToaster.show({ message: "图片未加载完成", intent: Intent.DANGER });
@@ -124,10 +130,8 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
                 for (let i = 0; i < binaryData.length; i++) {
                     coverData[i] = binaryData.charCodeAt(i);
                 }
-                await writeAlbumCover(workingDirectoryPath, coverData);
-                await window.__native_bridge.fs.deleteFile(currentCoverFilePath);
+                setCurrentCoverData(coverData);
                 AppToaster.show({ message: "已将封面格式转换为JPEG" });
-                onConfirm();
             } catch (e) {
                 if (e instanceof Error) {
                     Logger.error(
@@ -138,24 +142,18 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
             } finally {
                 setIsLoading(false);
             }
-        } else if (!currentCoverFilename.endsWith("cover.jpg")) {
-            if (!currentCoverData) {
-                AppToaster.show({ message: "图片未加载完成", intent: Intent.DANGER });
-                return;
-            }
-            try {
-                await writeAlbumCover(workingDirectoryPath, currentCoverData);
-                await window.__native_bridge.fs.deleteFile(currentCoverFilePath);
-                AppToaster.show({ message: "已将封面重命名为cover.jpg" });
-                onConfirm();
-            } catch (e) {
-                if (e instanceof Error) {
-                    Logger.error(`Failed to write cover, coverPath: ${currentCoverFilePath}, error: ${e.message}`);
-                    AppToaster.show({ message: "图片格式转换失败", intent: Intent.DANGER });
-                }
-            }
-        } else {
+        }
+
+        // 保存当前封面到 cover.jpg 并清理多余文件 多余文件无法通过 anni 检查
+        try {
+            await writeAlbumCover(workingDirectoryPath, currentCoverData);
+            await cleanupCover(workingDirectoryPath);
             onConfirm();
+        } catch (e) {
+            if (e instanceof Error) {
+                Logger.error(`Failed to save cover file, coverPath: ${currentCoverFilePath}, error: ${e.message}`);
+                AppToaster.show({ message: "保存封面文件失败", intent: Intent.DANGER });
+            }
         }
     };
 

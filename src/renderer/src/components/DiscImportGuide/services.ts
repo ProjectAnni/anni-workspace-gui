@@ -34,18 +34,21 @@ export const downloadCover = async (url: string) => {
     return new Uint8Array(response.data);
 };
 
+// 存在优先级
+const alternativeCoverFilenames = [
+    "cover.jpg",
+    "Cover.jpg",
+    "cover.jpeg",
+    "Cover.jpeg",
+    "cover.png",
+    "Cover.png",
+    "folder.jpg",
+    "folder.png",
+];
+
+const DEFAULT_COVER_FILENAME = "cover.jpg";
+
 export const readAlbumCover = async (baseDirectory: string) => {
-    // 存在优先级
-    const alternativeCoverFilenames = [
-        "cover.jpg",
-        "Cover.jpg",
-        "cover.jpeg",
-        "Cover.jpeg",
-        "cover.png",
-        "Cover.png",
-        "folder.jpg",
-        "folder.png",
-    ];
     for (const filename of alternativeCoverFilenames) {
         const coverPath = await window.__native_bridge.path.resolve(baseDirectory, filename);
         if (await window.__native_bridge.fs.exists(coverPath)) {
@@ -62,10 +65,13 @@ export const writeAlbumCover = async (baseDirectory: string, coverData: Uint8Arr
     const hasMultiDiscs = dir.some((entry) => entry.isDirectory);
     if (!hasMultiDiscs) {
         Logger.debug(
-            `Write cover data: [binary] -> ${await window.__native_bridge.path.resolve(baseDirectory, "cover.jpg")}`
+            `Write cover data: [binary] -> ${await window.__native_bridge.path.resolve(
+                baseDirectory,
+                DEFAULT_COVER_FILENAME
+            )}`
         );
         await window.__native_bridge.fs.writeFile(
-            await window.__native_bridge.path.resolve(baseDirectory, "cover.jpg"),
+            await window.__native_bridge.path.resolve(baseDirectory, DEFAULT_COVER_FILENAME),
             coverData
         );
     } else {
@@ -75,13 +81,42 @@ export const writeAlbumCover = async (baseDirectory: string, coverData: Uint8Arr
                 `Write cover data: [binary] -> ${await window.__native_bridge.path.resolve(
                     baseDirectory,
                     discEntry.name,
-                    "cover.jpg"
+                    DEFAULT_COVER_FILENAME
                 )}`
             );
             await window.__native_bridge.fs.writeFile(
-                await window.__native_bridge.path.resolve(baseDirectory, discEntry.name, "cover.jpg"),
+                await window.__native_bridge.path.resolve(baseDirectory, discEntry.name, DEFAULT_COVER_FILENAME),
                 coverData
             );
+        }
+    }
+};
+
+/** 删除非 cover.jpg 的封面文件 */
+export const cleanupCover = async (baseDirectory: string) => {
+    Logger.debug(`Cleanup covers in directory: ${baseDirectory}`);
+    const dir = await window.__native_bridge.fs.readDir(baseDirectory);
+    const hasMultiDiscs = dir.some((entry) => entry.isDirectory);
+    if (!hasMultiDiscs) {
+        for (const entry of dir) {
+            if (entry.name !== DEFAULT_COVER_FILENAME && alternativeCoverFilenames.includes(entry.name)) {
+                const coverPath = await window.__native_bridge.path.resolve(baseDirectory, entry.name);
+                Logger.debug(`Cleanup cover file: ${coverPath}`);
+                await window.__native_bridge.fs.deleteFile(coverPath);
+            }
+        }
+    } else {
+        const discEntries = dir.filter((entry) => entry.isDirectory);
+        for (const discEntry of discEntries) {
+            const discPath = await window.__native_bridge.path.resolve(baseDirectory, discEntry.name);
+            const discDir = await window.__native_bridge.fs.readDir(discPath);
+            for (const entry of discDir) {
+                if (entry.name !== DEFAULT_COVER_FILENAME && alternativeCoverFilenames.includes(entry.name)) {
+                    const coverPath = await window.__native_bridge.path.resolve(discPath, entry.name);
+                    Logger.debug(`Cleanup cover file: ${coverPath}`);
+                    await window.__native_bridge.fs.deleteFile(coverPath);
+                }
+            }
         }
     }
 };
@@ -104,6 +139,11 @@ export const standardizeAlbumDirectoryName = async (originPath: string, albumInf
         throw new Error("多Disc，但好像又没多");
     }
 
+    const catalogs = parseCatalog(catalog);
+    if (catalogs.length !== discNum) {
+        throw new Error("碟片数量与品番不匹配");
+    }
+
     const finalName = `[${date}][${catalog}] ${title}${edition ? `【${edition}】` : ""}${
         discNum > 1 ? ` [${discNum} Discs]` : ""
     }`;
@@ -120,10 +160,6 @@ export const standardizeAlbumDirectoryName = async (originPath: string, albumInf
 
     if (discNum > 1) {
         // rename disc folders
-        const catalogs = parseCatalog(catalog);
-        if (catalogs.length !== discNum) {
-            throw new Error("碟片数量与品番不匹配");
-        }
         const newDir = await window.__native_bridge.fs.readDir(newAlbumDirectoryPath);
         const discEntries = newDir.filter((entry) => entry.isDirectory).sort(); // 字典序排序
         let counter = 1;
