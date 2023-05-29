@@ -137,10 +137,6 @@ export const standardizeAlbumDirectoryName = async (originPath: string, albumInf
     const dir = await window.__native_bridge.fs.readDir(originPath);
     const discNum = dir.filter((entry) => entry.isDirectory).length || 1;
 
-    if (discNum === 1) {
-        throw new Error("多Disc，但好像又没多");
-    }
-
     const catalogs = parseCatalog(catalog);
     if (catalogs.length !== discNum) {
         throw new Error("碟片数量与品番不匹配");
