@@ -135,7 +135,7 @@ export const standardizeAlbumDirectoryName = async (originPath: string, albumInf
     Logger.info("Standardize album directory name");
     const { date, title, catalog, edition } = albumInfo;
     const dir = await window.__native_bridge.fs.readDir(originPath);
-    const discNum = dir.filter((entry) => entry.isDirectory).length;
+    const discNum = dir.filter((entry) => entry.isDirectory).length || 1;
 
     if (discNum === 1) {
         throw new Error("多Disc，但好像又没多");
@@ -146,9 +146,8 @@ export const standardizeAlbumDirectoryName = async (originPath: string, albumInf
         throw new Error("碟片数量与品番不匹配");
     }
 
-    const finalName = `[${date}][${catalog}] ${title}${edition ? `【${edition}】` : ""}${
-        discNum > 1 ? ` [${discNum} Discs]` : ""
-    }`;
+    const finalName = `[${date}][${catalog}] ${title}${edition ? `【${edition}】` : ""}${discNum > 1 ? ` [${discNum} Discs]` : ""
+        }`;
 
     const newAlbumDirectoryPath = await window.__native_bridge.path.resolve(originPath, `../${finalName}`);
 
