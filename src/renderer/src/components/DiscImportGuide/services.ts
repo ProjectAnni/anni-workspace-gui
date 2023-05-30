@@ -93,10 +93,13 @@ export const writeAlbumCover = async (baseDirectory: string, coverData: Uint8Arr
     }
 };
 
-/** 删除非 cover.jpg 的封面文件 */
-export const cleanupCover = async (baseDirectory: string) => {
-    Logger.debug(`Cleanup covers in directory: ${baseDirectory}`);
+/**
+ * 清理碟片文件夹
+ * 如：多余的封面文件夹、EAC Log 等
+ */
+export const cleanupAlbumDirectory = async (baseDirectory: string) => {
     const dir = await window.__native_bridge.fs.readDir(baseDirectory);
+    Logger.debug(`Cleanup album directory: ${baseDirectory}`);
     const hasMultiDiscs = dir.some((entry) => entry.isDirectory);
 
     for (const entry of dir) {
@@ -104,6 +107,11 @@ export const cleanupCover = async (baseDirectory: string) => {
             const coverPath = await window.__native_bridge.path.resolve(baseDirectory, entry.name);
             Logger.debug(`Cleanup cover file: ${coverPath}`);
             await window.__native_bridge.fs.deleteFile(coverPath);
+        }
+        if (entry.name.endsWith(".log")) {
+            const logPath = await window.__native_bridge.path.resolve(baseDirectory, entry.name);
+            Logger.debug(`Cleanup log file: ${logPath}`);
+            await window.__native_bridge.fs.deleteFile(logPath);
         }
     }
 
@@ -117,6 +125,11 @@ export const cleanupCover = async (baseDirectory: string) => {
                     const coverPath = await window.__native_bridge.path.resolve(discPath, entry.name);
                     Logger.debug(`Cleanup cover file: ${coverPath}`);
                     await window.__native_bridge.fs.deleteFile(coverPath);
+                }
+                if (entry.name.endsWith(".log")) {
+                    const logPath = await window.__native_bridge.path.resolve(baseDirectory, entry.name);
+                    Logger.debug(`Cleanup log file: ${logPath}`);
+                    await window.__native_bridge.fs.deleteFile(logPath);
                 }
             }
         }
@@ -142,8 +155,9 @@ export const standardizeAlbumDirectoryName = async (originPath: string, albumInf
         throw new Error("碟片数量与品番不匹配");
     }
 
-    const finalName = `[${date}][${catalog}] ${title}${edition ? `【${edition}】` : ""}${discNum > 1 ? ` [${discNum} Discs]` : ""
-        }`;
+    const finalName = `[${date}][${catalog}] ${title}${edition ? `【${edition}】` : ""}${
+        discNum > 1 ? ` [${discNum} Discs]` : ""
+    }`;
 
     const newAlbumDirectoryPath = await window.__native_bridge.path.resolve(originPath, `../${finalName}`);
 

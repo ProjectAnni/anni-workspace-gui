@@ -3,7 +3,7 @@ import { Button, ButtonGroup, Dialog, DialogBody, DialogFooter, FormGroup, Inten
 import { AppToaster } from "@/utils/toaster";
 import Logger from "@/utils/log";
 import CoverSearchDialog from "../CoverSearchDialog";
-import { cleanupCover, downloadCover, readAlbumCover, writeAlbumCover } from "../services";
+import { cleanupAlbumDirectory, downloadCover, readAlbumCover, writeAlbumCover } from "../services";
 import styles from "./index.module.scss";
 
 interface Props {
@@ -147,7 +147,7 @@ const CoverConfirmDialog: React.FC<Props> = (props) => {
         // 保存当前封面到 cover.jpg 并清理多余文件 多余文件无法通过 anni 检查
         try {
             await writeAlbumCover(workingDirectoryPath, currentCoverData);
-            await cleanupCover(workingDirectoryPath);
+            await cleanupAlbumDirectory(workingDirectoryPath);
             onConfirm();
         } catch (e) {
             if (e instanceof Error) {
