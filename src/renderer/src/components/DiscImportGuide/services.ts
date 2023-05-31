@@ -1,6 +1,7 @@
 import axios from "axios";
 import Logger from "@/utils/log";
 import { parseCatalog } from "@/utils/helper";
+import { DEFAULT_COVER_FILENAME } from "@/constants";
 import { WorkspaceDisc } from "../Workspace/types";
 
 export interface CoverItem {
@@ -45,8 +46,6 @@ const alternativeCoverFilenames = [
     "folder.jpg",
     "folder.png",
 ];
-
-const DEFAULT_COVER_FILENAME = "cover.jpg";
 
 export const readAlbumCover = async (baseDirectory: string) => {
     for (const filename of alternativeCoverFilenames) {

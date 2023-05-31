@@ -1,3 +1,5 @@
+import { ParsedTag } from "./tag";
+
 export interface AlbumData {
     album_id: string;
     artist?: string;
@@ -31,7 +33,7 @@ export interface ParsedAlbumData {
     artist?: Artist[];
     catalog?: string;
     date?: string;
-    tags?: string[];
+    tags?: ParsedTag[];
     title?: string;
     type?: string;
     edition?: string;
@@ -43,7 +45,7 @@ export interface ParsedDiscData {
     title?: string;
     artist?: Artist[];
     type?: string;
-    tags?: string[];
+    tags?: ParsedTag[];
     tracks: ParsedTrackData[];
 }
 
@@ -51,7 +53,7 @@ export interface ParsedTrackData {
     title: string;
     artist?: Artist[];
     type?: string;
-    tags?: string[];
+    tags?: ParsedTag[];
 }
 
 export interface Artist {

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Card } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
 import { ParsedTrackData, ParsedDiscData } from "@/types/album";
+import { ParsedTag } from "@/types/tag";
 import CommonTagEditor from "@/components/Workspace/CommonTagEditor";
 import styles from "./index.module.scss";
 
@@ -10,16 +11,16 @@ interface Props {
     track: ParsedTrackData;
     discIndex: number;
     disc: ParsedDiscData;
-    onChange: (newTags: string[]) => void;
+    onChange: (newTags: ParsedTag[]) => void;
 }
 
 const TrackTagEditor: React.FC<Props> = (props) => {
     const { track, onChange } = props;
     const { tags } = track;
-    const [localTags, setLocalTags] = useState<string[]>(tags || []);
+    const [localTags, setLocalTags] = useState<ParsedTag[]>(tags || []);
     const [isShowInputCard, setIsShowInputCard] = useState(false);
 
-    const onTagChange = (newTags: string[]) => {
+    const onTagChange = (newTags: ParsedTag[]) => {
         setLocalTags(newTags);
         onChange(newTags);
     };

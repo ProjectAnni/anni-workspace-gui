@@ -8,7 +8,7 @@ import {
     ParsedTrackData,
     TrackData,
 } from "@/types/album";
-import { parseArtists, stringifyArtists } from "./helper";
+import { parseArtists, parseTags, stringifyArtists, stringifyTags } from "./helper";
 
 const isArtistsEqual = (artists1?: Artist[], artists2?: Artist[]): boolean => {
     if ((artists1 && !artists2) || (!artists1 && artists2)) {
@@ -28,19 +28,22 @@ const isArtistsEqual = (artists1?: Artist[], artists2?: Artist[]): boolean => {
 export const parseAlbumData = (content: AlbumData): ParsedAlbumData => {
     const parsedAlbum: ParsedAlbumData = {
         album_id: content.album_id,
-        ...pick(content, "catalog", "date", "tags", "title", "type", "edition"),
+        ...pick(content, "catalog", "date", "title", "type", "edition"),
+        ...(content.tags ? { tags: parseTags(content.tags) } : {}),
         ...(content.artist ? { artist: parseArtists(content.artist) } : { artist: [] }),
         discs: [],
     };
     for (const disc of content.discs) {
         const parsedDisc: ParsedDiscData = {
-            ...pick(disc, "title", "catalog", "type", "tags"),
+            ...pick(disc, "title", "catalog", "type"),
+            ...(disc.tags ? { tags: parseTags(disc.tags) } : {}),
             ...(disc.artist ? { artist: parseArtists(disc.artist) } : {}),
             tracks: [],
         };
         for (const track of disc.tracks) {
             const parsedTrack: ParsedTrackData = {
-                ...pick(track, "title", "type", "tags"),
+                ...pick(track, "title", "type"),
+                ...(track.tags ? { tags: parseTags(track.tags) } : {}),
                 ...(track.artist
                     ? {
                           artist: parseArtists(track.artist),
@@ -59,7 +62,7 @@ export const unparseAlbumData = (content: ParsedAlbumData): AlbumData => {
         album_id: content.album_id,
         ...pick(content, "catalog", "date", "title", "type"),
         ...(content.edition ? { edition: content.edition } : {}),
-        ...(content.tags ? { tags: content.tags } : { tags: [] }),
+        ...(content.tags ? { tags: stringifyTags(content.tags) } : { tags: [] }),
         ...(content.artist ? { artist: stringifyArtists(content.artist) } : { artist: "" }),
         discs: [],
     };
@@ -68,7 +71,7 @@ export const unparseAlbumData = (content: ParsedAlbumData): AlbumData => {
             ...pick(disc, "catalog"),
             ...(disc.title ? { title: disc.title } : {}),
             ...(disc.type ? { type: disc.type } : {}),
-            ...(disc.tags ? { tags: disc.tags } : {}),
+            ...(disc.tags ? { tags: stringifyTags(disc.tags) } : {}),
             ...(disc.artist?.length ? { artist: stringifyArtists(disc.artist) } : {}),
             tracks: [],
         };
@@ -76,7 +79,7 @@ export const unparseAlbumData = (content: ParsedAlbumData): AlbumData => {
             const trackData: TrackData = {
                 ...pick(track, "title"),
                 ...(track.type ? { type: track.type } : {}),
-                ...(track.tags ? { tags: track.tags } : {}),
+                ...(track.tags ? { tags: stringifyTags(track.tags) } : {}),
                 ...(track.artist?.length
                     ? {
                           artist: stringifyArtists(track.artist),

@@ -1,20 +1,21 @@
 import React, { useState } from "react";
-import { uniqBy } from "lodash";
+import { omit, uniqBy } from "lodash";
 import { Menu, MenuItem, Tag } from "@blueprintjs/core";
 import { MultiSelect2 } from "@blueprintjs/select";
 import TagFileIndexer from "@/indexer/TagFileIndexer";
+import { ParsedTag } from "@/types/tag";
 import CreateTagDialog from "./CreateTagDialog";
+import styles from "./index.module.scss";
+import { TAG_TYPE_TEXT_MAP } from "@/constants";
 
 interface Props {
-    initialTags: string[];
+    initialTags: ParsedTag[];
     autoFocus?: boolean;
     allowCreate?: boolean;
-    onChange: (tags: string[]) => void;
+    onChange: (tags: ParsedTag[]) => void;
 }
 
-interface TagItem {
-    name: string;
-    type?: string;
+interface TagItem extends ParsedTag {
     isNew?: boolean;
 }
 
@@ -31,11 +32,11 @@ const CommonTagEditor: React.FC<Props> = (props) => {
             setNewTagName(tag.name.slice(3));
             setIsShowCreateTagDialog(true);
         } else if (TagFileIndexer.isTagNameUnique(tag.name)) {
-            setTags([...tags, tag.name]);
-            onChange([...tags, tag.name]);
-        } else if (tag.type) {
-            setTags([...tags, `${tag.type}:${tag.name}`]);
-            onChange([...tags, `${tag.type}:${tag.name}`]);
+            setTags([...tags, omit(tag, "type")]);
+            onChange([...tags, omit(tag, "type")]);
+        } else {
+            setTags([...tags, tag]);
+            onChange([...tags, tag]);
         }
     };
 
@@ -56,15 +57,30 @@ const CommonTagEditor: React.FC<Props> = (props) => {
                 query={query}
                 onQueryChange={setQuery}
                 items={[]}
-                selectedItems={tags.map((tag) => ({ name: tag }))}
+                selectedItems={tags}
                 tagRenderer={(tag) => {
-                    return <Tag style={{ lineHeight: "normal" }}>{tag.name}</Tag>;
+                    const { name, type } = tag;
+                    return (
+                        <Tag
+                            style={{ lineHeight: "normal" }}
+                            rightIcon={
+                                <>
+                                    <span className={styles.tagType}>
+                                        {type && !TagFileIndexer.isTagNameUnique(name) ? TAG_TYPE_TEXT_MAP[type] : null}
+                                    </span>{" "}
+                                </>
+                            }
+                        >
+                            {name}
+                        </Tag>
+                    );
                 }}
                 itemRenderer={(tag, itemProps) => {
                     const { name, type } = tag;
                     return (
                         <MenuItem
                             text={name}
+                            label={type}
                             active={itemProps.modifiers.active}
                             key={`${type}:${name}`}
                             onClick={() => {
@@ -84,6 +100,7 @@ const CommonTagEditor: React.FC<Props> = (props) => {
                                     const { name, type } = item;
                                     return (
                                         <MenuItem
+                                            label={type ? TAG_TYPE_TEXT_MAP[type] : undefined}
                                             text={name}
                                             active={activeItem === item}
                                             key={`${type}:${name}`}
@@ -99,7 +116,7 @@ const CommonTagEditor: React.FC<Props> = (props) => {
                 }}
                 itemListPredicate={(query) => {
                     const searchResults = TagFileIndexer.searchTag(query);
-                    const result: TagItem[] = uniqBy(searchResults, "serializedFullStr")
+                    const result: TagItem[] = uniqBy(searchResults, (tag) => `${tag.type}:${tag.name}`)
                         .map((result) => ({
                             id: result.id,
                             name: result.name,

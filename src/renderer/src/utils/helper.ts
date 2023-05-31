@@ -1,5 +1,7 @@
 import React from "react";
 import { Artist } from "@/types/album";
+import { ParsedTag } from "@/types/tag";
+import { VALID_TAG_TYPES } from "@/constants";
 
 interface ArtistParserReader {
     data: string;
@@ -174,6 +176,38 @@ export function parseReleaseDate(releaseDate: string): AnniReleaseDate {
     }
     const { Year: year, Month: month, Date: date } = matchResult?.groups || {};
     return { year, month, date };
+}
+
+export function parseTag(tagText: string): ParsedTag {
+    if (!tagText.includes(":")) {
+        return {
+            name: tagText,
+        };
+    }
+    const [type, ...nameArr] = tagText.split(":");
+    const name = nameArr.join("").trim();
+    if (!VALID_TAG_TYPES.includes(type)) {
+        return {
+            name: tagText,
+        };
+    }
+    return {
+        type,
+        name,
+    };
+}
+
+export function parseTags(tagTexts: string[]): ParsedTag[] {
+    return tagTexts.map(parseTag);
+}
+
+export function stringifyTag(tag: ParsedTag): string {
+    const { type, name } = tag;
+    return `${type ? `${type}: ` : ""}${name}`;
+}
+
+export function stringifyTags(tags: ParsedTag[]): string[] {
+    return tags.map(stringifyTag);
 }
 
 export function stringifyReleaseDate(releaseDate: AnniReleaseDate): string {

@@ -1,8 +1,9 @@
 import React from "react";
 import { useAtom } from "jotai";
 import classNames from "classnames";
-import { ButtonGroup, Divider, Button, Intent } from "@blueprintjs/core";
+import { ButtonGroup, Divider, Button } from "@blueprintjs/core";
 import { Artist, ParsedDiscData, ParsedTrackData } from "@/types/album";
+import { ParsedTag } from "@/types/tag";
 import TrackTitleEditor from "./TrackTitleEditor";
 import { AlbumDataActionTypes, AlbumDataReducerAtom } from "../../state";
 import styles from "./index.module.scss";
@@ -73,7 +74,7 @@ const TrackEditor: React.FC<Props> = (props) => {
         });
     };
 
-    const onTrackTagChange = (newTags: string[]) => {
+    const onTrackTagChange = (newTags: ParsedTag[]) => {
         dispatch({
             type: AlbumDataActionTypes.UPDATE_TRACK,
             payload: {

@@ -1,10 +1,11 @@
 import MiniSearch from "minisearch";
 import Logger from "@/utils/log";
 import { readTagFile } from "@/utils/tag";
+import { parseTags } from "@/utils/helper";
 
 export interface IndexedTag {
     id: string;
-    type: string;
+    type?: string;
     name: string;
     includes?: string[];
     includedBy?: string[];
@@ -62,6 +63,19 @@ class TagFileIndexer {
                             includes,
                             includedBy,
                         });
+                        if (includes?.length) {
+                            const includedTags = parseTags(includes);
+                            for (const tag of includedTags) {
+                                const subId = `${tag.type}:${tag.name}`;
+                                if (!this.tagIndex.has(subId)) {
+                                    this.tagIndex.add({
+                                        id: subId,
+                                        name: tag.name,
+                                        type: tag.type,
+                                    });
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -76,7 +90,8 @@ class TagFileIndexer {
     }
 
     isTagNameUnique(tagName: string) {
-        return this.searchTag(tagName).filter((item) => item.name === tagName).length === 1;
+        const searchResult = this.searchTag(tagName).filter((item) => item.name === tagName);
+        return searchResult.length === 1;
     }
 }
 

@@ -7,7 +7,7 @@ export interface Tag {
 
 export interface ParsedTag {
     name: string;
-    type: string;
+    type?: string;
     includes?: string[];
     includedBy?: string[];
 }

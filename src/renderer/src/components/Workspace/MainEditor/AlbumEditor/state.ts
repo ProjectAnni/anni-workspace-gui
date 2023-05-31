@@ -1,7 +1,8 @@
+import { atom } from "jotai";
 import { atomWithReducer } from "jotai/utils";
 import { Artist, ParsedAlbumData, ParsedTrackData } from "@/types/album";
 import Logger from "@/utils/log";
-import { atom } from "jotai";
+import { ParsedTag } from "@/types/tag";
 
 export enum AlbumDataActionTypes {
     /** 重置数据 */
@@ -72,7 +73,7 @@ type AlbumDataActionPayload =
       }
     | {
           type: AlbumDataActionTypes.UPDATE_TAGS;
-          payload: string[];
+          payload: ParsedTag[];
       }
     | {
           type: AlbumDataActionTypes.UPDATE_TYPE;
