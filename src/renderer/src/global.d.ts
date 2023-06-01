@@ -1,5 +1,6 @@
 import type { OpenDialogSyncOptions } from "electron";
 import type { Dirent } from "fs";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import { WorkspaceAlbum, WorkspaceDisc } from "./components/Workspace/types";
 import { AlbumData } from "./types/album";
 
@@ -20,7 +21,7 @@ declare global {
                 readBinaryFile: (filePath: string) => Promise<Uint8Array>;
                 writeFile: (filePath: string, content: string | Uint8Array) => Promise<void>;
                 exists: (filePath: string) => Promise<boolean>;
-                readDir: (directoryPath: string) => Promise<(Omit<Dirent, 'isDirectory'> & { isDirectory: boolean })[]>;
+                readDir: (directoryPath: string) => Promise<(Omit<Dirent, "isDirectory"> & { isDirectory: boolean })[]>;
                 rename: (oldPath: string, newPath: string) => Promise<void>;
                 copyFile: (sourcePath: string, targetPath: string) => Promise<void>;
                 createDir: (newPath: string) => Promise<void>;
@@ -34,6 +35,10 @@ declare global {
             };
             dialog: {
                 open: (options: OpenDialogSyncOptions) => Promise<string[] | undefined>;
+            };
+            request: {
+                get: <T = any>(url: string, config?: AxiosRequestConfig) => Promise<T>;
+                post: <T = any>(url: string, config?: AxiosRequestConfig) => Promise<T>;
             };
             events: {
                 onWorkspaceStatusChange: (callback) => () => void;

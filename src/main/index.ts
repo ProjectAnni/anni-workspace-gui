@@ -78,8 +78,9 @@ import AnniRustModule from "./modules/anni_rust";
 import FileModule from "./modules/fs";
 import PathModule from "./modules/path";
 import DialogModule from "./modules/dialog";
+import RequestModule from "./modules/request";
 
-const modules = [AnniRustModule, FileModule, PathModule, DialogModule];
+const modules = [AnniRustModule, FileModule, PathModule, DialogModule, RequestModule];
 
 for (const module of modules) {
     new module().listen();

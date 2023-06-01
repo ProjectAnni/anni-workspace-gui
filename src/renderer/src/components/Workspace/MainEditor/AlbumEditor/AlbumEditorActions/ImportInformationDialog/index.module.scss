@@ -106,6 +106,7 @@
 
 .albumAction {
     margin-left: auto;
+    flex-shrink: 0;
 }
 
 .discTitle {
@@ -116,6 +117,7 @@
 
 .discAction {
     margin-left: auto;
+    flex-shrink: 0;
 }
 
 .trackItem {

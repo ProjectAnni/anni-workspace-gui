@@ -32,6 +32,10 @@ contextBridge.exposeInMainWorld("__native_bridge", {
     dialog: {
         open: (...args) => ipcRenderer.invoke("dialog:open", ...args),
     },
+    request: {
+        get: (...args) => ipcRenderer.invoke("request:get", ...args),
+        post: (...args) => ipcRenderer.invoke("request:post", ...args),
+    },
     events: {
         onWorkspaceStatusChange: (callback) => {
             ipcRenderer.on("workspace_status_change", () => {

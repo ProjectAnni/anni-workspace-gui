@@ -1,4 +1,3 @@
-import axios from "axios";
 import { uniqBy } from "lodash";
 import dayjs from "dayjs";
 import { ParsedAlbumData, ParsedTrackData } from "@/types/album";
@@ -36,7 +35,7 @@ class MusicBrainzScraper extends BaseScraper {
     private async searchByTitle(album: ParsedAlbumData): Promise<ScraperSearchResult[]> {
         const { title, catalog } = album;
         const API = `https://musicbrainz.org/ws/2/release?query=${title}&limit=10&fmt=json`;
-        const searchResult = await axios.get(API).then((res) => res.data);
+        const searchResult = await window.__native_bridge.request.get(API);
         const releases = searchResult?.releases;
         const result: ScraperSearchResult[] = [];
         if (!releases.length) {
@@ -66,7 +65,7 @@ class MusicBrainzScraper extends BaseScraper {
         const { title, catalog } = album;
         const parsedCatalog = parseCatalog(catalog!);
         const API = `https://musicbrainz.org/ws/2/release?query=catno:${parsedCatalog[0]}&fmt=json`;
-        const searchResult = await axios.get(API).then((res) => res.data);
+        const searchResult = await window.__native_bridge.request.get(API);
         const releases = searchResult?.releases;
         const result: ScraperSearchResult[] = [];
         if (!releases.length) {
@@ -101,7 +100,7 @@ class MusicBrainzScraper extends BaseScraper {
     ): Promise<Omit<ParsedAlbumData, "album_id">> {
         Logger.info(`[MusicBrainz] Get release info, releaseId: ${releaseId}`);
         const API = `https://musicbrainz.org/ws/2/release/${releaseId}?inc=recordings+artist-credits+labels&fmt=json`;
-        const albumData = await axios.get(API).then((res) => res.data);
+        const albumData = await window.__native_bridge.request.get(API);
         await sleep(1500); // API Rate Limit
         const title = albumData.title;
         const catalog = albumData["label-info"]?.[0]?.["catalog-number"] ?? undefined; // TODO: support multi catalogs
@@ -316,7 +315,7 @@ class MusicBrainzScraper extends BaseScraper {
     }
     private async getVoiceActorForCharacter(characterId: string) {
         const API = `https://musicbrainz.org/ws/2/artist/${characterId}?fmt=json&inc=artist-rels`;
-        const groupData = await axios.get(API).then((res) => res.data);
+        const groupData = await window.__native_bridge.request.get(API);
         await sleep(1500); // API Rate Limit
         const relations = groupData.relations || [];
         const memberRelations = relations.filter((relation: any) => relation["type-id"] === RelationTypes.VoiceActor);
@@ -330,7 +329,7 @@ class MusicBrainzScraper extends BaseScraper {
     }
     async getGroupMembers(groupId: string, date: string): Promise<any[]> {
         const API = `https://musicbrainz.org/ws/2/artist/${groupId}?fmt=json&inc=artist-rels`;
-        const groupData = await axios.get(API).then((res) => res.data);
+        const groupData = await window.__native_bridge.request.get(API);
         await sleep(1500); // API Rate Limit
         const relations = groupData.relations || [];
         const memberRelations = relations
