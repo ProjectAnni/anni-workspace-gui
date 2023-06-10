@@ -9,6 +9,7 @@ import "./App.css";
 
 function App() {
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
+
     return (
         <div className="container">
             {workspaceBasePath ? (

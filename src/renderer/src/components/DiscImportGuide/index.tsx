@@ -1,11 +1,11 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import { Intent } from "@blueprintjs/core";
-import { useFileDrop } from "@/hooks/useFileDrop";
 import { AppToaster } from "@/utils/toaster";
 import { WorkspaceBasePathAtom, WorkspaceRepoConfigAtom } from "../Workspace/state";
 import { copyDirectory, searchFile } from "@/utils/file";
 import Logger from "@/utils/log";
+import EventBus from "@/utils/event_bus";
 import BasicInfoEditDialog from "./BasicInfoEditDialog";
 import CoverConfirmDialog from "./CoverConfirmDialog";
 import {
@@ -18,6 +18,8 @@ import GlobalLoading from "../Common/GlobalLoading";
 import { WorkspaceDisc } from "../Workspace/types";
 import CommitConfirmDialog from "./CommitConfirmDialog";
 import InterruptConfirmDialog from "./InterruptConfirmDialog";
+import FileDropMask from "./FileDropMask";
+import { ALBUM_DIRECTORY_DROP_EVENT } from "./constants";
 
 const DiscImportGuide: React.FC = () => {
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
@@ -37,8 +39,9 @@ const DiscImportGuide: React.FC = () => {
     const [isShowCommitConfirmDialog, setIsShowCommitConfirmDialog] = useState(false);
     const [isShowInterruptConfirmDialog, setIsShowInterruptConfirmDialog] = useState(false);
     const processLock = useRef(false);
-    const onFileDrop = useCallback(
-        async (filePath: string) => {
+
+    const onAlbumDirectoryDrop = useCallback(
+        async ({ filePath }: { filePath: string }) => {
             if (processLock.current) {
                 return;
             }
@@ -218,10 +221,20 @@ const DiscImportGuide: React.FC = () => {
         }
     }, [workingDirectoryPath]);
 
-    useFileDrop({ onDrop: onFileDrop });
+    useEffect(() => {
+        const unlisten = EventBus.addEventListener<{ filePath: string }>(
+            ALBUM_DIRECTORY_DROP_EVENT,
+            onAlbumDirectoryDrop
+        );
+
+        return () => {
+            unlisten();
+        };
+    }, [onAlbumDirectoryDrop]);
 
     return (
         <React.Fragment key={originDirectoryPath}>
+            <FileDropMask />
             <BasicInfoEditDialog
                 isOpen={isShowBasicInfoEditDialog}
                 workingDirectoryName={workingDirectoryName}
