@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 
 interface Props {
-    onDrop: (filePath: string) => void;
+    onDrop: (filePath: string[]) => void;
 }
 
 export const useFileDrop = (props: Props) => {
@@ -10,8 +10,8 @@ export const useFileDrop = (props: Props) => {
     // const unlistenFunctionRef = useRef<UnlistenFn>();
 
     const onFileDrop = useCallback(
-        (filePath: string) => {
-            onDrop && onDrop(filePath);
+        (filePaths: string[]) => {
+            onDrop && onDrop(filePaths);
         },
         [onDrop]
     );
@@ -23,8 +23,8 @@ export const useFileDrop = (props: Props) => {
         inited.current = true;
         window.addEventListener("dragover", (e) => e.preventDefault());
         window.addEventListener("drop", (e) => {
-            if (e.dataTransfer?.files?.[0]) {
-                onFileDrop(e.dataTransfer.files[0].path);
+            if (e.dataTransfer?.files?.length) {
+                onFileDrop(Array.from(e.dataTransfer.files).map((f) => f.path));
             }
         });
     }, [onFileDrop]);

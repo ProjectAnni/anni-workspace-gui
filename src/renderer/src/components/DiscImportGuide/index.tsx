@@ -19,7 +19,12 @@ import { WorkspaceDisc } from "../Workspace/types";
 import CommitConfirmDialog from "./CommitConfirmDialog";
 import InterruptConfirmDialog from "./InterruptConfirmDialog";
 import FileDropMask from "./FileDropMask";
-import { ALBUM_DIRECTORY_DROP_EVENT } from "./constants";
+import {
+    ALBUM_COMMITTED_EVENT,
+    ALBUM_DIRECTORY_DROP_EVENT,
+    ALBUM_IMPORT_ERROR_EVENT,
+    ALBUM_IMPORT_INTERRUPT_EVENT,
+} from "./constants";
 
 const DiscImportGuide: React.FC = () => {
     const [workspaceBasePath] = useAtom(WorkspaceBasePathAtom);
@@ -41,8 +46,9 @@ const DiscImportGuide: React.FC = () => {
     const processLock = useRef(false);
 
     const onAlbumDirectoryDrop = useCallback(
-        async ({ filePath }: { filePath: string }) => {
-            if (processLock.current) {
+        async (payload?: { filePath?: string }) => {
+            const { filePath } = payload || {};
+            if (processLock.current || !filePath) {
                 return;
             }
             processLock.current = true;
@@ -129,6 +135,7 @@ const DiscImportGuide: React.FC = () => {
                     );
                     AppToaster.show({ message: e.message, intent: Intent.DANGER });
                 }
+                EventBus.send(ALBUM_IMPORT_ERROR_EVENT);
                 processLock.current = false;
                 return;
             }
@@ -157,6 +164,7 @@ const DiscImportGuide: React.FC = () => {
                 );
                 AppToaster.show({ message: e.message, intent: Intent.DANGER });
             }
+            EventBus.send(ALBUM_IMPORT_ERROR_EVENT);
             processLock.current = false;
         } finally {
             setIsShowGlobalLoading(false);
@@ -172,11 +180,13 @@ const DiscImportGuide: React.FC = () => {
         setIsShowCommitConfirmDialog(false);
         try {
             await commitWorkspaceAlbum(workspaceBasePath, workingDirectoryPath);
+            EventBus.send(ALBUM_COMMITTED_EVENT);
         } catch (e) {
             if (e instanceof Error) {
                 Logger.error(`Failed to commit album, error: ${e.message}, albumPath: ${workingDirectoryPath}`);
                 AppToaster.show({ message: e.message, intent: Intent.DANGER });
             }
+            EventBus.send(ALBUM_IMPORT_ERROR_EVENT);
         } finally {
             setIsShowGlobalLoading(false);
             processLock.current = false;
@@ -196,6 +206,7 @@ const DiscImportGuide: React.FC = () => {
         setIsShowBasicInfoEditDialog(false);
         setIsShowCoverConfirmDialog(false);
         setIsShowCommitConfirmDialog(false);
+        EventBus.send(ALBUM_IMPORT_INTERRUPT_EVENT);
         processLock.current = false;
     }, []);
 
@@ -208,6 +219,7 @@ const DiscImportGuide: React.FC = () => {
             setIsShowBasicInfoEditDialog(false);
             setIsShowCoverConfirmDialog(false);
             setIsShowCommitConfirmDialog(false);
+            EventBus.send(ALBUM_IMPORT_INTERRUPT_EVENT);
             processLock.current = false;
         } catch (e) {
             if (e instanceof Error) {
@@ -216,6 +228,7 @@ const DiscImportGuide: React.FC = () => {
                 );
                 AppToaster.show({ message: e.message, intent: Intent.DANGER });
             }
+            EventBus.send(ALBUM_IMPORT_ERROR_EVENT);
         } finally {
             setIsShowGlobalLoading(false);
         }

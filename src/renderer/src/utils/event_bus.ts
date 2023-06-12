@@ -6,7 +6,7 @@ interface Message {
 }
 
 interface Listener<T = any> {
-    (payload: T): void;
+    (payload?: T): void;
 }
 
 class EventBus {
@@ -25,7 +25,7 @@ class EventBus {
         };
     }
 
-    send(eventName: string, payload: any): void {
+    send(eventName: string, payload?: any): void {
         this.broadcaster.postMessage({ eventName, payload });
     }
 
