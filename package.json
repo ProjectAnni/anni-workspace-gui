@@ -21,9 +21,9 @@
     },
     "dependencies": {
         "@anni-rs/anni-javascript-binding": "^1.0.4",
-        "@blueprintjs/core": "^4.17.7",
-        "@blueprintjs/popover2": "^1.13.11",
-        "@blueprintjs/select": "^4.9.11",
+        "@blueprintjs/core": "^4.20.1",
+        "@blueprintjs/popover2": "^1.14.9",
+        "@blueprintjs/select": "^4.9.22",
         "@electron-toolkit/preload": "^1.0.3",
         "@electron-toolkit/utils": "^1.0.2",
         "@ltd/j-toml": "^1.38.0",

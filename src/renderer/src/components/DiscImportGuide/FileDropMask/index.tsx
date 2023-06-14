@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Button, Dialog, DialogBody, DialogFooter, Intent } from "@blueprintjs/core";
 import { useFileDrop } from "@/hooks/useFileDrop";
 import EventBus from "@/utils/event_bus";
+import Logger from "@/utils/log";
 import {
     ALBUM_COMMITTED_EVENT,
     ALBUM_DIRECTORY_DROP_EVENT,
@@ -14,10 +15,8 @@ let queue: string[] = [];
 const FileDropMask: React.FC = () => {
     const [isShowNextDialog, setIsShowNextDialog] = useState(false);
 
-    console.log("Queue", queue);
-
     const onFileDrop = useCallback((filePaths: string[]) => {
-        console.log("onFileDrop", filePaths);
+        Logger.debug(`File drop, paths: ${filePaths.join(",")}`);
         queue = filePaths.slice(1);
         EventBus.send(ALBUM_DIRECTORY_DROP_EVENT, { filePath: filePaths[0] });
     }, []);
@@ -25,6 +24,7 @@ const FileDropMask: React.FC = () => {
     const onNextDialogConfirm = useCallback(() => {
         const nextPath = queue.shift();
         setIsShowNextDialog(false);
+        Logger.debug(`Continue import, next path: ${nextPath}`);
         EventBus.send(ALBUM_DIRECTORY_DROP_EVENT, { filePath: nextPath });
     }, []);
 
@@ -34,7 +34,6 @@ const FileDropMask: React.FC = () => {
     }, []);
 
     const onAlbumImportFinish = useCallback(() => {
-        console.log("onAlbumImportFinish");
         if (queue.length) {
             setIsShowNextDialog(true);
         }
@@ -54,7 +53,6 @@ const FileDropMask: React.FC = () => {
 
     useEffect(() => {
         const unlisten = EventBus.addEventListener(ALBUM_IMPORT_ERROR_EVENT, () => {
-            console.log("ALBUM_IMPORT_ERROR_EVENT");
             queue = [];
         });
         return () => {
