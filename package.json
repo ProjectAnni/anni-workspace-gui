@@ -33,7 +33,7 @@
         "electron-log": "^5.0.0-beta.19",
         "jotai": "^2.0.3",
         "lodash": "^4.17.21",
-        "minisearch": "^6.0.1",
+        "minisearch": "^6.1.0",
         "monaco-editor": "^0.36.1",
         "react-vtree": "^3.0.0-beta.3",
         "react-window": "^1.8.8",

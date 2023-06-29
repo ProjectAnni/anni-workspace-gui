@@ -37,7 +37,7 @@ const FileDropMask: React.FC = () => {
 
     const onAlbumImportFinish = useCallback(() => {
         if (queue.length) {
-            if (skipContinuousImportConfirm) {
+            if (skipContinuousImportConfirm === "1") {
                 Logger.debug("Skip next dialog due to user settings");
                 onNextDialogConfirm();
             } else {
