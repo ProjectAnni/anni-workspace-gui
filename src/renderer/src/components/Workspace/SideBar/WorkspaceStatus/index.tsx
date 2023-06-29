@@ -44,7 +44,11 @@ const WorkspaceStatus: React.FC = () => {
         }
         Logger.info("Workspace status change, refresh.");
         const result = await getWorkspaceAlbums(workspaceBasePath);
-        setWorkspaceAlbums(result);
+
+        setWorkspaceAlbums((oldAlbums) => {
+            const newAlbums = result.filter((album) => !oldAlbums.some((a) => a.path === album.path));
+            return [...oldAlbums, ...newAlbums.sort((a, b) => (a.path > b.path ? 1 : -1))];
+        });
     }, [workspaceBasePath]);
 
     const publish = useCallback(
