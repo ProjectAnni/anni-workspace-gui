@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Dialog, DialogBody, Icon, Tab, Tabs } from "@blueprintjs/core";
 import GeneralSettings from "./GeneralSettings";
-import styles from "./index.module.scss";
 import AssistantFeaturePanel from "../AssistantFeaturePanel";
+import WorkspaceSettings from "./WorkspaceSettings";
+import styles from "./index.module.scss";
 
 const SettingsPanel: React.FC = () => {
     const [isShowPanel, setIsShowPanel] = useState(false);
@@ -27,6 +28,7 @@ const SettingsPanel: React.FC = () => {
                 <DialogBody className={styles.content}>
                     <Tabs vertical large>
                         <Tab id="general" panel={<GeneralSettings />} title="通用" className={styles.panel}></Tab>
+                        <Tab id="workspace" panel={<WorkspaceSettings />} title="工作空间" className={styles.panel}></Tab>
                         <Tab
                             id="external"
                             panel={<AssistantFeaturePanel />}

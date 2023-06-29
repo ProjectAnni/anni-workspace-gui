@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Button, Dialog, DialogBody, DialogFooter, Intent } from "@blueprintjs/core";
 import { useFileDrop } from "@/hooks/useFileDrop";
+import { useSettings } from "@/state/settings";
 import EventBus from "@/utils/event_bus";
 import Logger from "@/utils/log";
 import {
@@ -14,6 +15,7 @@ let queue: string[] = [];
 
 const FileDropMask: React.FC = () => {
     const [isShowNextDialog, setIsShowNextDialog] = useState(false);
+    const [skipContinuousImportConfirm] = useSettings("workspace.skipContinuousImportConfirm", "0");
 
     const onFileDrop = useCallback((filePaths: string[]) => {
         Logger.debug(`File drop, paths: ${filePaths.join(",")}`);
@@ -35,9 +37,14 @@ const FileDropMask: React.FC = () => {
 
     const onAlbumImportFinish = useCallback(() => {
         if (queue.length) {
-            setIsShowNextDialog(true);
+            if (skipContinuousImportConfirm) {
+                Logger.debug("Skip next dialog due to user settings");
+                onNextDialogConfirm();
+            } else {
+                setIsShowNextDialog(true);
+            }
         }
-    }, []);
+    }, [onNextDialogConfirm, skipContinuousImportConfirm]);
 
     useEffect(() => {
         const unlistens = [

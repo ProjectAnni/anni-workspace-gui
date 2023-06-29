@@ -1,4 +1,4 @@
-import { FormGroup, HTMLSelect, InputGroup } from "@blueprintjs/core";
+import { FormGroup, HTMLSelect } from "@blueprintjs/core";
 import { useSettings } from "@/state/settings";
 import React from "react";
 
